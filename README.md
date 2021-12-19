@@ -1,1 +1,1 @@
-"# mc-modlauncher" 
+# mc-modlauncher 
