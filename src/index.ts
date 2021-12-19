@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
+import { InstallManager } from './InstallManager';
 import { Preference } from './preferences/renderer';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -53,6 +54,7 @@ app.on('activate', () => {
 });
 
 Preference.addListeners();
+InstallManager.addListeners();
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.

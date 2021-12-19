@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const backend_1 = require("./backend");
+const main_1 = require("./preload/main");
 window.onload = () => __awaiter(void 0, void 0, void 0, function* () {
     const doc = document.getElementById("page-index");
     if (doc)
-        return yield (0, backend_1.handleIndex)();
+        return yield (0, main_1.handleIndex)();
 });
 //# sourceMappingURL=preload.js.map

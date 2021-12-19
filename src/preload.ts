@@ -1,4 +1,4 @@
-import { handleIndex } from './backend';
+import { handleIndex } from './preload/main';
 
 window.onload = async () => {
     const doc = document.getElementById("page-index");

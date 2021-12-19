@@ -29,6 +29,7 @@ function addPrefAction() {
     return __awaiter(this, void 0, void 0, function* () {
         const prefBtn = document.getElementById("settings");
         prefBtn.addEventListener("click", () => {
+            console.log("Sending opening signal...");
             electron_1.ipcRenderer.send("open_prefs");
         });
     });
@@ -46,9 +47,7 @@ function processModpacks() {
             const cardDiv = document.createElement("div");
             const imgUrl = `${base}/${id}/${cover}`;
             const isInstalled = installed.some(e => path_1.default.basename(e) === id);
-            const txt = isInstalled ? "Play" : "Install";
-            const classBtn = isInstalled ? "btn-open" : "btn-install";
-            const boolToStr = isInstalled ? "0" : "1";
+            const boolToStr = isInstalled ? "1" : "0";
             cardDiv.setAttribute("data-id", id);
             cardDiv.setAttribute("data-installed", boolToStr);
             cardDiv.className = "card modpack";
@@ -59,14 +58,72 @@ function processModpacks() {
                 <h6 class="card-subtitle mb-2 text-muted">by ${author}</h6>
                 <p class="card-text">${description}</p>
                 <div class="card-bottom card-center">
-                    <a href="#" class="btn btn-primary disabled card-action ${classBtn}">${txt}</a>
+                    ${getButton(isInstalled, id).outerHTML}
                 </div>
             </div>
         `;
             return cardDiv;
         }));
         const children = yield Promise.all(childrenProms);
-        modpacks.append(...children);
+        const sorted = children.sort((a, b) => {
+            const firstInstalled = a.getAttribute("data-installed") === "1";
+            const secondInstalled = b.getAttribute("data-installed") === "1";
+            const toNumber = (e) => e ? 1 : 0;
+            const fNumb = toNumber(firstInstalled);
+            const sNumb = toNumber(secondInstalled);
+            return fNumb - sNumb;
+        });
+        modpacks.append(...sorted);
+        addButtonEvents();
     });
+}
+function addButtonEvents() {
+    const allModpacks = document.querySelectorAll(".modpack");
+    allModpacks.forEach(e => {
+        const id = e.getAttribute("data-id");
+        const strInstalled = e.getAttribute("data-installed");
+        if (!id || !strInstalled) {
+            e.remove();
+            return;
+        }
+        const installed = strInstalled === "1";
+        const btn = document.getElementById(`modpack-${id}-action`);
+        btn.addEventListener("click", () => {
+            console.log("Clicked installed", installed, "id", id);
+            const parent = btn.parentElement;
+            if (!installed) {
+                electron_1.ipcRenderer.send("install_modpack", id);
+                btn.remove();
+                const progress = document.createElement("div");
+                progress.className = "progress";
+                progress.id = `install-progress-${id}`;
+                progress.innerHTML = `<div class="progress-bar" style="width: 0%" role="progressbar">0%</div>`;
+                parent.appendChild(progress);
+                const bar = progress.querySelector(".progress-bar");
+                electron_1.ipcRenderer.on("install_modpack_update", (e, innerId, percentage) => {
+                    if (id !== innerId)
+                        return;
+                    const perStr = `${percentage * 100}%`;
+                    bar.style.width = perStr;
+                    bar.innerText = `${percentage * 100}%`;
+                    if (percentage !== 1)
+                        return;
+                    progress.remove();
+                    const btn = getButton(true, id);
+                    parent.appendChild(btn);
+                });
+            }
+        });
+    });
+}
+function getButton(installed, id) {
+    const txt = installed ? "Play" : "Install";
+    const classBtn = installed ? "btn-open" : "btn-install";
+    const a = document.createElement("a");
+    a.href = "#";
+    a.className = `btn btn-primary card-action ${classBtn}`;
+    a.id = `modpack-${id}-action`;
+    a.innerText = txt;
+    return a;
 }
 //# sourceMappingURL=index.js.map

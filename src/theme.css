@@ -54,6 +54,8 @@
     --channels-default: #8e9297;
     --guild-header-text-shadow: 0 1px 1px rgba(0,0,0,0.4);
     --channeltextarea-background: #40444b;
+    --channeltextarea-background-shadow: #40444b50;
+
     --activity-card-background: #202225;
     --textbox-markdown-syntax: #8e9297;
     --deprecated-card-bg: rgba(32,34,37,0.6);
@@ -70,26 +72,63 @@
     --bs-body-bg: var(--background-primary);
 
     --btn-green: hsl(139,calc(var(--saturation-factor, 1)*47.3%),43.9%);
+    --btn-green-hover: hsl(139,calc(var(--saturation-factor, 1)*47.1%),33.3%);
+    --btn-green-shadow: hsla(139,calc(var(--saturation-factor, 1)*47.3%),43.9%, .5);
 }
 
 .card {
     background: var(--background-secondary);
 }
 
-h5, p {
+h5, p, h1, h2, h3, h4, h5, label {
     color: var(--text-normal);
 }
 
-h6 {
+.card-subtitle {
     color: var(--text-muted)
 }
 
-.btn-primary {
-    background-color: var(--text-positive)
+.btn-primary, .btn-primary:focus {
+    background-color: var(--btn-green);
+    border: none;
+}
+
+.btn-primary:focus {
+    box-shadow: 0 0 0 0.25rem var(--btn-green-shadow)
+}
+
+.btn-primary:hover {
+    background-color: var(--btn-green-hover);
 }
 
 .btn-primary.disabled {
     background-color: var(--btn-green);
     color: #fff;
     border: none;
+}
+
+.progress-bar {
+    color: var(--text-positive)
+}
+
+.form-control, .form-control:focus, .form-control:active, .form-control:hover {
+    background: var(--channeltextarea-background);
+    border-color: var(--channeltextarea-background);
+    color: var(--text-normal)
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem var(--channeltextarea-background-shadow);
+}
+
+body {
+    caret-color: #fff;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: var(--channels-default);
+}
+
+.form-range::-webkit-slider-runnable-track {
+    background: var(--bs-gray-600);
 }

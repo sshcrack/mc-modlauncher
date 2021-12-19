@@ -21,6 +21,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
+const InstallManager_1 = require("./InstallManager");
 const renderer_1 = require("./preferences/renderer");
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -67,6 +68,7 @@ electron_1.app.on('activate', () => {
     }
 });
 renderer_1.Preference.addListeners();
+InstallManager_1.InstallManager.addListeners();
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 //# sourceMappingURL=index.js.map
