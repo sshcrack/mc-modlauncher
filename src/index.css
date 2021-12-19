@@ -1,0 +1,83 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: auto;
+  max-width: 38rem;
+  padding: 2rem;
+}
+
+.modpack {
+  width: 18rem;
+}
+
+.modpack img {
+  object-fit: cover;
+  height: 10rem;
+  width: 100%;
+  border: 1px transparent solid;
+  border-radius: 1em;
+}
+
+.modpack {
+  border-radius: 1em !important;
+  width: 100%;
+}
+
+.modpack .card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.modpack .card-body > * {
+  fleX: 1;
+  height: 100%;
+}
+
+.card-bottom {
+  flex: 0;
+}
+
+.card-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-action {
+  width: 100%;
+}
+
+#modpacks {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+
+  box-sizing: border-box;
+  width: 100%;
+}
+
+html, root, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+
+body {
+  max-width: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-brand img {
+    width: 15rem;
+}
+
+.navbar-form {
+  display: flex;
+  justify-content: space-around;
+  flex: 0;
+}
