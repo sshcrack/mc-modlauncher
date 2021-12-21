@@ -71,6 +71,13 @@
 
     --bs-body-bg: var(--background-primary);
 
+    --text-danger: hsl(359,calc(var(--saturation-factor, 1)*82.6%),59.4%);
+
+    --btn-red: hsl(359,calc(var(--saturation-factor, 1)*82.6%),43.9%);
+    --btn-red-hover: hsl(359,calc(var(--saturation-factor, 1)*82.6%),33.3%);
+    --btn-red-shadow: hsla(359,calc(var(--saturation-factor, 1)*82.6%),43.9%, .5);
+
+
     --btn-green: hsl(139,calc(var(--saturation-factor, 1)*47.3%),43.9%);
     --btn-green-hover: hsl(139,calc(var(--saturation-factor, 1)*47.1%),33.3%);
     --btn-green-shadow: hsla(139,calc(var(--saturation-factor, 1)*47.3%),43.9%, .5);
@@ -105,6 +112,23 @@ h5, p, h1, h2, h3, h4, h5, label {
     background-color: var(--btn-green);
     color: #fff;
     border: none;
+}
+
+.btn-danger-outline {
+    border: 1px solid var(--btn-red);
+    color: var(--btn-red);
+    background: transparent;
+    transition: border color background-color .2s ease-in-out;
+}
+
+.btn-danger-outline:hover {
+    border: 1px solid var(--btn-red-hover);
+    background: var(--btn-red-hover);
+    color: var(--header-primary);
+}
+
+.btn-danger-outline:focus {
+    box-shadow: 0 0 0 0.25rem var(--btn-red-shadow)
 }
 
 .progress-bar {

@@ -1,77 +1,65 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import fs from "fs";
 import got from "got";
-import unpacker from "unpacker-with-progress"
-import Request from 'got/dist/source/core';
-import path from "path";
+import { RenderGlobals } from '../Globals/renderGlobals';
+import { Globals } from "../Globals";
 import { Modpack } from '../interfaces/modpack';
-import { store } from '../preferences/renderer';
+import { getInstalled } from '../preload/instance';
+import { Progress } from './event/interface';
+import { AdditionalOptions, ProcessEventEmitter } from './event/Processor';
+import { Downloader } from './processors/modpack/downloader';
+import { Unpacker } from './processors/modpack/unpacker';
 
-const base = "https://mc.sshbot.ddnss.de/"
+const baseUrl = Globals.baseUrl;
 export class InstallManager {
-    static async install(id: string, event: IpcMainEvent, overwrite = false) {
-        const reportError = (err: string) => event.reply("install_modpack_error", id, err);
-        const sendUpdate = (prog: number) => event.reply("install_modpack_update", id, prog)
+    private static async getConfig(id: string) {
+        const configRes = await got(`${baseUrl}/${id}/config.json`)
 
-        const installDir = store.get("install_dir");
-        const instances = path.join(installDir, "Instances");
-        const mainDir = path.join(instances, id);
-        const installZip = path.join(mainDir, "install.zip")
-
-        if(fs.existsSync(instances))
-            fs.mkdirSync(instances);
-
-        const installed = fs.existsSync(mainDir);
-        if(installed && !overwrite)
-            return reportError("Modpack already installed.")
-
-        const configRes = await got(`${base}/${id}/config.json`).catch(e => {
-            reportError("Could not get config of modpack")
-        });
-
-        if(!configRes)
+        if (!configRes)
             return;
 
-        if(configRes.statusCode !== 200)
-            return reportError("Invalid response code")
+        return JSON.parse(configRes.body) as Modpack;
+    }
 
-        const config: Modpack = JSON.parse(configRes.body);
-        const { file: installName } = config.versions.pop();
+    static async install(id: string, event: IpcMainEvent, overwrite = false) {
+        const installDir = RenderGlobals.getInstallDir();
+        const installations = getInstalled();
+        const instanceDir = Globals.getInstancePathById(installDir, id);
 
-        let writeStream: fs.WriteStream;
-        const download = (retryStream: Request): Promise<void> => {
-            return new Promise(resolve => {
-                const stream = retryStream ?? got.stream(`${base}/${id}/${installName}`);
+        const sendUpdate = ({percent, status}: Progress) =>
+            event.reply("modpack_update", id, percent, status)
 
-                if (writeStream)
-                    writeStream.destroy()
-
-                writeStream = fs.createWriteStream(installZip)
-                stream.pipe(writeStream);
-
-                stream.once('retry', (_, _1, createRetryStream) => {
-                    download(createRetryStream());
-                });
-
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                stream.on("downloadProgress", (prog: Progress) => {
-                    sendUpdate(prog.percent)
-                })
-
-                stream.once("end", () => resolve())
-            });
+        const reportError = (err: string) => {
+            fs.rmSync(instanceDir, { recursive: true });
+            event.reply("modpack_error", id, err);
         }
 
-        await download(null);
-        await unpacker(installZip, mainDir, {
-            resume: false,
-            onprogress: (stats) => {
-                sendUpdate(stats.percent)
-            }
-        });
 
-        event.reply("install_modpack_success", id);
+
+        if (!fs.existsSync(instanceDir))
+            fs.mkdirSync(instanceDir);
+
+        if (installations.includes(id) && !overwrite)
+            return reportError("Modpack already installed.")
+
+        const config = await InstallManager.getConfig(id)
+            .catch(e => reportError(e));
+
+        if (!config)
+            return;
+
+        const options: AdditionalOptions = {
+            overwrite: true
+        }
+
+        const processors = [
+            Downloader,
+            Unpacker
+        ].map(e => new e(id, config, options))
+
+        ProcessEventEmitter.runMultiple(processors, sendUpdate)
+            .then(() => event.reply("install_modpack_success", id))
+            .catch(e => reportError(e))
     }
 
     static addListeners() {

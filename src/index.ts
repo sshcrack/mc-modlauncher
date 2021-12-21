@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import { InstallManager } from './InstallManager';
+import { getInstalled } from './preload/instance';
 import { Preference } from './preferences/renderer';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -21,7 +22,7 @@ const createWindow = (): void => {
     darkTheme: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true
+      nodeIntegration: false
     }
   });
   mainWindow.setMenuBarVisibility(false);
@@ -58,3 +59,8 @@ InstallManager.addListeners();
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+
+ipcMain.on("get_installed", e => {
+  e.returnValue = getInstalled();
+})

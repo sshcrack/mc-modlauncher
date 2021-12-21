@@ -3,7 +3,9 @@ import Store from "electron-store";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { Logger } from '../interfaces/logger';
 
+const logger = Logger.get("Preference", "Renderer")
 const appData = app.getPath("appData");
 const installDir = path.join(appData, "sshmods")
 
@@ -19,13 +21,10 @@ export class Preference {
     static window: BrowserWindow | undefined;
 
     static async open() {
-        console.log("Window is", Preference.window);
         if (Preference.window) return;
-
-        console.log("Opening preferences...")
         const installDir = store.get("install_dir")
 
-        console.log("Creating directory at", installDir)
+        logger.await("Opening Preferences")
         if (!fs.existsSync(installDir))
             fs.mkdirSync(installDir, { recursive: true })
 
@@ -48,35 +47,30 @@ export class Preference {
         preferences.show();
         Preference.window = preferences;
 
-        preferences.on("closed", () => {
-            Preference.window = null;
-        })
+        preferences.on("closed", () => { Preference.window = null })
     }
 
     static addListeners() {
-        ipcMain.on("get_pref", (e, key: AvailablePrefs) => {
-            e.returnValue = store.get(key)
-        });
+        ipcMain.on("get_pref", (e, key: AvailablePrefs) => e.returnValue = store.get(key));
+        ipcMain.on("get_mem", e => e.returnValue = os.totalmem())
+        ipcMain.on("exists_folder", (e, p) => e.returnValue = fs.existsSync(p) && fs.lstatSync(p).isDirectory())
 
         ipcMain.on("save_pref", (e, key: AvailablePrefs, val: unknown) => {
-            console.log("Saving pref", key, val)
+            logger.log("Saving preference", key, "with value", val)
 
             store.set(key, val)
             e.returnValue = true
         });
 
-        ipcMain.on("open_prefs", e => {
+        ipcMain.on("open_prefs", e =>
             Preference.open()
                 .then(() => e.reply("open_prefs_reply", true))
                 .catch(err => {
-                    console.log("Error", err)
+                    logger.error("Failed to open preferences", err)
                     e.reply("open_prefs_reply", false)
                 })
-        });
+        );
 
-        ipcMain.on("get_mem", e => {
-            e.returnValue = os.totalmem();
-        })
 
         ipcMain.on("close_prefs", e => {
             this.window?.close()
@@ -98,10 +92,6 @@ export class Preference {
 
             e.reply("select_folder_reply", id, res.filePaths[0]);
         });
-
-        ipcMain.on("exists_folder", (e, p) => {
-            e.returnValue = fs.existsSync(p) && fs.lstatSync(p).isDirectory()
-        })
     }
 }
 

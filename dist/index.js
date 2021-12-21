@@ -22,6 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const InstallManager_1 = require("./InstallManager");
+const instance_1 = require("./preload/instance");
 const renderer_1 = require("./preferences/renderer");
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -40,7 +41,7 @@ const createWindow = () => {
         darkTheme: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true
+            nodeIntegration: false
         }
     });
     mainWindow.setMenuBarVisibility(false);
@@ -71,4 +72,7 @@ renderer_1.Preference.addListeners();
 InstallManager_1.InstallManager.addListeners();
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+electron_1.ipcMain.on("get_installed", e => {
+    e.returnValue = (0, instance_1.getInstalled)();
+});
 //# sourceMappingURL=index.js.map

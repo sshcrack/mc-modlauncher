@@ -18,6 +18,8 @@ const electron_store_1 = __importDefault(require("electron-store"));
 const fs_1 = __importDefault(require("fs"));
 const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
+const logger_1 = require("../interfaces/logger");
+const logger = logger_1.Logger.get("Preference", "Renderer");
 const appData = electron_1.app.getPath("appData");
 const installDir = path_1.default.join(appData, "sshmods");
 const total = os_1.default.totalmem();
@@ -30,12 +32,10 @@ exports.store = new electron_store_1.default({
 class Preference {
     static open() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Window is", Preference.window);
             if (Preference.window)
                 return;
-            console.log("Opening preferences...");
             const installDir = exports.store.get("install_dir");
-            console.log("Creating directory at", installDir);
+            logger.await("Opening Preferences");
             if (!fs_1.default.existsSync(installDir))
                 fs_1.default.mkdirSync(installDir, { recursive: true });
             const preferences = new electron_1.BrowserWindow({
@@ -54,31 +54,24 @@ class Preference {
             preferences.loadFile(path_1.default.join(__dirname, "../../src/preferences", "index.html"));
             preferences.show();
             Preference.window = preferences;
-            preferences.on("closed", () => {
-                Preference.window = null;
-            });
+            preferences.on("closed", () => { Preference.window = null; });
         });
     }
     static addListeners() {
-        electron_1.ipcMain.on("get_pref", (e, key) => {
-            e.returnValue = exports.store.get(key);
-        });
+        electron_1.ipcMain.on("get_pref", (e, key) => e.returnValue = exports.store.get(key));
+        electron_1.ipcMain.on("get_mem", e => e.returnValue = os_1.default.totalmem());
+        electron_1.ipcMain.on("exists_folder", (e, p) => e.returnValue = fs_1.default.existsSync(p) && fs_1.default.lstatSync(p).isDirectory());
         electron_1.ipcMain.on("save_pref", (e, key, val) => {
-            console.log("Saving pref", key, val);
+            logger.log("Saving preference", key, "with value", val);
             exports.store.set(key, val);
             e.returnValue = true;
         });
-        electron_1.ipcMain.on("open_prefs", e => {
-            Preference.open()
-                .then(() => e.reply("open_prefs_reply", true))
-                .catch(err => {
-                console.log("Error", err);
-                e.reply("open_prefs_reply", false);
-            });
-        });
-        electron_1.ipcMain.on("get_mem", e => {
-            e.returnValue = os_1.default.totalmem();
-        });
+        electron_1.ipcMain.on("open_prefs", e => Preference.open()
+            .then(() => e.reply("open_prefs_reply", true))
+            .catch(err => {
+            logger.error("Failed to open preferences", err);
+            e.reply("open_prefs_reply", false);
+        }));
         electron_1.ipcMain.on("close_prefs", e => {
             var _a;
             (_a = this.window) === null || _a === void 0 ? void 0 : _a.close();
@@ -96,9 +89,6 @@ class Preference {
                 return e.reply("select_folder_reply", id, undefined);
             e.reply("select_folder_reply", id, res.filePaths[0]);
         }));
-        electron_1.ipcMain.on("exists_folder", (e, p) => {
-            e.returnValue = fs_1.default.existsSync(p) && fs_1.default.lstatSync(p).isDirectory();
-        });
     }
 }
 exports.Preference = Preference;

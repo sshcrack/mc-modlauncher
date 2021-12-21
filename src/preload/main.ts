@@ -1,11 +1,12 @@
-import { app, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
+import path from "path";
+import { Logger } from '../interfaces/logger';
 import { Modpack } from '../interfaces/modpack';
-import { getInstalled } from './instance';
-import path from "path"
 
 const base = "https://mc.sshbot.ddnss.de"
 const listUrl = `${base}/list.json`
 
+const logger = Logger.get("Preload", "Main")
 export async function handleIndex() {
     await processModpacks();
     await addPrefAction();
@@ -14,7 +15,7 @@ export async function handleIndex() {
 async function addPrefAction() {
     const prefBtn = document.getElementById("settings");
     prefBtn.addEventListener("click", () => {
-        console.log("Sending opening signal...")
+        logger.info("Sending opening signal to preferences...")
         ipcRenderer.send("open_prefs");
     });
 }
@@ -33,7 +34,7 @@ async function processModpacks() {
         }))
     )
 
-    const installed = await getInstalled();
+    const installed: string[] = await ipcRenderer.sendSync("get_installed");
     const childrenProms = infos.map(async ({ name, cover, author, description, id }) => {
         const cardDiv = document.createElement("div");
 
@@ -94,7 +95,7 @@ function addButtonEvents() {
         const btn = document.getElementById(`modpack-${id}-action`)
 
         btn.addEventListener("click", () => {
-            console.log("Clicked installed", installed, "id", id);
+            logger.info("Clicked button to installed, info: ", installed, "id", id);
 
             const parent = btn.parentElement;
             if(!installed) {
@@ -110,17 +111,18 @@ function addButtonEvents() {
                 parent.appendChild(progress)
                 const bar = progress.querySelector(".progress-bar") as unknown as HTMLElement
 
-                ipcRenderer.on("install_modpack_update", (_, innerId, percentage) => {
+                ipcRenderer.on("modpack_update", (_, innerId, percentage, status) => {
                     if (id !== innerId)
                         return;
 
-                    const perStr = `${percentage * 100}%`
+                    const perStr = `${Math.round(percentage * 100)}%`
+                    logger.info("Current status is", status)
 
                     bar.style.width = perStr;
-                    bar.innerText = `${percentage * 100}%`;
+                    bar.innerText = perStr;
                 })
 
-                ipcRenderer.on("install_modpack_success", (_, innerId) => {
+                ipcRenderer.on("modpack_success", (_, innerId) => {
                     if(id !== innerId)
                         return;
 
@@ -131,7 +133,7 @@ function addButtonEvents() {
                     parent.appendChild(btn);
                 })
 
-                ipcRenderer.on("install_modpack_error", (e, innerId, error) => {
+                ipcRenderer.on("modpack_error", (e, innerId, error) => {
                     if(id !== innerId)
                         return;
 
@@ -146,11 +148,13 @@ function getButton(installed: boolean, id: string) {
     const txt = installed ? "Play" : "Install"
     const classBtn = installed ? "btn-open" : "btn-install"
 
-    const a = document.createElement("a");
-    a.href = "#"
-    a.className = `btn btn-primary card-action ${classBtn}`
-    a.id = `modpack-${id}-action`
-    a.innerText = txt;
+    const div = document.createElement("div");
+    div.className = "card-action";
 
-    return a
+    const actionButton = `<a class="btn btn-primary ${classBtn} card-action-btn" href="#" id="modpack-${id}-action">${txt}</a>`
+    const removeButton = `<button class="btn btn-outline-danger remove-button" id="modpack-${id}-remove">
+            <i class="bi bi-trash-fill remove" /> Uninstall </button>`
+
+    div.innerHTML = `${actionButton} ${installed ? removeButton : ""}`;
+    return div
 }

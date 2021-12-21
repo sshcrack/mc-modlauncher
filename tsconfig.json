@@ -10,8 +10,11 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "paths": {
+    /*"paths": {
       "*": ["node_modules/*"]
+    },*/
+    "paths": {
+      "src": [ "./src" ]
     },
     "typeRoots": [
       "src/types"

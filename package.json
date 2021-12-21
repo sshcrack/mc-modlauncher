@@ -7,6 +7,7 @@
   "scripts": {
     "start": "tsc && electron-forge start",
     "package": "electron-forge package",
+    "postinstall": "node fixLibs.js",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts ."
@@ -50,18 +51,22 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.61",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
     "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "@types/node": "14.6.2",
+    "@types/signale": "^1.4.2",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
     "electron": "16.0.5",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
+    "typed-emitter": "^1.4.0",
     "typescript": "^4.0.2"
   },
   "dependencies": {
     "electron-reloader": "^1.2.1",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
-    "got": "^12.0.0",
+    "got": "^11.8.3",
+    "signale": "^1.4.0",
     "unpacker-with-progress": "^2.0.3"
   }
 }
