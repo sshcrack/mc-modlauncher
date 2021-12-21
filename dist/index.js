@@ -19,6 +19,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('source-map-support').install();
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
 const InstallManager_1 = require("./InstallManager");
@@ -33,9 +35,10 @@ try {
     require('electron-reloader')(module);
 }
 catch (_) { /**/ }
+let mainWindow;
 const createWindow = () => {
     // Create the browser window.
-    const mainWindow = new electron_1.BrowserWindow({
+    mainWindow = new electron_1.BrowserWindow({
         height: 600,
         width: 800,
         darkTheme: true,
@@ -58,6 +61,7 @@ electron_1.app.on('ready', createWindow);
 // explicitly with Cmd + Q.
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+        console.log("Quitting...");
         electron_1.app.quit();
     }
 });
@@ -74,5 +78,13 @@ InstallManager_1.InstallManager.addListeners();
 // code. You can also put them in separate files and import them here.
 electron_1.ipcMain.on("get_installed", e => {
     e.returnValue = (0, instance_1.getInstalled)();
+});
+electron_1.ipcMain.on("uninstall_prompt", e => {
+    const index = electron_1.dialog.showMessageBoxSync(mainWindow, {
+        message: "Are you sure you want to uninstall this modpack?",
+        buttons: ["Yes", "No"],
+        type: "warning"
+    });
+    e.returnValue = index === 0;
 });
 //# sourceMappingURL=index.js.map

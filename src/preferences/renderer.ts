@@ -3,6 +3,7 @@ import Store from "electron-store";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import { MainGlobals } from '../Globals/mainGlobals';
 import { Logger } from '../interfaces/logger';
 
 const logger = Logger.get("Preference", "Renderer")
@@ -22,7 +23,7 @@ export class Preference {
 
     static async open() {
         if (Preference.window) return;
-        const installDir = store.get("install_dir")
+        const installDir = MainGlobals.getInstallDir()
 
         logger.await("Opening Preferences")
         if (!fs.existsSync(installDir))

@@ -1,5 +1,6 @@
 export interface Modpack {
     name: string,
+    version: string,
     description: string,
     author: string,
     versions: Version[],
@@ -8,5 +9,6 @@ export interface Modpack {
 
 export interface Version {
     id: string,
-    file: string
+    file: string,
+    forge: string
 }

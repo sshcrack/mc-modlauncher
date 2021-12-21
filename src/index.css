@@ -7,9 +7,45 @@ body {
 
 .modpack {
   width: 18rem;
+  display: grid;
+  border-radius: 1em !important;
+
+  width: 100%;
 }
 
-.modpack img {
+.modpack > div {
+  border-radius: 1em !important;
+}
+
+.card-status {
+  background: rgba(0, 0, 0, 0.75);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  grid-row: 1;
+  grid-column: 1;
+
+  z-index: 99;
+
+  color: white;
+}
+
+.card-status div {
+  width: 80%;
+}
+
+.card-status div span {
+    overflow-wrap: anywhere;
+}
+
+.card-main {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.card-main img {
   object-fit: cover;
   height: 10rem;
   width: 100%;
@@ -17,17 +53,12 @@ body {
   border-radius: 1em;
 }
 
-.modpack {
-  border-radius: 1em !important;
-  width: 100%;
-}
-
-.modpack .card-body {
+.card-main .card-body {
   display: flex;
   flex-direction: column;
 }
 
-.modpack .card-body > * {
+.card-main .card-body > * {
   fleX: 1;
   height: 100%;
 }

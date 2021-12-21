@@ -1,4 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('source-map-support').install();
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import * as path from 'path';
 import { InstallManager } from './InstallManager';
 import { getInstalled } from './preload/instance';
@@ -14,9 +16,10 @@ try {
   require('electron-reloader')(module)
 } catch (_) { /**/}
 
+let mainWindow: BrowserWindow;
 const createWindow = (): void => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
     darkTheme: true,
@@ -42,6 +45,7 @@ app.on('ready', createWindow);
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    console.log("Quitting...")
     app.quit();
   }
 });
@@ -63,4 +67,14 @@ InstallManager.addListeners();
 
 ipcMain.on("get_installed", e => {
   e.returnValue = getInstalled();
+})
+
+ipcMain.on("uninstall_prompt", e => {
+  const index = dialog.showMessageBoxSync(mainWindow, {
+    message: "Are you sure you want to uninstall this modpack?",
+    buttons: [ "Yes", "No"],
+    type: "warning"
+  })
+
+  e.returnValue = index === 0;
 })

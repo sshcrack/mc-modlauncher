@@ -1,5 +1,6 @@
-import fs from "fs"
+import fs from "fs";
 import path from 'path';
+import { Modpack } from '../interfaces/modpack';
 
 export class Globals {
     static baseUrl = "https://mc.sshbot.ddnss.de";
@@ -9,23 +10,44 @@ export class Globals {
     }
 
     static getInstancePathById(installDir: string, id: string) {
-        return path.join(installDir, id);
+        return path.join(this.getInstanceDir(installDir), id);
     }
 
     static getTempDir(installDir: string, shouldDelete = false) {
         const tempPath = path.join(installDir, "temp");
 
-        if (shouldDelete) {
-            if (fs.existsSync(tempPath))
-                fs.rmSync(tempPath, { recursive: true });
+        if (fs.existsSync(tempPath) && shouldDelete)
+            fs.rmSync(tempPath, { recursive: true, force: true });
 
+
+        if (!fs.existsSync(tempPath))
             fs.mkdirSync(tempPath);
-        }
 
         return tempPath;
     }
 
-    static getInstallZip(installDir: string) {
-        return path.join(this.getTempDir(installDir), "install.zip")
+    static getLastVersion(config: Modpack) {
+        const { versions } = config;
+
+        const last = versions.length - 1
+        const lastItem = versions[last];
+
+        return lastItem
+    }
+
+    static getInstallZip(installDir: string, id: string, version: string) {
+        return path.join(this.getTempDir(installDir), `${id}-${version}.zip`)
+    }
+
+    static getForgeZip(installDir: string, id: string, version: string) {
+        return path.join(this.getTempDir(installDir), `${id}-${version}.forge.zip`)
+    }
+
+    static getForgeDir(installDir: string, id: string, version: string) {
+        const dir = path.join(this.getTempDir(installDir), `${id}-${version}-forge/`)
+        if(!fs.existsSync(dir))
+            fs.mkdirSync(dir, { recursive: true})
+
+        return dir
     }
 }

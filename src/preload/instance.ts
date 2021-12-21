@@ -1,18 +1,17 @@
-import fs from "fs"
-import path from "path"
+import fs from "fs";
+import path from "path";
+import { MainGlobals } from '../Globals/mainGlobals';
 import { Logger } from '../interfaces/logger';
-import { store} from "../preferences/renderer"
 
 const logger = Logger.get("Preload", "instance")
 export function getInstalled(): string[] {
     logger.await("Getting installed instances...")
 
-    const installDir = store.get("install_dir");
-
+    const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
 
-    if (!fs.existsSync(installDir))
-        fs.mkdirSync(installDir, { recursive: true })
+    if (!fs.existsSync(instances))
+        fs.mkdirSync(instances, { recursive: true })
 
     const directories = fs.readdirSync(instances, { withFileTypes: true })
         .filter(e => e.isDirectory())

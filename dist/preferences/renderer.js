@@ -18,6 +18,7 @@ const electron_store_1 = __importDefault(require("electron-store"));
 const fs_1 = __importDefault(require("fs"));
 const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
+const mainGlobals_1 = require("../Globals/mainGlobals");
 const logger_1 = require("../interfaces/logger");
 const logger = logger_1.Logger.get("Preference", "Renderer");
 const appData = electron_1.app.getPath("appData");
@@ -34,7 +35,7 @@ class Preference {
         return __awaiter(this, void 0, void 0, function* () {
             if (Preference.window)
                 return;
-            const installDir = exports.store.get("install_dir");
+            const installDir = mainGlobals_1.MainGlobals.getInstallDir();
             logger.await("Opening Preferences");
             if (!fs_1.default.existsSync(installDir))
                 fs_1.default.mkdirSync(installDir, { recursive: true });

@@ -48,9 +48,11 @@ class ProcessorEventEmitterClass extends (EventEmitter as new () => TypedEmitter
     }
 
     static async runMultiple(emitters: ProcessorEventEmitterClass[], onProgress: ProgressEvent, maxDigits = 2) {
+        logger.await("Running multiple emitters")
         const length = emitters.length;
 
-        for (let i = 0; i < emitters.length; i++) {
+        for (let i = 0; i < length; i++) {
+            logger.await(i, "/", length)
             const emitter = emitters[i];
             const currMultiplier = i / length;
 
