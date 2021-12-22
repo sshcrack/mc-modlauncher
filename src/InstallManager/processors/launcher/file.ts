@@ -17,3 +17,8 @@ export function getLauncherDir() {
     return path.join(installDir, "Launcher")
 }
 
+export function getLauncherExe() {
+    const dir = getLauncherDir();
+
+    return path.join(dir, "MinecraftLauncher.exe");
+}

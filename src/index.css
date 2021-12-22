@@ -38,6 +38,7 @@ body {
 
 .card-status div span {
     overflow-wrap: anywhere;
+    text-overflow: ellipsis;
 }
 
 .card-main {

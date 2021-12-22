@@ -10,5 +10,6 @@ export interface Modpack {
 export interface Version {
     id: string,
     file: string,
-    forge: string
+    forge: string,
+    forge_version: string
 }

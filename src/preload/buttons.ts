@@ -1,83 +1,83 @@
+import { RenderGlobals } from '../Globals/renderGlobals';
 import { ipcRenderer } from 'electron';
-import { Globals } from '../Globals';
 import { Logger } from '../interfaces/logger';
+import { Modpack } from '../interfaces/modpack';
 import { updateModpacks } from './modpack';
 
 const logger = Logger.get("Preload", "Buttons")
 
-export function addButtonAction(id: string, btn: HTMLElement, installed: boolean) {
+export function addButtonAction(id: string, btn: HTMLElement, installed: boolean, config: Modpack) {
     btn.addEventListener("click", async () => {
+        const newestVersion = RenderGlobals.hasLatest(id, config)
         logger.info("Clicked button to installed, info: ", installed, "id", id);
 
+
+        if(installed && newestVersion)
+            return ipcRenderer.send("launch_mc", id, config)
+
         const parent = btn.parentElement;
-        if (!installed) {
-            updateStatus(id, "Sending install signal...")
-            ipcRenderer.send("install_modpack", id);
-            btn.remove();
+        parent.childNodes.forEach(e => e.remove())
 
-            const progress = document.createElement("div");
-            progress.className = "progress";
-            progress.id = `install-progress-${id}`
+        const progress = document.createElement("div");
+        progress.className = "progress";
+        progress.id = `install-progress-${id}`
 
-            progress.innerHTML = `<div class="progress-bar" style="width: 0%" role="progressbar">0%</div>`
+        progress.innerHTML = `<div class="progress-bar" style="width: 0%" role="progressbar">0%</div>`
 
-            parent.appendChild(progress)
-            const bar = progress.querySelector(".progress-bar") as unknown as HTMLElement
+        parent.appendChild(progress)
+        const bar = progress.querySelector(".progress-bar") as unknown as HTMLElement
 
-            ipcRenderer.on("modpack_update", (_, innerId, percentage, status) => {
-                if (id !== innerId)
-                    return;
+        ipcRenderer.on("modpack_update", (_, innerId, percentage, status) => {
+            if (id !== innerId)
+                return;
 
-                const perStr = `${Math.round(percentage * 100)}%`
-                updateStatus(id, status)
+            const perStr = `${Math.round(percentage * 100)}%`
+            updateStatus(id, status)
 
-                bar.style.width = perStr;
-                bar.innerText = perStr;
-            })
+            bar.style.width = perStr;
+            bar.innerText = perStr;
+        })
 
-            ipcRenderer.on("modpack_success", (_, innerId) => {
-                if (id !== innerId)
-                    return;
+        ipcRenderer.on("modpack_success", (_, innerId, config) => {
+            if (id !== innerId)
+                return;
 
 
-                updateStatus(id, null)
-                progress.remove();
-                const btn = getButtonDiv(id, true);
+            updateStatus(id, null)
+            progress.remove();
+            const btn = getButtonDiv(id, true, config);
 
-                parent.appendChild(btn);
-                updateModpacks();
-            })
+            parent.appendChild(btn);
+            updateModpacks();
+        })
 
-            ipcRenderer.on("modpack_error", (e, innerId, error) => {
-                if (id !== innerId)
-                    return;
+        ipcRenderer.on("modpack_error", (e, innerId, error) => {
+            if (id !== innerId)
+                return;
 
-                updateStatus(id, null)
-                const err = error?.stack ?? error?.message ?? error;
-                logger.error(err);
-                alert(`Error installing modpack ${innerId}: ${err}. Please restart to avoid errors.`)
+            updateStatus(id, null)
+            const err = error?.stack ?? error?.message ?? error;
+            logger.error(err);
+            alert(`Error installing modpack ${innerId}: ${err}. Please restart to avoid errors.`)
 
-                updateModpacks();
-            })
-        } else {
-            const baseUrl = Globals.baseUrl;
-            const config = await fetch(`${baseUrl}/${id}/config.json`)
-                .then(e => e.json())
-                .catch(e => alert("Error " + e))
+            updateModpacks();
+        })
 
-            ipcRenderer.send("launch_mc", id, config)
-        }
+        //overwrite = newestVersion
+        ipcRenderer.send("install_modpack", id, !newestVersion);
     })
 }
 
-export function getButtonDiv(id: string, installed: boolean) {
-    const txt = installed ? "Play" : "Install"
-    const classBtn = installed ? "btn-open" : "btn-install"
+export function getButtonDiv(id: string, installed: boolean, config: Modpack) {
+    const newestVersion = RenderGlobals.hasLatest(id, config)
+
+    const txt = installed ? (newestVersion ? "Play" : "Update") : "Install"
+    const classBtn = installed && newestVersion ? "btn-open" : "btn-install"
 
     const div = document.createElement("div");
     div.className = "card-action";
 
-    const actionButton = `<a class="btn btn-primary ${classBtn} card-action-btn" href="#" id="modpack-${id}-action">${txt}</a>`
+    const actionButton = `<button class="btn btn-primary ${classBtn} card-action-btn" href="#" id="modpack-${id}-action">${txt}</button>`
     const removeButton = `<button class="btn btn-outline-danger remove-button" id="modpack-${id}-remove">
             <i class="bi bi-trash-fill remove" /> Uninstall </button>`
 
@@ -86,7 +86,7 @@ export function getButtonDiv(id: string, installed: boolean) {
     const actionElement = div.querySelector(".card-action-btn") as HTMLElement;
     const removeElement = div.querySelector(".remove-button") as undefined | HTMLElement
 
-    addButtonAction(id, actionElement, installed)
+    addButtonAction(id, actionElement, installed, config)
     removeElement?.addEventListener("click", () => {
         const res = ipcRenderer.sendSync("uninstall_prompt");
 

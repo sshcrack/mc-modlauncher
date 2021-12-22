@@ -1,9 +1,10 @@
 import fs from "fs";
 import path from "path";
+import { MainGlobals } from '../../../Globals/mainGlobals';
 import { Logger } from '../../../interfaces/logger';
 import { Modpack } from '../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../event/Processor';
-import { getLibrariesDir, getVersionManifest } from '../../General/mcBase';
+import { getForgeInstallProfile, getLibrariesDir, getVersionManifest } from '../../General/mcBase';
 import { VersionManifest } from '../../General/versionManifest';
 import { Downloader } from '../base/Downloader';
 import { SharedMap } from '../interface';
@@ -20,17 +21,20 @@ export class LibraryMultipleDownloader extends ProcessEventEmitter {
     public async run() {
         const { mcVersion } = this.config;
         const { forgeVersion } = this.shared;
+        const installDir = MainGlobals.getInstallDir();
 
         if(!forgeVersion)
             throw new Error(`Library Multiple Downloader has no forgeVersion`)
 
-        const libraries = [ getVersionManifest(mcVersion), getVersionManifest(forgeVersion) ]
+        const installProfilePath = getForgeInstallProfile(installDir, this.id, this.config)
+        const libraries = [ getVersionManifest(mcVersion), getVersionManifest(forgeVersion), installProfilePath ]
             .map(e => fs.readFileSync(e, "utf-8"))
             .map(e => JSON.parse(e) as VersionManifest)
             .map(e => e.libraries
                         .map(e => e.downloads.artifact)
             )
             .reduce((a, b) => a.concat(b), [])
+            .concat()
 
         const librariesDir = getLibrariesDir();
         const downloaders = libraries

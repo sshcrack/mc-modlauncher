@@ -1,13 +1,13 @@
-import { InstallProfile } from '../../../General/installProfile';
 import fs from "fs";
-import path from "path"
+import path from "path";
 import { MainGlobals } from '../../../../Globals/mainGlobals';
+import { Logger } from '../../../../interfaces/logger';
 import { Modpack } from '../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
-import { getDotMC, getForgeDir, getForgeInstallerZip, getLibrariesDir, getVersionJar } from '../../../General/mcBase';
+import { InstallProfile } from '../../../General/installProfile';
+import { getForgeDir, getForgeInstallerZip, getForgeInstallProfile, getLauncherMC, getLibrariesDir, getVersionJar } from '../../../General/mcBase';
 import { stringToArtifact } from './Artifact';
 import { SharedProcessor } from './interface';
-import { Logger } from '../../../../interfaces/logger';
 
 const logger = Logger.get("Processors", "Forge", "PostProcessors", "ArgumentGetter")
 export class ArgumentGetter extends ProcessEventEmitter {
@@ -24,7 +24,7 @@ export class ArgumentGetter extends ProcessEventEmitter {
         const installDir = MainGlobals.getInstallDir()
         const forge = getForgeDir(installDir, this.id, this.config)
 
-        const profilePath = path.join(forge, "install_profile.json")
+        const profilePath = getForgeInstallProfile(installDir, this.id, this.config)
         const installProfileRaw = fs.readFileSync(profilePath, "utf-8");
         const installProfile: InstallProfile = JSON.parse(installProfileRaw);
 
@@ -60,7 +60,7 @@ export class ArgumentGetter extends ProcessEventEmitter {
 
         const forgeJar = getForgeInstallerZip(installDir, this.id, this.config)
 
-        const dotMc = getDotMC();
+        const dotMc = getLauncherMC();
 
         mapped.set("SIDE", "client")
         mapped.set("MINECRAFT_JAR", vanillaJar)

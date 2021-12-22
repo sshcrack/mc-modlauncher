@@ -1,7 +1,7 @@
 .center {
     display: flex;
     flex-direction: column;
-    max-width: 75%;
+    max-width: 80%;
 
     height: 100%;
 
@@ -32,4 +32,32 @@ body, :root, html, .center {
     align-items: center;
     width: 100%;
     height: 100%;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-around;
+}
+
+.button-group > button {
+    font-size: .95em;
+}
+
+.wrapper {
+    display: grid;
+}
+
+.wrapper > div {
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.wait {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: black;
+    opacity: 50%;
+    z-index: 99;
 }

@@ -1,12 +1,11 @@
 import fs from "fs";
 import got from 'got/dist/source';
-import path from "path";
 import { Globals } from '../../../../../Globals';
 import { MainGlobals } from '../../../../../Globals/mainGlobals';
 import { Modpack } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../../event/Processor';
 import { InstallProfile } from '../../../../General/installProfile';
-import { getForgeDir } from '../../../../General/mcBase';
+import { getForgeInstallProfile } from '../../../../General/mcBase';
 import { SharedProcessor } from '../interface';
 import { getClassPathJar } from './file';
 import { SinglePatcher } from './SinglePatcher';
@@ -23,9 +22,8 @@ export class MainPatcher extends ProcessEventEmitter {
         this.emit("progress", { percent: 0, status: "Getting argument maps..." })
 
         const installDir = MainGlobals.getInstallDir()
-        const forge = getForgeDir(installDir, this.id, this.config)
+        const profilePath = getForgeInstallProfile(installDir, this.id, this.config)
 
-        const profilePath = path.join(forge, "install_profile.json")
         const installProfileRaw = fs.readFileSync(profilePath, "utf-8");
         const installProfile: InstallProfile = JSON.parse(installProfileRaw);
 

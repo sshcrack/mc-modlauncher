@@ -5,12 +5,12 @@ import { Modpack } from '../../interfaces/modpack';
 import { getLauncherDir } from '../processors/launcher/file';
 
 
-export function getDotMC() {
+export function getLauncherMC() {
     return path.join(getLauncherDir(), ".minecraft")
 }
 
 export function getVersionsDir() {
-    return path.join(getDotMC(), "versions")
+    return path.join(getLauncherMC(), "versions")
 }
 
 export function getVersionJar(versionName: string) {
@@ -23,7 +23,7 @@ export function getVersionManifest(versionName: string) {
 }
 
 export function getLibrariesDir() {
-    return path.join(getDotMC(), "libraries");
+    return path.join(getLauncherMC(), "libraries");
 }
 
 
@@ -33,6 +33,12 @@ export function getInstallZip(installDir: string, id: string, config: Modpack) {
     const tempDir = Globals.getTempDir(installDir)
 
     return path.join(tempDir, `${id}-${version.id}.zip`)
+}
+
+export function getForgeInstallProfile(installDir: string, id: string, config: Modpack) {
+    const forgeDir = getForgeDir(installDir, id, config);
+
+    return path.join(forgeDir, "install_profile.json")
 }
 
 /** temp/create-0.0.1-forge.zip */

@@ -32,12 +32,12 @@ export async function updateModpacks() {
     )
 
     const installed: string[] = await ipcRenderer.sendSync("get_installed");
-    const childrenProms = infos.map(async ({ name, cover, author, description, id }) => {
+    const childrenProms = infos.map(async (config) => {
+        const { name, cover, author, description, id, versions } = config
         const cardDiv = document.createElement("div");
 
         const imgUrl = `${baseUrl}/${id}/${cover}`
         const isInstalled = installed.some(e => path.basename(e) === id);
-
 
         const boolToStr = isInstalled ? "1" : "0";
 
@@ -64,7 +64,7 @@ export async function updateModpacks() {
             </div>
         `
 
-        const buttonDiv = getButtonDiv(id, isInstalled);
+        const buttonDiv = getButtonDiv(id, isInstalled, config);
 
         cardDiv.querySelector(".card-main .card-body .card-bottom").append(buttonDiv)
         return cardDiv

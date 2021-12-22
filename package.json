@@ -22,26 +22,16 @@
   "config": {
     "forge": {
       "packagerConfig": {},
-      "makers": [
+      "publishers": [
         {
-          "name": "@electron-forge/maker-squirrel",
+          "name": "@electron-forge/publisher-github",
           "config": {
-            "name": "sshmods"
+            "repository": {
+              "owner": "sshcrack",
+              "name": "mc-modlauncher"
+            },
+            "prerelease": true
           }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
         }
       ]
     }
@@ -52,6 +42,7 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.61",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
     "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "@electron-forge/publisher-github": "^6.0.0-beta.61",
     "@types/node": "14.6.2",
     "@types/signale": "^1.4.2",
     "@types/uuid": "^8.3.3",
@@ -73,6 +64,7 @@
     "source-map-support": "^0.5.21",
     "sweetalert2": "^11.3.0",
     "unpacker-with-progress": "^2.0.3",
+    "update-electron-app": "^2.0.1",
     "uuid": "^8.3.2"
   }
 }

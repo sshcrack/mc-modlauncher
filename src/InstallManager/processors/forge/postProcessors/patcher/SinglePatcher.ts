@@ -1,4 +1,4 @@
-import { spawnSync } from "child_process";
+import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import { Modpack } from '../../../../../interfaces/modpack';
@@ -17,26 +17,72 @@ export class SinglePatcher extends ProcessEventEmitter {
         this.options = options;
     }
 
-    public async run() {
-        this.emit("progress", { percent: 0, status: `Patcher ${this.options.jar} is running...` })
-        const { argumentData } = this.shared
-        const { classpath, args, jar } = this.options
+    public run() {
+        return new Promise<void>((resolve, reject) => {
+            this.emit("progress", { percent: 0, status: `Patcher ${this.options.jar} is running...` })
+            const { argumentData } = this.shared
+            const { args, jar } = this.options
 
-        const jarFile = stringToArtifact(jar).path;
+            const classpathJar = getClassPathJar()
+            const classPathDir = path.dirname(classpathJar)
+
+
+            const newArgs = processArgs(args, argumentData);
+            const jarFile = stringToArtifact(jar).path;
+
+
+            this.writeClasspaths(classPathDir, classpathJar)
+            const allArgs = ["-jar", classpathJar, jarFile, ...newArgs];
+
+            const argStr = allArgs.map(e => '"' + e + '"').join(" ");
+            const procName = path.basename(jar)
+
+            console.log("Spawning with args", argStr)
+            const child = spawn("java", allArgs, { cwd: classPathDir })
+
+            let stdout = ""
+            let stderr = ""
+
+            child.stderr.on("data", err => {
+                console.log(err.toString())
+                stderr += err;
+            })
+
+            child.stdout.on("data", chunk => {
+                stdout += chunk
+                const length = stdout.length;
+
+                const part = stdout.substring(length - 100);
+                this.emit("progress", { percent: 0, status: `Patcher ${this.options.jar} is running...\n${part}` })
+            })
+
+            const genErr = () => new Error(`Error running processor ${procName}: \n\nstdout${stdout.toString()}\nstderr ${stderr}\n\n Args: ${argStr}`)
+
+            child.on("exit", code => {
+                if (code !== 0)
+                    return reject(genErr())
+                resolve()
+            })
+            child.on("error", err => {
+                reject(err)
+            })
+
+            child.on("close", code => {
+                if (code !== 0)
+                    return reject(genErr())
+                resolve()
+            })
+        });
+    }
+
+    private writeClasspaths(dir: string, classpathJa: string) {
+        const { classpath } = this.options;
         const classPathInFileSystem = classpath.map(e => stringToArtifact(e).path);
+        classPathInFileSystem.push(classpathJa)
 
-        const newArgs = processArgs(args, argumentData);
-        const classpathJar = getClassPathJar()
-        const classPathDir = path.dirname(classpathJar)
-        const classList = path.join(classPathDir, "classpaths.txt")
+        const classList = path.join(dir, "classpaths.txt")
 
         fs.writeFileSync(classList, classPathInFileSystem.join("\n"));
-        const { stdout, stderr } = spawnSync("java", ["-jar", jarFile, ...newArgs])
-
-        if(stderr)
-            throw new Error(`Error running processor ${path.basename(jar)}: ${stderr.toString("utf-8")}`)
-
-        console.log(stdout.toString("utf-8"));
     }
 }
 
@@ -44,7 +90,7 @@ function processArgs(args: string[], data: Map<string, string>) {
     return args.map(arg => {
         const isArtifact = arg.startsWith("[") && arg.endsWith("]")
 
-        if(!isArtifact)
+        if (!isArtifact)
             return replaceTokens(arg, data);
 
         const shortened = arg.substring(1, arg.length - 1)
@@ -58,8 +104,8 @@ function replaceTokens(value: string, data: Map<string, string>) {
     const argLength = value.length
     for (let x = 0; x < argLength; ++x) {
         const c = value.charAt(x)
-        if(c === "\\") {
-            if (x === argLength -1)
+        if (c === "\\") {
+            if (x === argLength - 1)
                 throw new Error(`Illegal pattern (Bad escape: ${value})`)
 
             ++x;
@@ -67,19 +113,19 @@ function replaceTokens(value: string, data: Map<string, string>) {
             continue
         }
 
-        if(c !== '{' && c !== "'") {
+        if (c !== '{' && c !== "'") {
             toReturn += c;
             continue;
         }
 
         let key = ""
-        for(let y = x +1; y < argLength; ++y) {
-            if(y === argLength)
+        for (let y = x + 1; y < argLength; ++y) {
+            if (y === argLength)
                 throw new Error(`Illegal pattern (Unclosed ${c}): ${value}`)
 
             const d = value.charAt(y)
-            if(d === "\\") {
-                if(y === argLength -1)
+            if (d === "\\") {
+                if (y === argLength - 1)
                     throw new Error(`Illegal pattern (Bad escape: ${value})`)
 
                 ++y
@@ -99,10 +145,10 @@ function replaceTokens(value: string, data: Map<string, string>) {
             }
         }
 
-        if(c === "'")
+        if (c === "'")
             toReturn += c
         else {
-            if(!data.has(key))
+            if (!data.has(key))
                 throw new Error(`Illegal pattern: ${value} Missing key ${key}`)
 
             toReturn += data.get(key)

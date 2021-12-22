@@ -1,9 +1,10 @@
 import { ipcRenderer } from 'electron';
-import prettyBytes from "../assets/pretty-bytes"
+import prettyBytes from "../assets/pretty-bytes";
 
 document.addEventListener("DOMContentLoaded", () => {
     setMemory()
     setInstall();
+    setCacheRemove();
 
     const btn = document.getElementById("save")
     btn.addEventListener("click", () => saveThings())
@@ -82,4 +83,19 @@ function saveThings() {
     ipcRenderer.sendSync("save_pref", "memory", parseInt(mem));
 
     ipcRenderer.sendSync("close_prefs");
+}
+
+function setCacheRemove() {
+    const btn = document.querySelector("#cache-clear") as HTMLButtonElement;
+    const wait = document.querySelector("#wait") as HTMLDivElement;
+
+    btn.addEventListener("click", () => {
+        ipcRenderer.once("clear_cache_reply", size => {
+            wait.style.display = "none"
+            alert(`Cache with a total of ${size} cleared.`)
+        })
+
+        wait.style.display = ""
+        ipcRenderer.send("clear_cache")
+    })
 }

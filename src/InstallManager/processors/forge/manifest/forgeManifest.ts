@@ -5,7 +5,7 @@ import { Logger } from '../../../../interfaces/logger';
 import { Modpack } from '../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { InstallProfile } from '../../../General/installProfile';
-import { getForgeDir, getVersionsDir } from '../../../General/mcBase';
+import { getForgeDir, getForgeInstallProfile, getVersionsDir } from '../../../General/mcBase';
 import { SharedMap } from '../../interface';
 
 
@@ -25,8 +25,7 @@ export class ForgeManifestCopier extends ProcessEventEmitter {
         this.emit("progress", { percent: 0, status: "Copying forge version..." });
         const installDir = MainGlobals.getInstallDir();
         const forgeDir = getForgeDir(installDir, this.id, this.config);
-
-        const installProfilePath = path.join(forgeDir, "install_profile.json");
+        const installProfilePath = getForgeInstallProfile(installDir, this.id, this.config);
 
         logger.info("Reading", installProfilePath)
         const installProfile: InstallProfile = JSON.parse(fs.readFileSync(installProfilePath, "utf-8"));

@@ -1,6 +1,7 @@
 import { ipcMain, IpcMainEvent } from 'electron';
 import fs from "fs";
 import got from "got";
+import path from "path";
 import { Globals } from "../Globals";
 import { MainGlobals } from '../Globals/mainGlobals';
 import { Logger } from '../interfaces/logger';
@@ -8,19 +9,20 @@ import { Modpack } from '../interfaces/modpack';
 import { getInstalled } from '../preload/instance';
 import { Progress } from './event/interface';
 import { AdditionalOptions, ProcessEventEmitter } from './event/Processor';
+import { getVersionsDir } from './General/mcBase';
 import { ForgeDownloader } from './processors/forge/downloader';
 import { McJarDownloader } from './processors/forge/jar/mcJarDownloader';
 import { ForgeManifestCopier } from './processors/forge/manifest/forgeManifest';
 import { VanillaManifestDownloader } from './processors/forge/manifest/vanillaManifest';
 import { PostProcessor } from './processors/forge/postProcessors/PostProcessor';
 import { ForgeUnpacker } from './processors/forge/unpacker';
-import { SharedMap } from './processors/interface';
+import { getInstanceVersion, getInstanceVersionPath, SharedMap } from './processors/interface';
 import { LauncherDownloader } from './processors/launcher/downloader';
+import { getLauncherExe } from './processors/launcher/file';
 import { LauncherUnpacker } from './processors/launcher/unpacker';
 import { LibraryMultipleDownloader } from './processors/libraries/LibraryMultiple';
 import { ModpackDownloader } from './processors/modpack/downloader';
 import { ModpackUnpacker } from './processors/modpack/unpacker';
-import path from "path"
 
 const baseUrl = Globals.baseUrl;
 const logger = Logger.get("InstallManager")
@@ -58,41 +60,78 @@ export class InstallManager {
             return reportError("Modpack already installed.")
 
         sendUpdate({ percent: 0, status: "Getting config..."})
+
         logger.await("Getting config", id)
         const config = await InstallManager.getConfig(id)
             .catch(e => reportError(e));
 
-        if (!config)
+            if (!config)
             return;
 
-        const options: AdditionalOptions = {
-            overwrite: true
-        }
+        const createFile = Globals.getCreatingFile(installDir, id);
+        fs.writeFileSync(createFile, "")
+        const res = await this.runProcessors(id, config, overwrite, {
+            sendUpdate,
+            reportError
+        });
 
-        logger.await("Construct processors", id)
+        if(!res)
+            return;
+
+        fs.rmSync(createFile)
+
+        const installedPath = getInstanceVersionPath(id);
+        const lastVersion = Globals.getLastVersion(config);
+
+        fs.writeFileSync(installedPath, JSON.stringify(lastVersion))
+        event.reply("modpack_success", id)
+    }
+
+    private static async runProcessors(id: string, config: Modpack, overwrite: boolean, { sendUpdate, reportError}: ReportFunctions) {
+        const lastVer = Globals.getLastVersion(config);
+
+        const { forge_version: forgeVersion } = lastVer
+
+        const options: AdditionalOptions = { overwrite }
         const sharedMap: SharedMap = {}
-        const processors = [
+
+        const modpack = [
             ModpackDownloader,
             ModpackUnpacker,
+        ]
+
+        const launcher = [
             LauncherDownloader,
             LauncherUnpacker,
-            ForgeDownloader,
-            ForgeUnpacker,
-            VanillaManifestDownloader,
-            ForgeManifestCopier,
+        ]
+
+        const forge = [
             VanillaManifestDownloader,
             McJarDownloader,
+            ForgeDownloader,
+            ForgeUnpacker,
+            ForgeManifestCopier,
             LibraryMultipleDownloader,
             PostProcessor
-        ].map(e => new e(id, config, options, sharedMap))
+        ]
 
-        logger.await("Run multiple", id)
-        ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
-            .then(() => event.reply("modpack_success", id))
+        const versionDir = getVersionsDir();
+
+        const hasLauncher = fs.existsSync(getLauncherExe())
+        const hasForge  = fs.existsSync(path.join(versionDir, forgeVersion))
+
+        const toExecute = [
+            ...modpack,
+            ...(hasLauncher ? [] : launcher),
+            ...(hasForge ? [] : forge)
+        ]
+
+        const processors = toExecute.map(e => new e(id, config, options, sharedMap))
+        logger.await("Starting processors hasLauncher", hasLauncher, "hasForge", hasForge, "id", id)
+
+        return await ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
+            .then(() => true)
             .catch(e => reportError(e))
-
-        const forgePath = path.join(instanceDir, "forge_ver.txt");
-        fs.writeFileSync(forgePath, sharedMap.forgeVersion)
     }
 
     static async remove(id: string, event: IpcMainEvent) {
@@ -112,8 +151,8 @@ export class InstallManager {
     }
 
     static addListeners() {
-        ipcMain.on("install_modpack", (event, id) => {
-            InstallManager.install(id, event);
+        ipcMain.on("install_modpack", (event, id, overwrite) => {
+            InstallManager.install(id, event, !!overwrite);
         })
 
         ipcMain.on("update_modpack", (event, id) => {
@@ -123,5 +162,14 @@ export class InstallManager {
         ipcMain.on("remove_modpack", (event, id) => {
             InstallManager.remove(id, event);
         })
+
+        ipcMain.on("get_version", (event, id) => {
+            event.returnValue = getInstanceVersion(id);
+        })
     }
+}
+
+interface ReportFunctions {
+    sendUpdate: (progress: Progress) => void,
+    reportError: (err: string) => void
 }

@@ -13,6 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Preference = exports.store = void 0;
+const pretty_bytes_1 = __importDefault(require("../assets/pretty-bytes"));
+const Globals_1 = require("../Globals");
 const electron_1 = require("electron");
 const electron_store_1 = __importDefault(require("electron-store"));
 const fs_1 = __importDefault(require("fs"));
@@ -90,6 +92,17 @@ class Preference {
                 return e.reply("select_folder_reply", id, undefined);
             e.reply("select_folder_reply", id, res.filePaths[0]);
         }));
+        electron_1.ipcMain.on("clear_cache", e => {
+            const installDir = mainGlobals_1.MainGlobals.getInstallDir();
+            const tempDir = Globals_1.Globals.getTempDir(installDir);
+            const exists = fs_1.default.existsSync(tempDir);
+            if (!exists)
+                return e.reply("clear_cache_reply", 0);
+            const stat = fs_1.default.statSync(tempDir);
+            fs_1.default.rmSync(tempDir, { recursive: true, force: true });
+            const humanReadable = (0, pretty_bytes_1.default)(stat.size);
+            e.reply("clear_cache_reply", humanReadable);
+        });
     }
 }
 exports.Preference = Preference;

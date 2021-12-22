@@ -1,20 +1,27 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
+import { spawn } from "child_process";
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
-import { spawnSync } from "child_process";
-import fs, { existsSync, rmSync } from "fs";
+import fs from "fs";
 import * as path from 'path';
+import { v5 as uuid } from "uuid";
 import { Globals } from './Globals';
-import { MainGlobals } from './Globals/mainGlobals';
 import { InstallManager } from './InstallManager';
-import { getLauncherDir } from './InstallManager/processors/launcher/file';
-import { LauncherProfiles, Profile } from './interfaces/launcher';
-import { Preference } from './preferences/renderer';
-import { getInstalled } from './preload/instance';
-import { v4 as uuid } from "uuid"
-import { Modpack } from './interfaces/modpack';
+import { getLauncherDir, getLauncherExe } from './InstallManager/processors/launcher/file';
 import { getInstanceDestination } from './InstallManager/processors/modpack/file';
-import { getForgeVer } from './InstallManager/processors/interface';
+import { LauncherProfiles, Profile } from './interfaces/launcher';
+import { Modpack } from './interfaces/modpack';
+import { Preference } from './preferences/renderer';
+import { cleanupCorrupted, getInstalled } from './preload/instance';
+const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
+
+const genUUID = (str: string) => uuid(str, MY_NAMESPACE)
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('update-electron-app')({
+  repo: 'sshcrack/mc-modlauncher',
+  updateInterval: '10 minutes'
+})
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -25,13 +32,6 @@ try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('electron-reloader')(module)
 } catch (_) { /**/ }
-
-
-const installDir = MainGlobals.getInstallDir();
-const tempDir = Globals.getTempDir(installDir)
-
-if (existsSync(tempDir))
-  rmSync(tempDir, { recursive: true, force: true })
 
 
 let mainWindow: BrowserWindow;
@@ -56,7 +56,22 @@ const createWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+  })
+
+  app.on('ready', createWindow);
+}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -97,32 +112,35 @@ ipcMain.on("uninstall_prompt", e => {
   e.returnValue = index === 0;
 })
 
-ipcMain.on("launch_mc", async (e, id, { name }: Modpack) => {
+ipcMain.on("launch_mc", async (e, id, { name, ...config}: Modpack) => {
   const gameDir = getInstanceDestination(id)
+  const lastVersion = Globals.getLastVersion({ name, ...config})
 
   const launcherDir = getLauncherDir();
-  const dotLauncher = path.join(launcherDir, `.minecraft`)
-  const profilesPath = path.join(dotLauncher, "launcher_profiles.json");
+  const profilesPath = path.join(launcherDir, "launcher_profiles.json");
 
   const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
-  const randomUUid = uuid();
+  const setUUID = genUUID(id);
 
   const profile: Profile = {
     created: new Date().toISOString(),
     gameDir: gameDir,
     icon: "Furnace",
     lastUsed: new Date().toISOString(),
-    lastVersionId: getForgeVer(id),
+    lastVersionId: lastVersion.forge_version,
     name,
     type: "custom"
   }
 
-  delete profiles.profiles;
-  profiles.profiles = {}
-  profiles.profiles[randomUUid] = profile;
+  console.log("Using uuid", setUUID)
+  profiles.profiles[setUUID] = profile;
+  fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))
 
-  const launcherExe = path.join(launcherDir, "MinecraftLauncher.exe")
-
-  spawnSync(launcherExe, ["--workDir", launcherDir])
+  spawn(getLauncherExe(), ["--workDir", launcherDir])
   e.reply("launched_mc_success")
+})
+
+ipcMain.on("clean_corrupted", e => {
+  cleanupCorrupted()
+  e.returnValue = true
 })

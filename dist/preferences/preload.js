@@ -8,6 +8,7 @@ const pretty_bytes_1 = __importDefault(require("../assets/pretty-bytes"));
 document.addEventListener("DOMContentLoaded", () => {
     setMemory();
     setInstall();
+    setCacheRemove();
     const btn = document.getElementById("save");
     btn.addEventListener("click", () => saveThings());
 });
@@ -65,5 +66,17 @@ function saveThings() {
     electron_1.ipcRenderer.sendSync("save_pref", "install_dir", input.value);
     electron_1.ipcRenderer.sendSync("save_pref", "memory", parseInt(mem));
     electron_1.ipcRenderer.sendSync("close_prefs");
+}
+function setCacheRemove() {
+    const btn = document.querySelector("#cache-clear");
+    const wait = document.querySelector("#wait");
+    btn.addEventListener("click", () => {
+        electron_1.ipcRenderer.once("clear_cache_reply", size => {
+            wait.style.display = "none";
+            alert(`Cache with a total of ${size} cleared.`);
+        });
+        wait.style.display = "";
+        electron_1.ipcRenderer.send("clear_cache");
+    });
 }
 //# sourceMappingURL=preload.js.map

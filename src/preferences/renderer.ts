@@ -1,3 +1,5 @@
+import prettyBytes from '../assets/pretty-bytes';
+import { Globals } from '../Globals';
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import Store from "electron-store";
 import fs from "fs";
@@ -93,6 +95,22 @@ export class Preference {
 
             e.reply("select_folder_reply", id, res.filePaths[0]);
         });
+
+
+        ipcMain.on("clear_cache", e => {
+            const installDir = MainGlobals.getInstallDir()
+            const tempDir = Globals.getTempDir(installDir);
+            const exists = fs.existsSync(tempDir);
+
+            if (!exists)
+                return e.reply("clear_cache_reply", 0)
+
+            const stat = fs.statSync(tempDir);
+            fs.rmSync(tempDir, { recursive: true, force: true })
+
+            const humanReadable = prettyBytes(stat.size)
+            e.reply("clear_cache_reply", humanReadable)
+        })
     }
 }
 

@@ -27,22 +27,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
-const electron_1 = require("electron");
 const child_process_1 = require("child_process");
-const fs_1 = __importStar(require("fs"));
+const electron_1 = require("electron");
+const fs_1 = __importDefault(require("fs"));
 const path = __importStar(require("path"));
+const uuid_1 = require("uuid");
 const Globals_1 = require("./Globals");
-const mainGlobals_1 = require("./Globals/mainGlobals");
 const InstallManager_1 = require("./InstallManager");
 const file_1 = require("./InstallManager/processors/launcher/file");
+const file_2 = require("./InstallManager/processors/modpack/file");
 const renderer_1 = require("./preferences/renderer");
 const instance_1 = require("./preload/instance");
-const uuid_1 = require("uuid");
-const file_2 = require("./InstallManager/processors/modpack/file");
-const interface_1 = require("./InstallManager/processors/interface");
+const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
+const genUUID = (str) => (0, uuid_1.v5)(str, MY_NAMESPACE);
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('update-electron-app')({
+    repo: 'sshcrack/mc-modlauncher',
+    updateInterval: '10 minutes'
+});
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
     electron_1.app.quit();
@@ -52,10 +71,6 @@ try {
     require('electron-reloader')(module);
 }
 catch (_) { /**/ }
-const installDir = mainGlobals_1.MainGlobals.getInstallDir();
-const tempDir = Globals_1.Globals.getTempDir(installDir);
-if ((0, fs_1.existsSync)(tempDir))
-    (0, fs_1.rmSync)(tempDir, { recursive: true, force: true });
 let mainWindow;
 const createWindow = () => {
     // Create the browser window.
@@ -76,7 +91,21 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-electron_1.app.on('ready', createWindow);
+const gotTheLock = electron_1.app.requestSingleInstanceLock();
+if (!gotTheLock) {
+    electron_1.app.quit();
+}
+else {
+    electron_1.app.on('second-instance', () => {
+        // Someone tried to run a second instance, we should focus our window.
+        if (mainWindow) {
+            if (mainWindow.isMinimized())
+                mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+    electron_1.app.on('ready', createWindow);
+}
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
@@ -108,27 +137,31 @@ electron_1.ipcMain.on("uninstall_prompt", e => {
     });
     e.returnValue = index === 0;
 });
-electron_1.ipcMain.on("launch_mc", (e, id, { name }) => __awaiter(void 0, void 0, void 0, function* () {
+electron_1.ipcMain.on("launch_mc", (e, id, _a) => __awaiter(void 0, void 0, void 0, function* () {
+    var { name } = _a, config = __rest(_a, ["name"]);
     const gameDir = (0, file_2.getInstanceDestination)(id);
+    const lastVersion = Globals_1.Globals.getLastVersion(Object.assign({ name }, config));
     const launcherDir = (0, file_1.getLauncherDir)();
-    const dotLauncher = path.join(launcherDir, `.minecraft`);
-    const profilesPath = path.join(dotLauncher, "launcher_profiles.json");
+    const profilesPath = path.join(launcherDir, "launcher_profiles.json");
     const profiles = JSON.parse(fs_1.default.readFileSync(profilesPath, "utf-8"));
-    const randomUUid = (0, uuid_1.v4)();
+    const setUUID = genUUID(id);
     const profile = {
         created: new Date().toISOString(),
         gameDir: gameDir,
         icon: "Furnace",
         lastUsed: new Date().toISOString(),
-        lastVersionId: (0, interface_1.getForgeVer)(id),
+        lastVersionId: lastVersion.forge_version,
         name,
         type: "custom"
     };
-    delete profiles.profiles;
-    profiles.profiles = {};
-    profiles.profiles[randomUUid] = profile;
-    const launcherExe = path.join(launcherDir, "MinecraftLauncher.exe");
-    (0, child_process_1.spawnSync)(launcherExe, ["--workDir", launcherDir]);
+    console.log("Using uuid", setUUID);
+    profiles.profiles[setUUID] = profile;
+    fs_1.default.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2));
+    (0, child_process_1.spawn)((0, file_1.getLauncherExe)(), ["--workDir", launcherDir]);
     e.reply("launched_mc_success");
 }));
+electron_1.ipcMain.on("clean_corrupted", e => {
+    (0, instance_1.cleanupCorrupted)();
+    e.returnValue = true;
+});
 //# sourceMappingURL=index.js.map

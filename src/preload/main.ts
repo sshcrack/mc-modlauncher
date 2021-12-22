@@ -5,8 +5,20 @@ import { updateModpacks } from './modpack';
 
 const logger = Logger.get("Preload", "Main")
 export async function handleIndex() {
+    ipcRenderer.sendSync("clean_corrupted")
+
     await updateModpacks();
     await addPrefEvent();
+    queueUpdating()
+}
+
+export async function queueUpdating() {
+    await new Promise<void>(resolve => {
+        setTimeout(() => resolve(), 60000)
+    })
+
+    await updateModpacks();
+    queueUpdating();
 }
 
 async function addPrefEvent() {
