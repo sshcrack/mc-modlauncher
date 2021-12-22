@@ -3,6 +3,7 @@ import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor
 import { SharedMap } from '../../interface';
 import { ArgumentGetter } from './ArgumentGetter';
 import { SharedProcessor } from './interface';
+import { PatchCopier } from './PatchCopier';
 import { MainPatcher } from './patcher/MainPatcher';
 
 //const logger = Logger.get("InstallManager", "PostProcessors", "PostProcessor")
@@ -18,7 +19,8 @@ export class PostProcessor extends ProcessEventEmitter {
         const sharedMap: SharedProcessor = Object.assign(this.shared);
         const processors = [
             ArgumentGetter,
-            MainPatcher
+            MainPatcher,
+            PatchCopier
         ].map(e => new e(this.id, this.config, this.options, sharedMap));
 
         await ProcessEventEmitter.runMultiple(processors, prog => {

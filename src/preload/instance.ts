@@ -35,6 +35,9 @@ export function cleanupCorrupted() {
     const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
 
+    if(!fs.existsSync( instances))
+        return;
+
     const cleared = fs.readdirSync(instances, { withFileTypes: true })
         .filter(e => e.isDirectory())
         .map(e => e.name)

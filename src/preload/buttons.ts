@@ -2,18 +2,19 @@ import { RenderGlobals } from '../Globals/renderGlobals';
 import { ipcRenderer } from 'electron';
 import { Logger } from '../interfaces/logger';
 import { Modpack } from '../interfaces/modpack';
-import { updateModpacks } from './modpack';
+import { setLock, updateModpacks } from './modpack';
 
 const logger = Logger.get("Preload", "Buttons")
 
 export function addButtonAction(id: string, btn: HTMLElement, installed: boolean, config: Modpack) {
     btn.addEventListener("click", async () => {
         const newestVersion = RenderGlobals.hasLatest(id, config)
-        logger.info("Clicked button to installed, info: ", installed, "id", id);
 
 
         if(installed && newestVersion)
             return ipcRenderer.send("launch_mc", id, config)
+
+        setLock(true)
 
         const parent = btn.parentElement;
         parent.childNodes.forEach(e => e.remove())
@@ -38,17 +39,11 @@ export function addButtonAction(id: string, btn: HTMLElement, installed: boolean
             bar.innerText = perStr;
         })
 
-        ipcRenderer.on("modpack_success", (_, innerId, config) => {
+        ipcRenderer.on("modpack_success", (_, innerId) => {
             if (id !== innerId)
                 return;
 
-
-            updateStatus(id, null)
-            progress.remove();
-            const btn = getButtonDiv(id, true, config);
-
-            parent.appendChild(btn);
-            updateModpacks();
+            updateModpacks(true);
         })
 
         ipcRenderer.on("modpack_error", (e, innerId, error) => {
@@ -60,7 +55,7 @@ export function addButtonAction(id: string, btn: HTMLElement, installed: boolean
             logger.error(err);
             alert(`Error installing modpack ${innerId}: ${err}. Please restart to avoid errors.`)
 
-            updateModpacks();
+            updateModpacks(true);
         })
 
         //overwrite = newestVersion
@@ -93,11 +88,12 @@ export function getButtonDiv(id: string, installed: boolean, config: Modpack) {
         if (!res)
             return
 
+        setLock(true)
         ipcRenderer.send("remove_modpack", id);
-        ipcRenderer.on("remove_modpack_success", () => updateModpacks());
+        ipcRenderer.on("remove_modpack_success", () => updateModpacks(true));
         ipcRenderer.on("remove_modpack_error", (_, e) => {
             alert(`Error uninstalling ${e.stack ?? e.message ?? e}`)
-            updateModpacks();
+            updateModpacks(true);
         });
     })
 

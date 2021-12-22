@@ -33,7 +33,6 @@ export class Globals {
 
     static getLastVersion(config: Modpack | Version[]) {
         let versions = config as Version[];
-        console.log("Prev", versions)
 
         if(Object.keys(config).includes("versions"))
             versions =(config as Modpack).versions;
@@ -41,7 +40,7 @@ export class Globals {
         const last = versions.length - 1
         const lastItem = versions[last];
 
-        console.log("LastItems", lastItem)
+        console.log("LastItems", versions)
         return lastItem
     }
 }

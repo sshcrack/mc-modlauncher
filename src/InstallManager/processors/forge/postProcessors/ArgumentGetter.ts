@@ -40,13 +40,13 @@ export class ArgumentGetter extends ProcessEventEmitter {
             const isData = start("'") && end("'")
 
             logger.info(`${key}: ${value} is artifact ${isArtifact} is data ${isData}`)
-            if(!isArtifact && !isData)
-                return mapped.set(key, value)
-
             if(isArtifact) {
                 const artifact = value.substring(1, value.length - 1)
                 return mapped.set(key, stringToArtifact(artifact).path);
             }
+
+            if (isData)
+                return mapped.set(key, value)
 
             const target = path.join(forge, value)
             const absolute = path.resolve(target);

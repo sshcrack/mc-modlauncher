@@ -17,6 +17,7 @@ import { VanillaManifestDownloader } from './processors/forge/manifest/vanillaMa
 import { PostProcessor } from './processors/forge/postProcessors/PostProcessor';
 import { ForgeUnpacker } from './processors/forge/unpacker';
 import { getInstanceVersion, getInstanceVersionPath, SharedMap } from './processors/interface';
+import { AssetCopier } from './processors/launcher/assetCopier';
 import { LauncherDownloader } from './processors/launcher/downloader';
 import { getLauncherExe } from './processors/launcher/file';
 import { LauncherUnpacker } from './processors/launcher/unpacker';
@@ -36,7 +37,7 @@ export class InstallManager {
         return JSON.parse(configRes.body) as Modpack;
     }
 
-    static async install(id: string, event: IpcMainEvent, overwrite = false) {
+    static async install(id: string, event: IpcMainEvent, update = false) {
         logger.await("Installing modpack", id)
         const installDir = MainGlobals.getInstallDir();
         const installations = getInstalled();
@@ -56,7 +57,7 @@ export class InstallManager {
         if (!fs.existsSync(instanceDir))
             fs.mkdirSync(instanceDir);
 
-        if (installations.includes(id) && !overwrite)
+        if (installations.includes(id) && !update)
             return reportError("Modpack already installed.")
 
         sendUpdate({ percent: 0, status: "Getting config..."})
@@ -65,12 +66,14 @@ export class InstallManager {
         const config = await InstallManager.getConfig(id)
             .catch(e => reportError(e));
 
-            if (!config)
-            return;
+        if (!config) {
+            return reportError("Could not download modpack configuration")
+        }
 
         const createFile = Globals.getCreatingFile(installDir, id);
         fs.writeFileSync(createFile, "")
-        const res = await this.runProcessors(id, config, overwrite, {
+
+        const res = await this.runProcessors(id, config, update, {
             sendUpdate,
             reportError
         });
@@ -103,6 +106,7 @@ export class InstallManager {
         const launcher = [
             LauncherDownloader,
             LauncherUnpacker,
+            AssetCopier
         ]
 
         const forge = [
@@ -116,9 +120,12 @@ export class InstallManager {
         ]
 
         const versionDir = getVersionsDir();
+        const forgeDir = path.join(versionDir, forgeVersion)
 
-        const hasLauncher = fs.existsSync(getLauncherExe())
-        const hasForge  = fs.existsSync(path.join(versionDir, forgeVersion))
+        const launcherExe = getLauncherExe()
+
+        const hasLauncher = fs.existsSync(launcherExe)
+        const hasForge = fs.existsSync(forgeDir)
 
         const toExecute = [
             ...modpack,
@@ -127,7 +134,7 @@ export class InstallManager {
         ]
 
         const processors = toExecute.map(e => new e(id, config, options, sharedMap))
-        logger.await("Starting processors hasLauncher", hasLauncher, "hasForge", hasForge, "id", id)
+        logger.await("Starting processors hasLauncher", hasLauncher, "hasForge", hasForge, "id", id, "ForgeDir", forgeDir, "LauncherExe", launcherExe)
 
         return await ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
             .then(() => true)

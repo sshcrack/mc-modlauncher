@@ -10,7 +10,7 @@ export function getLauncherMC() {
 }
 
 export function getVersionsDir() {
-    return path.join(getLauncherMC(), "versions")
+    return path.join(getLauncherDir(), "versions")
 }
 
 export function getVersionJar(versionName: string) {
@@ -23,7 +23,7 @@ export function getVersionManifest(versionName: string) {
 }
 
 export function getLibrariesDir() {
-    return path.join(getLauncherMC(), "libraries");
+    return path.join(getLauncherDir(), "libraries");
 }
 
 

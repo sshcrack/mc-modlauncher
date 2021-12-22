@@ -11,6 +11,7 @@ export class ModpackUnpacker extends Unpacker {
             ...options,
             src: getInstallZip(MainGlobals.getInstallDir(), id, config),
             destination: getInstanceDestination(id),
+            deleteExistent: true,
             messages: {
                 extracting: "Extracting modpack..."
             }

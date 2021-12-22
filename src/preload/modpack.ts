@@ -10,19 +10,25 @@ import { getButtonDiv } from './buttons';
 const { baseUrl } = Globals
 const listUrl = `${baseUrl}/list.json`
 
-let processing = false;
+let locked = false
 
-export async function updateModpacks() {
-    if(processing)
+export async function updateModpacks(releaseLock?: boolean) {
+    if(releaseLock)
+        setLock(false)
+
+    if(locked)
         return;
 
-    processing = true;
+    setLock(true)
     const modpacks = document.getElementById("modpacks")
 
     const list: string[] = await fetch(listUrl).then(e => e.json()).catch(() => alert("Could not list modpacks"));
 
     const infos = await Promise.all(
-        list.map(id => fetch(`${baseUrl}/${id}/config.json`).then(async e => {
+        list.map(id => fetch(`${baseUrl}/${id}/config.json`, { headers: {
+            "pragma": "no-cache",
+            "cache-control": "no-cache"
+        }}).then(async e => {
             const json: Modpack = await e.json();
             return {
                 id: id,
@@ -33,7 +39,7 @@ export async function updateModpacks() {
 
     const installed: string[] = await ipcRenderer.sendSync("get_installed");
     const childrenProms = infos.map(async (config) => {
-        const { name, cover, author, description, id, versions } = config
+        const { name, cover, author, description, id } = config
         const cardDiv = document.createElement("div");
 
         const imgUrl = `${baseUrl}/${id}/${cover}`
@@ -79,10 +85,15 @@ export async function updateModpacks() {
         const fNumb = toNumber(firstInstalled);
         const sNumb = toNumber(secondInstalled);
 
-        return fNumb - sNumb;
+        return sNumb - fNumb;
     })
 
     modpacks.innerHTML = "";
     modpacks.append(...sorted);
-    processing = false;
+    setLock(false)
+}
+
+
+export function setLock(lock: boolean) {
+    locked = lock
 }
