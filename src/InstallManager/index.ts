@@ -9,13 +9,18 @@ import { getInstalled } from '../preload/instance';
 import { Progress } from './event/interface';
 import { AdditionalOptions, ProcessEventEmitter } from './event/Processor';
 import { ForgeDownloader } from './processors/forge/downloader';
+import { McJarDownloader } from './processors/forge/jar/mcJarDownloader';
 import { ForgeManifestCopier } from './processors/forge/manifest/forgeManifest';
 import { VanillaManifestDownloader } from './processors/forge/manifest/vanillaManifest';
+import { PostProcessor } from './processors/forge/postProcessors/PostProcessor';
 import { ForgeUnpacker } from './processors/forge/unpacker';
+import { SharedMap } from './processors/interface';
 import { LauncherDownloader } from './processors/launcher/downloader';
 import { LauncherUnpacker } from './processors/launcher/unpacker';
+import { LibraryMultipleDownloader } from './processors/libraries/LibraryMultiple';
 import { ModpackDownloader } from './processors/modpack/downloader';
 import { ModpackUnpacker } from './processors/modpack/unpacker';
+import path from "path"
 
 const baseUrl = Globals.baseUrl;
 const logger = Logger.get("InstallManager")
@@ -65,6 +70,7 @@ export class InstallManager {
         }
 
         logger.await("Construct processors", id)
+        const sharedMap: SharedMap = {}
         const processors = [
             ModpackDownloader,
             ModpackUnpacker,
@@ -73,13 +79,20 @@ export class InstallManager {
             ForgeDownloader,
             ForgeUnpacker,
             VanillaManifestDownloader,
-            ForgeManifestCopier
-        ].map(e => new e(id, config, options))
+            ForgeManifestCopier,
+            VanillaManifestDownloader,
+            McJarDownloader,
+            LibraryMultipleDownloader,
+            PostProcessor
+        ].map(e => new e(id, config, options, sharedMap))
 
         logger.await("Run multiple", id)
         ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
             .then(() => event.reply("modpack_success", id))
             .catch(e => reportError(e))
+
+        const forgePath = path.join(instanceDir, "forge_ver.txt");
+        fs.writeFileSync(forgePath, sharedMap.forgeVersion)
     }
 
     static async remove(id: string, event: IpcMainEvent) {

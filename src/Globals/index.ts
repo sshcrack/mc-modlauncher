@@ -34,20 +34,4 @@ export class Globals {
 
         return lastItem
     }
-
-    static getInstallZip(installDir: string, id: string, version: string) {
-        return path.join(this.getTempDir(installDir), `${id}-${version}.zip`)
-    }
-
-    static getForgeZip(installDir: string, id: string, version: string) {
-        return path.join(this.getTempDir(installDir), `${id}-${version}.forge.zip`)
-    }
-
-    static getForgeDir(installDir: string, id: string, version: string) {
-        const dir = path.join(this.getTempDir(installDir), `${id}-${version}-forge/`)
-        if(!fs.existsSync(dir))
-            fs.mkdirSync(dir, { recursive: true})
-
-        return dir
-    }
 }

@@ -1,10 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { spawnSync } from "child_process";
+import fs, { existsSync, rmSync } from "fs";
 import * as path from 'path';
+import { Globals } from './Globals';
+import { MainGlobals } from './Globals/mainGlobals';
 import { InstallManager } from './InstallManager';
-import { getInstalled } from './preload/instance';
+import { getLauncherDir } from './InstallManager/processors/launcher/file';
+import { LauncherProfiles, Profile } from './interfaces/launcher';
 import { Preference } from './preferences/renderer';
+import { getInstalled } from './preload/instance';
+import { v4 as uuid } from "uuid"
+import { Modpack } from './interfaces/modpack';
+import { getInstanceDestination } from './InstallManager/processors/modpack/file';
+import { getForgeVer } from './InstallManager/processors/interface';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -14,7 +24,15 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('electron-reloader')(module)
-} catch (_) { /**/}
+} catch (_) { /**/ }
+
+
+const installDir = MainGlobals.getInstallDir();
+const tempDir = Globals.getTempDir(installDir)
+
+if (existsSync(tempDir))
+  rmSync(tempDir, { recursive: true, force: true })
+
 
 let mainWindow: BrowserWindow;
 const createWindow = (): void => {
@@ -72,9 +90,39 @@ ipcMain.on("get_installed", e => {
 ipcMain.on("uninstall_prompt", e => {
   const index = dialog.showMessageBoxSync(mainWindow, {
     message: "Are you sure you want to uninstall this modpack?",
-    buttons: [ "Yes", "No"],
+    buttons: ["Yes", "No"],
     type: "warning"
   })
 
   e.returnValue = index === 0;
+})
+
+ipcMain.on("launch_mc", async (e, id, { name }: Modpack) => {
+  const gameDir = getInstanceDestination(id)
+
+  const launcherDir = getLauncherDir();
+  const dotLauncher = path.join(launcherDir, `.minecraft`)
+  const profilesPath = path.join(dotLauncher, "launcher_profiles.json");
+
+  const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
+  const randomUUid = uuid();
+
+  const profile: Profile = {
+    created: new Date().toISOString(),
+    gameDir: gameDir,
+    icon: "Furnace",
+    lastUsed: new Date().toISOString(),
+    lastVersionId: getForgeVer(id),
+    name,
+    type: "custom"
+  }
+
+  delete profiles.profiles;
+  profiles.profiles = {}
+  profiles.profiles[randomUUid] = profile;
+
+  const launcherExe = path.join(launcherDir, "MinecraftLauncher.exe")
+
+  spawnSync(launcherExe, ["--workDir", launcherDir])
+  e.reply("launched_mc_success")
 })

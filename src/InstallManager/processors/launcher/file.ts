@@ -3,14 +3,17 @@ import { Globals } from '../../../Globals';
 import { MainGlobals } from '../../../Globals/mainGlobals';
 
 
-const installDir = MainGlobals.getInstallDir();
-const tempDir = Globals.getTempDir(installDir);
 
 export function getLauncherZip() {
+    const installDir = MainGlobals.getInstallDir();
+    const tempDir = Globals.getTempDir(installDir);
+
     return path.join(tempDir, "launcher.zip");
 }
 
 export function getLauncherDir() {
+    const installDir = MainGlobals.getInstallDir();
+
     return path.join(installDir, "Launcher")
 }
 

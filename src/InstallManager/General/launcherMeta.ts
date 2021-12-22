@@ -1,4 +1,4 @@
-export interface VersionManifest {
+export interface LauncherMeta {
     latest:   Latest;
     versions: Version[];
 }

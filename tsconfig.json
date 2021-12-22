@@ -14,7 +14,7 @@
       "*": ["node_modules/*"]
     },*/
     "paths": {
-      "src": [ "./src" ]
+      "@src/*": [ "./src/*" ]
     },
     "typeRoots": [
       "src/types"

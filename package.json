@@ -6,6 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc && electron-forge start",
+    "dev": "electron-forge start",
     "package": "electron-forge package",
     "postinstall": "node fixLibs.js",
     "make": "electron-forge make",
@@ -53,11 +54,13 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.61",
     "@types/node": "14.6.2",
     "@types/signale": "^1.4.2",
+    "@types/uuid": "^8.3.3",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
     "electron": "16.0.5",
     "eslint": "^7.6.0",
-    "eslint-plugin-import": "^2.20.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.3",
     "typed-emitter": "^1.4.0",
     "typescript": "^4.0.2"
   },
@@ -69,6 +72,7 @@
     "signale": "^1.4.0",
     "source-map-support": "^0.5.21",
     "sweetalert2": "^11.3.0",
-    "unpacker-with-progress": "^2.0.3"
+    "unpacker-with-progress": "^2.0.3",
+    "uuid": "^8.3.2"
   }
 }

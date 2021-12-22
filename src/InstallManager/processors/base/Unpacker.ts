@@ -27,7 +27,7 @@ export class Unpacker extends ProcessEventEmitter {
             fs.mkdirSync(destination, { recursive: true})
 
         if(!fs.existsSync(src))
-            throw `File ${src} does not exist. (Unpacker)`
+            throw new Error(`File ${src} does not exist. (Unpacker)`)
 
         await unpacker(src, destination, {
             resume: overwrite,

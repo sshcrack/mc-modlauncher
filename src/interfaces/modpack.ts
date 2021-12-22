@@ -1,6 +1,6 @@
 export interface Modpack {
     name: string,
-    version: string,
+    mcVersion: string,
     description: string,
     author: string,
     versions: Version[],

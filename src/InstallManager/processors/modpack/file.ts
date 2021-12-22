@@ -11,15 +11,7 @@ export function getUrl(id: string, config: Modpack): string {
     return `${baseUrl}/${id}/${version.file}`
 }
 
-export function getInstallZip(id: string, config: Modpack) {
-    const installDir = MainGlobals.getInstallDir();
-    const version = Globals.getLastVersion(config)
-
-    return Globals.getInstallZip(installDir, id, version.id)
-}
-
-
-export function getDestination(id: string) {
+export function getInstanceDestination(id: string) {
     const installDir = MainGlobals.getInstallDir();
     return Globals.getInstancePathById(installDir, id);
 }

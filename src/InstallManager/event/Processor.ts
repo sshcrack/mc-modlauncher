@@ -54,10 +54,11 @@ class ProcessorEventEmitterClass extends (EventEmitter as new () => TypedEmitter
         for (let i = 0; i < length; i++) {
             logger.await(i, "/", length)
             const emitter = emitters[i];
-            const currMultiplier = i / length;
+            const currMultiplier = 1 / length;
+            const alreadyDone = i * currMultiplier;
 
             emitter.on("progress", ({ percent, status }) => {
-                const totalPercent = percent * currMultiplier;
+                const totalPercent = percent * currMultiplier + alreadyDone;
                 const multiplier = Math.pow(10, maxDigits);
 
                 const rounded = Math.round(totalPercent * multiplier) / multiplier
@@ -82,5 +83,6 @@ export abstract class ProcessEventEmitter extends ProcessorEventEmitterClass {
 }
 
 export interface AdditionalOptions {
-    overwrite: boolean
+    overwrite: boolean,
+    forgeVersion?: string
 }

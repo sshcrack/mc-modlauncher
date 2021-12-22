@@ -1,11 +1,12 @@
 import { ipcRenderer } from 'electron';
+import { Globals } from '../Globals';
 import { Logger } from '../interfaces/logger';
 import { updateModpacks } from './modpack';
 
 const logger = Logger.get("Preload", "Buttons")
 
 export function addButtonAction(id: string, btn: HTMLElement, installed: boolean) {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
         logger.info("Clicked button to installed, info: ", installed, "id", id);
 
         const parent = btn.parentElement;
@@ -58,6 +59,13 @@ export function addButtonAction(id: string, btn: HTMLElement, installed: boolean
 
                 updateModpacks();
             })
+        } else {
+            const baseUrl = Globals.baseUrl;
+            const config = await fetch(`${baseUrl}/${id}/config.json`)
+                .then(e => e.json())
+                .catch(e => alert("Error " + e))
+
+            ipcRenderer.send("launch_mc", id, config)
         }
     })
 }

@@ -18,14 +18,31 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 const electron_1 = require("electron");
+const child_process_1 = require("child_process");
+const fs_1 = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const Globals_1 = require("./Globals");
+const mainGlobals_1 = require("./Globals/mainGlobals");
 const InstallManager_1 = require("./InstallManager");
-const instance_1 = require("./preload/instance");
+const file_1 = require("./InstallManager/processors/launcher/file");
 const renderer_1 = require("./preferences/renderer");
+const instance_1 = require("./preload/instance");
+const uuid_1 = require("uuid");
+const file_2 = require("./InstallManager/processors/modpack/file");
+const interface_1 = require("./InstallManager/processors/interface");
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
     electron_1.app.quit();
@@ -35,6 +52,10 @@ try {
     require('electron-reloader')(module);
 }
 catch (_) { /**/ }
+const installDir = mainGlobals_1.MainGlobals.getInstallDir();
+const tempDir = Globals_1.Globals.getTempDir(installDir);
+if ((0, fs_1.existsSync)(tempDir))
+    (0, fs_1.rmSync)(tempDir, { recursive: true, force: true });
 let mainWindow;
 const createWindow = () => {
     // Create the browser window.
@@ -87,4 +108,27 @@ electron_1.ipcMain.on("uninstall_prompt", e => {
     });
     e.returnValue = index === 0;
 });
+electron_1.ipcMain.on("launch_mc", (e, id, { name }) => __awaiter(void 0, void 0, void 0, function* () {
+    const gameDir = (0, file_2.getInstanceDestination)(id);
+    const launcherDir = (0, file_1.getLauncherDir)();
+    const dotLauncher = path.join(launcherDir, `.minecraft`);
+    const profilesPath = path.join(dotLauncher, "launcher_profiles.json");
+    const profiles = JSON.parse(fs_1.default.readFileSync(profilesPath, "utf-8"));
+    const randomUUid = (0, uuid_1.v4)();
+    const profile = {
+        created: new Date().toISOString(),
+        gameDir: gameDir,
+        icon: "Furnace",
+        lastUsed: new Date().toISOString(),
+        lastVersionId: (0, interface_1.getForgeVer)(id),
+        name,
+        type: "custom"
+    };
+    delete profiles.profiles;
+    profiles.profiles = {};
+    profiles.profiles[randomUUid] = profile;
+    const launcherExe = path.join(launcherDir, "MinecraftLauncher.exe");
+    (0, child_process_1.spawnSync)(launcherExe, ["--workDir", launcherDir]);
+    e.reply("launched_mc_success");
+}));
 //# sourceMappingURL=index.js.map
