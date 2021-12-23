@@ -57,8 +57,6 @@ class Preference {
             preferences.setMenu(null);
             preferences.loadFile(path_1.default.join(__dirname, "../../src/preferences", "index.html"));
             preferences.show();
-            preferences.maximize();
-            preferences.webContents.openDevTools();
             Preference.window = preferences;
             preferences.on("closed", () => { Preference.window = null; });
             this.window = preferences;

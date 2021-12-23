@@ -49,8 +49,6 @@ export class Preference {
         preferences.loadFile(path.join(__dirname, "../../src/preferences", "index.html"));
 
         preferences.show();
-        preferences.maximize()
-        preferences.webContents.openDevTools()
         Preference.window = preferences;
 
         preferences.on("closed", () => { Preference.window = null })
