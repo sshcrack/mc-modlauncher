@@ -58,11 +58,14 @@ export class Preference {
         ipcMain.on("get_mem", e => e.returnValue = os.totalmem())
         ipcMain.on("exists_folder", (e, p) => e.returnValue = fs.existsSync(p) && fs.lstatSync(p).isDirectory())
 
-        ipcMain.on("save_pref", (e, key: AvailablePrefs, val: unknown) => {
+        ipcMain.on("save_pref", async (e, key: AvailablePrefs, val: unknown) => {
             logger.log("Saving preference", key, "with value", val)
 
+            if(key === "install_dir")
+                await fs.promises.rename(store.get("install_dir"), val as string)
+
             store.set(key, val)
-            e.returnValue = true
+            e.reply("saved_prefs")
         });
 
         ipcMain.on("open_prefs", e =>

@@ -62,6 +62,23 @@ require('update-electron-app')({
     repo: 'sshcrack/mc-modlauncher',
     updateInterval: '10 minutes'
 });
+electron_1.autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    const dialogOpts = {
+        type: 'info',
+        buttons: ['Restart', 'Later'],
+        title: 'Application Update',
+        message: process.platform === 'win32' ? releaseNotes : releaseName,
+        detail: 'A new version has been downloaded. Restart the application to apply the updates.'
+    };
+    electron_1.dialog.showMessageBox(dialogOpts).then((returnValue) => {
+        if (returnValue.response === 0)
+            electron_1.autoUpdater.quitAndInstall();
+    });
+});
+electron_1.autoUpdater.on('error', message => {
+    console.error('There was a problem updating the application');
+    console.error(message);
+});
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
     electron_1.app.quit();

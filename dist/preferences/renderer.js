@@ -64,11 +64,13 @@ class Preference {
         electron_1.ipcMain.on("get_pref", (e, key) => e.returnValue = exports.store.get(key));
         electron_1.ipcMain.on("get_mem", e => e.returnValue = os_1.default.totalmem());
         electron_1.ipcMain.on("exists_folder", (e, p) => e.returnValue = fs_1.default.existsSync(p) && fs_1.default.lstatSync(p).isDirectory());
-        electron_1.ipcMain.on("save_pref", (e, key, val) => {
+        electron_1.ipcMain.on("save_pref", (e, key, val) => __awaiter(this, void 0, void 0, function* () {
             logger.log("Saving preference", key, "with value", val);
+            if (key === "install_dir")
+                yield fs_1.default.promises.rename(exports.store.get("install_dir"), val);
             exports.store.set(key, val);
-            e.returnValue = true;
-        });
+            e.reply("saved_prefs");
+        }));
         electron_1.ipcMain.on("open_prefs", e => Preference.open()
             .then(() => e.reply("open_prefs_reply", true))
             .catch(err => {

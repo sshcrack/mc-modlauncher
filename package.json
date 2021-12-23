@@ -1,7 +1,7 @@
 {
   "name": "sshmods",
   "productName": "sshmods",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "My Electron application description",
   "main": "dist/index.js",
   "scripts": {
@@ -22,15 +22,32 @@
   "config": {
     "forge": {
       "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "target": [
+            "win32"
+          ],
+          "config": {
+            "name": "sshmods.Minecraft.Modpacks",
+            "authors": "sshcrack",
+            "description": "A minecraft modpack installer made by sshcrack"
+          }
+        }
+      ],
       "publishers": [
         {
           "name": "@electron-forge/publisher-github",
+          "platforms": [
+            "win32"
+          ],
           "config": {
             "repository": {
               "owner": "sshcrack",
-              "name": "mc-modlauncher"
+              "name": "mc-modlauncher",
+              "loadingGif": "src/assets/loading.gif"
             },
-            "prerelease": true
+            "draft": true
           }
         }
       ]
@@ -49,6 +66,7 @@
     "@types/uuid": "^8.3.3",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
+    "dotenv": "^10.0.0",
     "electron": "16.0.5",
     "eslint": "^7.6.0",
     "eslint-import-resolver-typescript": "^2.5.0",

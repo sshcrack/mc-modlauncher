@@ -81,7 +81,9 @@ export class InstallManager {
         if(!res)
             return;
 
-        fs.rmSync(createFile)
+        try {
+            fs.rmSync(createFile)
+        } catch(e) {/** */}
 
         const installedPath = getInstanceVersionPath(id);
         const lastVersion = Globals.getLastVersion(config);

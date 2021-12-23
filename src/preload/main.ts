@@ -8,7 +8,7 @@ export async function handleIndex() {
     ipcRenderer.sendSync("clean_corrupted")
 
     await updateModpacks();
-    await addPrefEvent();
+    //await addPrefEvent();
     queueUpdating()
 }
 

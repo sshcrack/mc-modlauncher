@@ -30,21 +30,24 @@ export class Unpacker extends ProcessEventEmitter {
 
         if(!fs.existsSync(src))
             throw new Error(`File ${src} does not exist. (Unpacker)`)
+        if (this.options.deleteExistent) {
+            const file = fs.readFileSync(src)
 
-        const file = fs.readFileSync(src)
+            const zip = new JSZip()
+            await zip.loadAsync(file)
 
-        const zip = new JSZip()
-        await zip.loadAsync(file)
+            const files = Object.values(zip.files)
+                .map(e => e.name)
+                .map(e => path.dirname(e))
 
-        const files = Object.values(zip.files)
-            .map(e => e.name)
-            .map(e => path.dirname(e))
+            files.forEach(e => {
+                const absPath = path.join(destination, e)
+                const exist = fs.existsSync(absPath);
+                if (exist)
+                    fs.rmSync(absPath, { recursive: true, force: true })
+            })
+        }
 
-        files.forEach(e => {
-            const exist = fs.existsSync(e);
-            if(exist)
-                fs.rmSync(e, { recursive: true, force: true})
-        })
 
         await unpacker(src, destination, {
             resume: overwrite,

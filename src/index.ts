@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 import { spawn } from "child_process";
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, autoUpdater, BrowserWindow, dialog, ipcMain } from 'electron';
 import fs from "fs";
 import * as path from 'path';
 import { v5 as uuid } from "uuid";
@@ -21,6 +21,25 @@ const genUUID = (str: string) => uuid(str, MY_NAMESPACE)
 require('update-electron-app')({
   repo: 'sshcrack/mc-modlauncher',
   updateInterval: '10 minutes'
+})
+
+autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+  const dialogOpts = {
+    type: 'info',
+    buttons: ['Restart', 'Later'],
+    title: 'Application Update',
+    message: process.platform === 'win32' ? releaseNotes : releaseName,
+    detail: 'A new version has been downloaded. Restart the application to apply the updates.'
+  }
+
+  dialog.showMessageBox(dialogOpts).then((returnValue) => {
+    if (returnValue.response === 0) autoUpdater.quitAndInstall()
+  })
+})
+
+autoUpdater.on('error', message => {
+  console.error('There was a problem updating the application')
+  console.error(message)
 })
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
