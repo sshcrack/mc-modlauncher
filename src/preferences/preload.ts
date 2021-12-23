@@ -4,13 +4,13 @@ import { Logger } from '../interfaces/logger';
 
 const logger = Logger.get("Preferences", "Preload")
 document.addEventListener("DOMContentLoaded", () => {
-    //setMemory()
+    setMemory()
     //setInstall();
     setCacheRemove();
     setOpenFolder()
 
-    //const btn = document.getElementById("save")
-    //btn.addEventListener("click", () => saveThings())
+    const btn = document.getElementById("save")
+    btn.addEventListener("click", () => saveThings())
 })
 
 function setMemory() {
@@ -67,15 +67,15 @@ function setInstall() {
 }
 
 function saveThings() {
-    const input = document.querySelector("#installdir") as HTMLInputElement;
+    //const input = document.querySelector("#installdir") as HTMLInputElement;
     const main = document.querySelector("#center") as HTMLDivElement
-    const saving = document.querySelector("#saving") as HTMLDivElement
-    const exists = ipcRenderer.sendSync("exists_folder", input.value)
+    const saving = document.querySelector("#wait") as HTMLDivElement
+    //const exists = ipcRenderer.sendSync("exists_folder", input.value)
 
-    if(!exists) {
+    /*if(!exists) {
         alert(`Install Directory does not exist. Not saving.`);
         return;
-    }
+    }*/
 
     const memEl = document.querySelector("#memory-range") as HTMLInputElement;
     const mem = memEl.value;
@@ -83,7 +83,7 @@ function saveThings() {
     main.style.display = "none";
     saving.style.display = ""
 
-    ipcRenderer.sendSync("save_pref", "install_dir", input.value);
+    //ipcRenderer.sendSync("save_pref", "install_dir", input.value);
     ipcRenderer.sendSync("save_pref", "memory", parseInt(mem));
 
     ipcRenderer.sendSync("close_prefs");

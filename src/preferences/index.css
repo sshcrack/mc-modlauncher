@@ -1,7 +1,7 @@
 .center {
     display: flex;
     flex-direction: column;
-    max-width: 80%;
+    max-width: 88%;
 
     height: 100%;
 
@@ -41,6 +41,40 @@ body, :root, html, .center {
 
 .button-group > button {
     font-size: .95em;
+}
+
+.form-group {
+    justify-content: center;
+    align-items: center;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group .group {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+}
+
+.left {
+    flex: .5
+}
+
+.right {
+    flex: 0.3
+}
+
+.form-group > button {
+    width: 80%;
+}
+
+.space {
+    margin-top: 1em;
 }
 
 .wrapper {

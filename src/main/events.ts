@@ -1,3 +1,4 @@
+import { store } from '../preferences/renderer';
 import { spawn } from "child_process";
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import fs from "fs";
@@ -45,9 +46,16 @@ export function setupEvents() {
         const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
         const setUUID = genUUID(id);
 
+        const mem = store.get("memory")
+        const memOption = `-Xmx${mem ?? "2G"}`
+
+        const defaultOptions = `${memOption} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M`
+        logger.debug("Launching with options", defaultOptions)
+
         const profile: Profile = {
             created: new Date().toISOString(),
             gameDir: gameDir,
+            javaArgs: defaultOptions,
             icon: "Furnace",
             lastUsed: new Date().toISOString(),
             lastVersionId: lastVersion.forge_version,

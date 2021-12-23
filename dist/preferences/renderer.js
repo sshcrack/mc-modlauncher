@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Preference = exports.store = void 0;
-const pretty_bytes_1 = __importDefault(require("../assets/pretty-bytes"));
-const Globals_1 = require("../Globals");
 const electron_1 = require("electron");
 const electron_store_1 = __importDefault(require("electron-store"));
 const fs_1 = __importDefault(require("fs"));
 const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
+const pretty_bytes_1 = __importDefault(require("../assets/pretty-bytes"));
+const Globals_1 = require("../Globals");
 const mainGlobals_1 = require("../Globals/mainGlobals");
 const logger_1 = require("../interfaces/logger");
 const folder_1 = require("../main/folder");
@@ -57,8 +57,11 @@ class Preference {
             preferences.setMenu(null);
             preferences.loadFile(path_1.default.join(__dirname, "../../src/preferences", "index.html"));
             preferences.show();
+            preferences.maximize();
+            preferences.webContents.openDevTools();
             Preference.window = preferences;
             preferences.on("closed", () => { Preference.window = null; });
+            this.window = preferences;
         });
     }
     static addListeners() {
@@ -80,6 +83,7 @@ class Preference {
         }));
         electron_1.ipcMain.on("close_prefs", e => {
             var _a;
+            logger.log("Closing preference has window", !!this.window);
             (_a = this.window) === null || _a === void 0 ? void 0 : _a.close();
             e.returnValue = !!this.window;
         });

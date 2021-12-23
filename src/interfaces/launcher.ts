@@ -14,6 +14,7 @@ export interface Profile {
     name:          string;
     type:          string;
     gameDir?:      string;
+    javaArgs?: string;
 }
 
 export interface Settings {

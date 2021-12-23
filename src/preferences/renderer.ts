@@ -1,10 +1,10 @@
-import prettyBytes from '../assets/pretty-bytes';
-import { Globals } from '../Globals';
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import Store from "electron-store";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import prettyBytes from '../assets/pretty-bytes';
+import { Globals } from '../Globals';
 import { MainGlobals } from '../Globals/mainGlobals';
 import { Logger } from '../interfaces/logger';
 import { dirSize } from '../main/folder';
@@ -49,9 +49,12 @@ export class Preference {
         preferences.loadFile(path.join(__dirname, "../../src/preferences", "index.html"));
 
         preferences.show();
+        preferences.maximize()
+        preferences.webContents.openDevTools()
         Preference.window = preferences;
 
         preferences.on("closed", () => { Preference.window = null })
+        this.window = preferences
     }
 
     static addListeners() {
@@ -80,6 +83,7 @@ export class Preference {
 
 
         ipcMain.on("close_prefs", e => {
+            logger.log("Closing preference has window", !!this.window);
             this.window?.close()
             e.returnValue = !!this.window;
         })

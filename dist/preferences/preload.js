@@ -8,12 +8,12 @@ const pretty_bytes_1 = __importDefault(require("../assets/pretty-bytes"));
 const logger_1 = require("../interfaces/logger");
 const logger = logger_1.Logger.get("Preferences", "Preload");
 document.addEventListener("DOMContentLoaded", () => {
-    //setMemory()
+    setMemory();
     //setInstall();
     setCacheRemove();
     setOpenFolder();
-    //const btn = document.getElementById("save")
-    //btn.addEventListener("click", () => saveThings())
+    const btn = document.getElementById("save");
+    btn.addEventListener("click", () => saveThings());
 });
 function setMemory() {
     const slider = document.getElementById("memory-range");
@@ -54,19 +54,19 @@ function setInstall() {
     });
 }
 function saveThings() {
-    const input = document.querySelector("#installdir");
+    //const input = document.querySelector("#installdir") as HTMLInputElement;
     const main = document.querySelector("#center");
-    const saving = document.querySelector("#saving");
-    const exists = electron_1.ipcRenderer.sendSync("exists_folder", input.value);
-    if (!exists) {
+    const saving = document.querySelector("#wait");
+    //const exists = ipcRenderer.sendSync("exists_folder", input.value)
+    /*if(!exists) {
         alert(`Install Directory does not exist. Not saving.`);
         return;
-    }
+    }*/
     const memEl = document.querySelector("#memory-range");
     const mem = memEl.value;
     main.style.display = "none";
     saving.style.display = "";
-    electron_1.ipcRenderer.sendSync("save_pref", "install_dir", input.value);
+    //ipcRenderer.sendSync("save_pref", "install_dir", input.value);
     electron_1.ipcRenderer.sendSync("save_pref", "memory", parseInt(mem));
     electron_1.ipcRenderer.sendSync("close_prefs");
 }
