@@ -43,8 +43,10 @@ const createWindow = (): void => {
   try {
     checkJava()
   } catch (e) {
+    const msg = e.stack ?? e.message ?? e
+    logger.error(msg);
     dialog.showMessageBoxSync(mainWindow, {
-      message: e.stack ?? e.message ?? e,
+      message: msg,
       type: "error"
     });
     app.quit();

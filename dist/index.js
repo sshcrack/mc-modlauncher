@@ -58,8 +58,10 @@ const createWindow = () => {
         (0, java_1.checkJava)();
     }
     catch (e) {
+        const msg = (_b = (_a = e.stack) !== null && _a !== void 0 ? _a : e.message) !== null && _b !== void 0 ? _b : e;
+        logger.error(msg);
         electron_1.dialog.showMessageBoxSync(mainWindow, {
-            message: (_b = (_a = e.stack) !== null && _a !== void 0 ? _a : e.message) !== null && _b !== void 0 ? _b : e,
+            message: msg,
             type: "error"
         });
         electron_1.app.quit();
