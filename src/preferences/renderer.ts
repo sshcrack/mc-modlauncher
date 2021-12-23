@@ -27,7 +27,7 @@ export class Preference {
         if (Preference.window) return;
         const installDir = MainGlobals.getInstallDir()
 
-        logger.await("Opening Preferences")
+        logger.info("Opening Preferences")
         if (!fs.existsSync(installDir))
             fs.mkdirSync(installDir, { recursive: true })
 

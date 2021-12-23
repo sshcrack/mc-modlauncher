@@ -19,8 +19,8 @@ export class Unpacker extends ProcessEventEmitter {
     }
 
     public async run() {
-        logger.await("Downloading modpack from")
-        this.emit("progress", { percent: 0, status: "Extracting modpack..." })
+        logger.info(this.options.messages.extracting)
+        this.emit("progress", { percent: 0, status: `Extracting ${this.options.messages.extracting}...` })
 
         const { destination, src, messages } = this.options;
         const { overwrite } = this.options;
@@ -31,6 +31,7 @@ export class Unpacker extends ProcessEventEmitter {
         if(!fs.existsSync(src))
             throw new Error(`File ${src} does not exist. (Unpacker)`)
         if (this.options.deleteExistent) {
+            logger.debug("Deleting existant files from", src)
             const file = fs.readFileSync(src)
 
             const zip = new JSZip()
@@ -43,12 +44,15 @@ export class Unpacker extends ProcessEventEmitter {
             files.forEach(e => {
                 const absPath = path.join(destination, e)
                 const exist = fs.existsSync(absPath);
+
+                logger.debug("Deleting", absPath)
                 if (exist)
                     fs.rmSync(absPath, { recursive: true, force: true })
             })
         }
 
 
+        logger.debug("Running unpacker")
         await unpacker(src, destination, {
             resume: overwrite,
             onprogress: stats =>
@@ -57,6 +61,8 @@ export class Unpacker extends ProcessEventEmitter {
                     status: messages.extracting + ` (${stats.unpacked} / ${stats.totalEntries})`
                 })
         })
+
+        logger.debug("Done.")
     }
 }
 

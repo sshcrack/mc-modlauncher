@@ -24,7 +24,7 @@ export class Downloader extends ProcessEventEmitter {
         const url = typeof urlGetter === "string" ? urlGetter : urlGetter();
         const destination = typeof destGetter === "string" ? destGetter : destGetter();
 
-        logger.await(messages.downloading)
+        logger.info(messages.downloading)
 
 
         if (!overwrite && fs.existsSync(destination)) {
@@ -74,14 +74,14 @@ export class Downloader extends ProcessEventEmitter {
         if(!sha)
             return;
 
-        logger.await("Validating file using sha1 (and creating read stream)")
+        logger.info("Validating file using sha1 (and creating read stream)")
         //TODO add this to top function
 
         const readStream = fs.createReadStream(destination)
         const digest = crypto.createHash('sha1');
         digest.setEncoding("hex")
 
-        logger.await("Piping digest")
+        logger.debug("Piping digest")
         readStream.pipe(digest);
         await new Promise<void>(resolve => {
             readStream.on("end", () => resolve())
@@ -89,8 +89,11 @@ export class Downloader extends ProcessEventEmitter {
 
         digest.end();
         const fileSha = digest.read();
+        logger.debug("File-SHA:", destination, "Expected:", sha, "Same:", fileSha === sha)
+
         if(fileSha === sha)
             return;
+
 
         throw new Error(`File ${destination} has incorrect sha file sha: ${fileSha} expected: ${sha}`)
     }

@@ -40,7 +40,6 @@ export class Globals {
         const last = versions.length - 1
         const lastItem = versions[last];
 
-        console.log("LastItems", versions)
         return lastItem
     }
 }

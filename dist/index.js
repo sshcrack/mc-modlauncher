@@ -53,14 +53,17 @@ const Globals_1 = require("./Globals");
 const InstallManager_1 = require("./InstallManager");
 const file_1 = require("./InstallManager/processors/launcher/file");
 const file_2 = require("./InstallManager/processors/modpack/file");
+const logger_1 = require("./interfaces/logger");
 const renderer_1 = require("./preferences/renderer");
 const instance_1 = require("./preload/instance");
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 const genUUID = (str) => (0, uuid_1.v5)(str, MY_NAMESPACE);
+const logger = logger_1.Logger.get("Main");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('update-electron-app')({
     repo: 'sshcrack/mc-modlauncher',
-    updateInterval: '10 minutes'
+    updateInterval: '10 minutes',
+    logger: logger
 });
 electron_1.autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
     const dialogOpts = {
@@ -76,8 +79,7 @@ electron_1.autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName
     });
 });
 electron_1.autoUpdater.on('error', message => {
-    console.error('There was a problem updating the application');
-    console.error(message);
+    logger.error("Could not check auto-updater:", message);
 });
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -128,7 +130,7 @@ else {
 // explicitly with Cmd + Q.
 electron_1.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        console.log("Quitting...");
+        logger.log("Quitting...");
         electron_1.app.quit();
     }
 });
@@ -156,9 +158,9 @@ electron_1.ipcMain.on("uninstall_prompt", e => {
 });
 electron_1.ipcMain.on("launch_mc", (e, id, _a) => __awaiter(void 0, void 0, void 0, function* () {
     var { name } = _a, config = __rest(_a, ["name"]);
+    const launcherDir = (0, file_1.getLauncherDir)();
     const gameDir = (0, file_2.getInstanceDestination)(id);
     const lastVersion = Globals_1.Globals.getLastVersion(Object.assign({ name }, config));
-    const launcherDir = (0, file_1.getLauncherDir)();
     const profilesPath = path.join(launcherDir, "launcher_profiles.json");
     const profiles = JSON.parse(fs_1.default.readFileSync(profilesPath, "utf-8"));
     const setUUID = genUUID(id);
@@ -171,8 +173,9 @@ electron_1.ipcMain.on("launch_mc", (e, id, _a) => __awaiter(void 0, void 0, void
         name,
         type: "custom"
     };
-    console.log("Using uuid", setUUID);
     profiles.profiles[setUUID] = profile;
+    logger.debug("Trying to launch mc in dir", gameDir, "with version", lastVersion, "and launcher dir", launcherDir);
+    logger.silly("Launcher profiles", profiles);
     fs_1.default.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2));
     (0, child_process_1.spawn)((0, file_1.getLauncherExe)(), ["--workDir", launcherDir]);
     e.reply("launched_mc_success");

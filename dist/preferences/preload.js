@@ -3,8 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const logger_1 = require("../interfaces/logger");
 const electron_1 = require("electron");
 const pretty_bytes_1 = __importDefault(require("../assets/pretty-bytes"));
+const logger = logger_1.Logger.get("Preferences", "Preload");
 document.addEventListener("DOMContentLoaded", () => {
     setMemory();
     setInstall();
@@ -17,7 +19,7 @@ function setMemory() {
     const curr = document.getElementById("memory");
     const total = electron_1.ipcRenderer.sendSync("get_mem");
     let settingsMem = electron_1.ipcRenderer.sendSync("get_pref", "memory");
-    console.log("Memory is", settingsMem, "total", total);
+    logger.debug("Memory is", settingsMem, "total", total);
     if (isNaN(settingsMem)) {
         alert("Invalid memory value, defaulting to half");
         settingsMem = total / 2;

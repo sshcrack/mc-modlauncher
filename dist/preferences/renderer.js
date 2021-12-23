@@ -38,7 +38,7 @@ class Preference {
             if (Preference.window)
                 return;
             const installDir = mainGlobals_1.MainGlobals.getInstallDir();
-            logger.await("Opening Preferences");
+            logger.info("Opening Preferences");
             if (!fs_1.default.existsSync(installDir))
                 fs_1.default.mkdirSync(installDir, { recursive: true });
             const preferences = new electron_1.BrowserWindow({

@@ -10,17 +10,20 @@ import { InstallManager } from './InstallManager';
 import { getLauncherDir, getLauncherExe } from './InstallManager/processors/launcher/file';
 import { getInstanceDestination } from './InstallManager/processors/modpack/file';
 import { LauncherProfiles, Profile } from './interfaces/launcher';
+import { Logger } from './interfaces/logger';
 import { Modpack } from './interfaces/modpack';
 import { Preference } from './preferences/renderer';
 import { cleanupCorrupted, getInstalled } from './preload/instance';
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 
 const genUUID = (str: string) => uuid(str, MY_NAMESPACE)
+const logger = Logger.get("Main")
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('update-electron-app')({
   repo: 'sshcrack/mc-modlauncher',
-  updateInterval: '10 minutes'
+  updateInterval: '10 minutes',
+  logger: logger
 })
 
 autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
@@ -38,8 +41,7 @@ autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
 })
 
 autoUpdater.on('error', message => {
-  console.error('There was a problem updating the application')
-  console.error(message)
+  logger.error("Could not check auto-updater:", message)
 })
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -97,7 +99,7 @@ if (!gotTheLock) {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    console.log("Quitting...")
+    logger.log("Quitting...")
     app.quit();
   }
 });
@@ -131,11 +133,12 @@ ipcMain.on("uninstall_prompt", e => {
   e.returnValue = index === 0;
 })
 
-ipcMain.on("launch_mc", async (e, id, { name, ...config}: Modpack) => {
+ipcMain.on("launch_mc", async (e, id, { name, ...config }: Modpack) => {
+
+  const launcherDir = getLauncherDir();
   const gameDir = getInstanceDestination(id)
   const lastVersion = Globals.getLastVersion({ name, ...config})
 
-  const launcherDir = getLauncherDir();
   const profilesPath = path.join(launcherDir, "launcher_profiles.json");
 
   const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
@@ -151,10 +154,12 @@ ipcMain.on("launch_mc", async (e, id, { name, ...config}: Modpack) => {
     type: "custom"
   }
 
-  console.log("Using uuid", setUUID)
   profiles.profiles[setUUID] = profile;
-  fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))
 
+  logger.debug("Trying to launch mc in dir", gameDir, "with version", lastVersion, "and launcher dir", launcherDir)
+  logger.silly("Launcher profiles", profiles)
+
+  fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))
   spawn(getLauncherExe(), ["--workDir", launcherDir])
   e.reply("launched_mc_success")
 })

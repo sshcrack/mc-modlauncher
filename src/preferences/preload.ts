@@ -1,6 +1,8 @@
+import { Logger } from '../interfaces/logger';
 import { ipcRenderer } from 'electron';
 import prettyBytes from "../assets/pretty-bytes";
 
+const logger = Logger.get("Preferences", "Preload")
 document.addEventListener("DOMContentLoaded", () => {
     setMemory()
     setInstall();
@@ -16,7 +18,8 @@ function setMemory() {
 
     const total = ipcRenderer.sendSync("get_mem");
     let settingsMem = ipcRenderer.sendSync("get_pref", "memory");
-    console.log("Memory is", settingsMem, "total", total);
+
+    logger.debug("Memory is", settingsMem, "total", total);
     if (isNaN(settingsMem)) {
         alert("Invalid memory value, defaulting to half")
         settingsMem = total / 2;

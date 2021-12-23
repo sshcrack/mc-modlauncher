@@ -7,7 +7,7 @@ import { Logger } from '../interfaces/logger';
 
 const logger = Logger.get("Preload", "instance")
 export function getInstalled(): string[] {
-    logger.await("Getting installed instances...")
+    logger.debug("Getting installed instances...")
 
     const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
@@ -26,12 +26,12 @@ export function getInstalled(): string[] {
         })
 
 
-    logger.success("Found", ids.length, "installed instances")
+    logger.debug("Found", ids, " installed instances", "inDir", instances, "installdir", installDir)
     return ids
 }
 
 export function cleanupCorrupted() {
-    logger.await("Cleaning up corrupted installations")
+    logger.info("Cleaning up corrupted installations")
     const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
 
@@ -50,10 +50,13 @@ export function cleanupCorrupted() {
             if (!fs.existsSync(creating))
                 return false
 
-            fs.renameSync(instancePath, instancePath + uuid + "-corrupted")
+                const dest = instancePath + uuid + "-corrupted"
+            logger.debug("Moving", instancePath, "to", dest)
+            fs.renameSync(instancePath, dest)
+
             return true
         })
     const length = cleared.length;
     if(length > 0)
-        logger.success("Cleared", length, "corrupted installations")
+        logger.info("Cleared", length, "corrupted installations")
 }

@@ -42,17 +42,17 @@ class ProcessorEventEmitterClass extends (EventEmitter as new () => TypedEmitter
     }
 
     public async run(): Promise<unknown> {
-        logger.fatal("Processor Event Emitter not implemented. Caution")
+        logger.error("Processor Event Emitter not implemented. Caution")
 
         return undefined;
     }
 
     static async runMultiple(emitters: ProcessorEventEmitterClass[], onProgress: ProgressEvent, maxDigits = 2) {
-        logger.await("Running multiple emitters")
+        logger.info("Running multiple emitters")
         const length = emitters.length;
 
         for (let i = 0; i < length; i++) {
-            logger.await(i, "/", length)
+            logger.debug(i, "/", length)
             const emitter = emitters[i];
             const currMultiplier = 1 / length;
             const alreadyDone = i * currMultiplier;

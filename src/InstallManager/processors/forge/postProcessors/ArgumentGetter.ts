@@ -31,7 +31,7 @@ export class ArgumentGetter extends ProcessEventEmitter {
         const data = this.getClientOnly(installProfile);
         const mapped = new Map<string, string>();
 
-        logger.await("Getting argument maps...")
+        logger.info("Getting argument maps...")
         Object.entries(data).forEach(([key, value]) => {
             const start = (e: string) => value.startsWith(e);
             const end = (e: string) => value.endsWith(e)

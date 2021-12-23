@@ -38,7 +38,7 @@ export class InstallManager {
     }
 
     static async install(id: string, event: IpcMainEvent, update = false) {
-        logger.await("Installing modpack", id)
+        logger.info("Installing modpack", id)
         const installDir = MainGlobals.getInstallDir();
         const installations = getInstalled();
         const instanceDir = Globals.getInstancePathById(installDir, id);
@@ -53,7 +53,7 @@ export class InstallManager {
 
 
 
-        logger.await("Making directory", id)
+        logger.debug("Making directory", id)
         if (!fs.existsSync(instanceDir))
             fs.mkdirSync(instanceDir);
 
@@ -62,10 +62,11 @@ export class InstallManager {
 
         sendUpdate({ percent: 0, status: "Getting config..."})
 
-        logger.await("Getting config", id)
+        logger.debug("Getting config", id)
         const config = await InstallManager.getConfig(id)
             .catch(e => reportError(e));
 
+        logger.silly("Config is", config)
         if (!config) {
             return reportError("Could not download modpack configuration")
         }
@@ -136,7 +137,7 @@ export class InstallManager {
         ]
 
         const processors = toExecute.map(e => new e(id, config, options, sharedMap))
-        logger.await("Starting processors hasLauncher", hasLauncher, "hasForge", hasForge, "id", id, "ForgeDir", forgeDir, "LauncherExe", launcherExe)
+        logger.debug("Starting processors hasLauncher", hasLauncher, "hasForge", hasForge, "id", id, "ForgeDir", forgeDir, "LauncherExe", launcherExe)
 
         return await ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
             .then(() => true)
@@ -147,10 +148,10 @@ export class InstallManager {
         const installDir = MainGlobals.getInstallDir();
         const instanceDir = Globals.getInstancePathById(installDir, id);
 
-        logger.await("Removing modpack", id, "at path", instanceDir)
+        logger.info("Removing modpack", id, "at path", instanceDir)
         fs.promises.rmdir(instanceDir, { recursive: true })
             .then(() => {
-                logger.success("Removed modpack", id)
+                logger.info("Removed modpack with id", id)
                 event.reply("remove_modpack_success", id)
             })
             .catch(e => {
@@ -160,21 +161,50 @@ export class InstallManager {
     }
 
     static addListeners() {
-        ipcMain.on("install_modpack", (event, id, overwrite) => {
-            InstallManager.install(id, event, !!overwrite);
+        const sendEvent = (event: IpcMainEvent, name: string) => event.reply(name, "Another installation is in progress")
+
+        ipcMain.on("install_modpack", async (event, id, overwrite) => {
+            if(this.hasLock(id))
+                return sendEvent(event, "modpack_error")
+
+            this.addLock(id)
+            await InstallManager.install(id, event, !!overwrite);
+            this.removeLock(id)
         })
 
         ipcMain.on("update_modpack", (event, id) => {
+            if(this.hasLock(id))
+                return sendEvent(event, "modpack_error")
+
+            logger.info("Updating modpack", id)
             InstallManager.install(id, event, true)
         })
 
-        ipcMain.on("remove_modpack", (event, id) => {
-            InstallManager.remove(id, event);
+        ipcMain.on("remove_modpack", async (event, id) => {
+            if(this.hasLock(id))
+                return sendEvent(event, "remove_modpack_error")
+
+            this.addLock(id)
+            await InstallManager.remove(id, event);
+            this.removeLock(id)
         })
 
         ipcMain.on("get_version", (event, id) => {
             event.returnValue = getInstanceVersion(id);
         })
+    }
+
+    private static locks: string[]
+    static hasLock(id: string) {
+        return this.locks.includes(id)
+    }
+
+    static removeLock(id: string) {
+        this.locks = this.locks.filter(e => e !== id)
+    }
+
+    static addLock(id: string) {
+        this.locks.push(id);
     }
 }
 

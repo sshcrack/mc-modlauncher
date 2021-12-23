@@ -1,3 +1,4 @@
+import { Logger } from '../../interfaces/logger';
 import fs from "fs";
 import path from "path";
 import { Globals } from '../../Globals';
@@ -9,6 +10,7 @@ export type SharedMap = {
     forgeVersion?: string
 }
 
+const logger = Logger.get("InstallManager", "Processors", "Interface")
 export function getInstanceVersionPath(id: string) {
     const installDir = MainGlobals.getInstallDir()
     const instanceDir = Globals.getInstancePathById(installDir, id);
@@ -17,12 +19,12 @@ export function getInstanceVersionPath(id: string) {
 }
 
 export function getInstanceVersion(id: string) {
-    console.log("Getting instance version")
-
     const filePath = getInstanceVersionPath(id)
     const exists = fs.existsSync(filePath)
     if(!exists)
         return;
 
-    return JSON.parse(fs.readFileSync(filePath, "utf8")) as Version
+    const version = JSON.parse(fs.readFileSync(filePath, "utf8")) as Version;
+    logger.debug("Version for", id, "is", version)
+    return version
 }
