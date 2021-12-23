@@ -1,7 +1,7 @@
 {
   "name": "sshmods",
   "productName": "sshmods",
-  "version": "1.0.4",
+  "version": "1.0.9",
   "description": "My Electron application description",
   "main": "dist/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "dev": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "public": "electron-forge publish",
     "lint": "eslint --ext .ts ."
   },
   "keywords": [],
@@ -31,7 +31,9 @@
           "config": {
             "name": "sshmods.Minecraft.Modpacks",
             "authors": "sshcrack",
-            "description": "A minecraft modpack installer made by sshcrack"
+            "description": "A minecraft modpack installer made by sshcrack",
+            "loadingGif": "src/assets/loading.gif",
+            "icon": "src/assets/icon.ico"
           }
         }
       ],
@@ -44,10 +46,10 @@
           "config": {
             "repository": {
               "owner": "sshcrack",
-              "name": "mc-modlauncher",
-              "loadingGif": "src/assets/loading.gif"
+              "name": "mc-modlauncher"
             },
-            "draft": true
+            "draft": false,
+            "prerelease": true
           }
         }
       ]

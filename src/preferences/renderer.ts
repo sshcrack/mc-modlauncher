@@ -7,6 +7,7 @@ import os from "os";
 import path from "path";
 import { MainGlobals } from '../Globals/mainGlobals';
 import { Logger } from '../interfaces/logger';
+import { dirSize } from '../main/folder';
 
 const logger = Logger.get("Preference", "Renderer")
 const appData = app.getPath("appData");
@@ -32,8 +33,8 @@ export class Preference {
             fs.mkdirSync(installDir, { recursive: true })
 
         const preferences = new BrowserWindow({
-            height: 400,
-            width: 300,
+            height: 600,
+            width: 350,
             darkTheme: true,
             maximizable: false,
             webPreferences: {
@@ -100,7 +101,7 @@ export class Preference {
         });
 
 
-        ipcMain.on("clear_cache", e => {
+        ipcMain.on("clear_cache", async e => {
             const installDir = MainGlobals.getInstallDir()
             const tempDir = Globals.getTempDir(installDir);
             const exists = fs.existsSync(tempDir);
@@ -108,10 +109,11 @@ export class Preference {
             if (!exists)
                 return e.reply("clear_cache_reply", 0)
 
-            const stat = fs.statSync(tempDir);
+            const stat = await dirSize(tempDir);
+            const humanReadable = prettyBytes(stat)
+
             fs.rmSync(tempDir, { recursive: true, force: true })
 
-            const humanReadable = prettyBytes(stat.size)
             e.reply("clear_cache_reply", humanReadable)
         })
     }

@@ -45,11 +45,15 @@ body, :root, html, .center {
 
 .wrapper {
     display: grid;
+    height: 100%;
+    width: 100%;
 }
 
 .wrapper > div {
     grid-row: 1;
     grid-column: 1;
+    height: 100%;
+    width: 100%;
 }
 
 .wait {

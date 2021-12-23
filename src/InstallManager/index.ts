@@ -194,7 +194,7 @@ export class InstallManager {
         })
     }
 
-    private static locks: string[]
+    private static locks: string[] = []
     static hasLock(id: string) {
         return this.locks.includes(id)
     }

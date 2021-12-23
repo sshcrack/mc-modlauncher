@@ -3,16 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const logger_1 = require("../interfaces/logger");
 const electron_1 = require("electron");
 const pretty_bytes_1 = __importDefault(require("../assets/pretty-bytes"));
+const logger_1 = require("../interfaces/logger");
 const logger = logger_1.Logger.get("Preferences", "Preload");
 document.addEventListener("DOMContentLoaded", () => {
-    setMemory();
-    setInstall();
+    //setMemory()
+    //setInstall();
     setCacheRemove();
-    const btn = document.getElementById("save");
-    btn.addEventListener("click", () => saveThings());
+    setOpenFolder();
+    //const btn = document.getElementById("save")
+    //btn.addEventListener("click", () => saveThings())
 });
 function setMemory() {
     const slider = document.getElementById("memory-range");
@@ -73,12 +74,19 @@ function setCacheRemove() {
     const btn = document.querySelector("#cache-clear");
     const wait = document.querySelector("#wait");
     btn.addEventListener("click", () => {
-        electron_1.ipcRenderer.once("clear_cache_reply", size => {
+        electron_1.ipcRenderer.once("clear_cache_reply", (_, size) => {
             wait.style.display = "none";
             alert(`Cache with a total of ${size} cleared.`);
         });
         wait.style.display = "";
         electron_1.ipcRenderer.send("clear_cache");
+    });
+}
+function setOpenFolder() {
+    const btn = document.querySelector("#open-folder");
+    btn.addEventListener("click", () => {
+        logger.info("Sending opening signal");
+        electron_1.ipcRenderer.send("open_folder");
     });
 }
 //# sourceMappingURL=preload.js.map

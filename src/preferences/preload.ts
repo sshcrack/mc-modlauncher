@@ -1,15 +1,16 @@
-import { Logger } from '../interfaces/logger';
 import { ipcRenderer } from 'electron';
 import prettyBytes from "../assets/pretty-bytes";
+import { Logger } from '../interfaces/logger';
 
 const logger = Logger.get("Preferences", "Preload")
 document.addEventListener("DOMContentLoaded", () => {
-    setMemory()
-    setInstall();
+    //setMemory()
+    //setInstall();
     setCacheRemove();
+    setOpenFolder()
 
-    const btn = document.getElementById("save")
-    btn.addEventListener("click", () => saveThings())
+    //const btn = document.getElementById("save")
+    //btn.addEventListener("click", () => saveThings())
 })
 
 function setMemory() {
@@ -93,12 +94,21 @@ function setCacheRemove() {
     const wait = document.querySelector("#wait") as HTMLDivElement;
 
     btn.addEventListener("click", () => {
-        ipcRenderer.once("clear_cache_reply", size => {
+        ipcRenderer.once("clear_cache_reply", (_, size) => {
             wait.style.display = "none"
             alert(`Cache with a total of ${size} cleared.`)
         })
 
         wait.style.display = ""
         ipcRenderer.send("clear_cache")
+    })
+}
+
+function setOpenFolder() {
+    const btn = document.querySelector("#open-folder") as HTMLButtonElement;
+
+    btn.addEventListener("click", () => {
+        logger.info("Sending opening signal")
+        ipcRenderer.send("open_folder")
     })
 }

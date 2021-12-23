@@ -1,10 +1,10 @@
 import fs from "fs";
+import JSZip from "jszip";
+import path from 'path';
 import unpacker from "unpacker-with-progress";
-import JSZip from "jszip"
 import { Logger } from '../../../interfaces/logger';
 import { Modpack } from "../../../interfaces/modpack";
 import { AdditionalOptions, ProcessEventEmitter } from '../../event/Processor';
-import path from 'path';
 
 
 const logger = Logger.get("InstallManager", "processors", "Unpacker")
@@ -39,15 +39,26 @@ export class Unpacker extends ProcessEventEmitter {
 
             const files = Object.values(zip.files)
                 .map(e => e.name)
-                .map(e => path.dirname(e))
 
             files.forEach(e => {
-                const absPath = path.join(destination, e)
-                const exist = fs.existsSync(absPath);
+                const dir = path.dirname(e)
 
-                logger.debug("Deleting", absPath)
-                if (exist)
-                    fs.rmSync(absPath, { recursive: true, force: true })
+                const absFile = path.join(destination, e)
+                const absDir = path.join(destination, dir)
+
+
+                const check = [absDir, absFile ]
+                for (const el of check) {
+                    const exists = fs.existsSync(el);
+
+                    if (e === "" || el === destination || el === destination + "/" || !exists)
+                        return;
+
+                    logger.debug("Deleting", absFile)
+                    fs.rmSync(el, { recursive: true, force: true })
+                    break;
+                }
+
             })
         }
 

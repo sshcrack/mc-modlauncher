@@ -1,8 +1,6 @@
-import chalk from "chalk"
 import electronLog from "electron-log"
 
-const { LOG_LEVEL } = process.env
-
+electronLog.transports.file.maxSize = 1024 * 1024 * 20
 export class Logger {
     static formatScope(arr: string[]) {
         return arr.join(":")
@@ -14,4 +12,4 @@ export class Logger {
 
         return logger
     }
-}
+}g

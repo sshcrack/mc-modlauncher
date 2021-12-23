@@ -85,6 +85,10 @@ export function getButtonDiv(id: string, installed: boolean, config: Modpack) {
     removeElement?.addEventListener("click", () => {
         const res = ipcRenderer.sendSync("uninstall_prompt");
 
+        logger.debug("Uninstall prompt", res)
+        if(typeof res !== "boolean")
+            return alert("Invalid return value from uninstall prompt")
+
         if (!res)
             return
 

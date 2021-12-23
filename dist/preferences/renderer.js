@@ -22,6 +22,7 @@ const os_1 = __importDefault(require("os"));
 const path_1 = __importDefault(require("path"));
 const mainGlobals_1 = require("../Globals/mainGlobals");
 const logger_1 = require("../interfaces/logger");
+const folder_1 = require("../main/folder");
 const logger = logger_1.Logger.get("Preference", "Renderer");
 const appData = electron_1.app.getPath("appData");
 const installDir = path_1.default.join(appData, "sshmods");
@@ -42,8 +43,8 @@ class Preference {
             if (!fs_1.default.existsSync(installDir))
                 fs_1.default.mkdirSync(installDir, { recursive: true });
             const preferences = new electron_1.BrowserWindow({
-                height: 400,
-                width: 300,
+                height: 600,
+                width: 350,
                 darkTheme: true,
                 maximizable: false,
                 webPreferences: {
@@ -94,17 +95,17 @@ class Preference {
                 return e.reply("select_folder_reply", id, undefined);
             e.reply("select_folder_reply", id, res.filePaths[0]);
         }));
-        electron_1.ipcMain.on("clear_cache", e => {
+        electron_1.ipcMain.on("clear_cache", (e) => __awaiter(this, void 0, void 0, function* () {
             const installDir = mainGlobals_1.MainGlobals.getInstallDir();
             const tempDir = Globals_1.Globals.getTempDir(installDir);
             const exists = fs_1.default.existsSync(tempDir);
             if (!exists)
                 return e.reply("clear_cache_reply", 0);
-            const stat = fs_1.default.statSync(tempDir);
+            const stat = yield (0, folder_1.dirSize)(tempDir);
+            const humanReadable = (0, pretty_bytes_1.default)(stat);
             fs_1.default.rmSync(tempDir, { recursive: true, force: true });
-            const humanReadable = (0, pretty_bytes_1.default)(stat.size);
             e.reply("clear_cache_reply", humanReadable);
-        });
+        }));
     }
 }
 exports.Preference = Preference;

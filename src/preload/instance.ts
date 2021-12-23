@@ -30,7 +30,7 @@ export function getInstalled(): string[] {
     return ids
 }
 
-export function cleanupCorrupted() {
+export async function cleanupCorrupted() {
     logger.info("Cleaning up corrupted installations")
     const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
@@ -42,20 +42,21 @@ export function cleanupCorrupted() {
         .filter(e => e.isDirectory())
         .map(e => e.name)
         .filter(e => !e.includes("-corrupted"))
-        .filter(e => {
+        .map(e => {
             const instancePath = path.join(instances, e);
             const creating = Globals.getCreatingFile(installDir, e)
             const uuid = randomUUID()
 
             if (!fs.existsSync(creating))
-                return false
+                return null
 
                 const dest = instancePath + uuid + "-corrupted"
             logger.debug("Moving", instancePath, "to", dest)
-            fs.renameSync(instancePath, dest)
 
-            return true
-        })
+            return fs.promises.rename(instancePath, dest)
+        }).filter(e => e)
+
+    await Promise.all(cleared)
     const length = cleared.length;
     if(length > 0)
         logger.info("Cleared", length, "corrupted installations")
