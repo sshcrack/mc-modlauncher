@@ -12,4 +12,4 @@ export class Logger {
 
         return logger
     }
-}g
+}

@@ -1,10 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import * as path from 'path';
 import { InstallManager } from './InstallManager';
 import { Logger } from './interfaces/logger';
 import { setupEvents } from './main/events';
+import { checkJava } from './main/java';
 import { addReloader, addUpdater } from './main/updater';
 import { Preference } from './preferences/renderer';
 
@@ -38,6 +39,16 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
   mainWindow.maximize()
+
+  try {
+    checkJava()
+  } catch (e) {
+    dialog.showMessageBoxSync(mainWindow, {
+      message: e.stack ?? e.message ?? e,
+      type: "error"
+    });
+    app.quit();
+  }
 };
 
 // This method will be called when Electron has finished

@@ -26,6 +26,7 @@ const path = __importStar(require("path"));
 const InstallManager_1 = require("./InstallManager");
 const logger_1 = require("./interfaces/logger");
 const events_1 = require("./main/events");
+const java_1 = require("./main/java");
 const updater_1 = require("./main/updater");
 const renderer_1 = require("./preferences/renderer");
 const logger = logger_1.Logger.get("Main");
@@ -38,6 +39,7 @@ logger.log("Is packaged", electron_1.app.isPackaged, "Name", electron_1.app.getN
 (0, updater_1.addReloader)();
 let mainWindow;
 const createWindow = () => {
+    var _a, _b;
     // Create the browser window.
     mainWindow = new electron_1.BrowserWindow({
         height: 600,
@@ -52,6 +54,16 @@ const createWindow = () => {
     // and load the index.html of the app.
     mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
     mainWindow.maximize();
+    try {
+        (0, java_1.checkJava)();
+    }
+    catch (e) {
+        electron_1.dialog.showMessageBoxSync(mainWindow, {
+            message: (_b = (_a = e.stack) !== null && _a !== void 0 ? _a : e.message) !== null && _b !== void 0 ? _b : e,
+            type: "error"
+        });
+        electron_1.app.quit();
+    }
 };
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
