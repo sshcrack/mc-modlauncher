@@ -6,10 +6,12 @@ import { InstallManager } from './InstallManager';
 import { Logger } from './interfaces/logger';
 import { setupEvents } from './main/events';
 import { checkJava } from './main/java';
-import { addReloader, addUpdater } from './main/updater';
+import { addReloader, addUpdater, registerUri, registerURIOpenEvent } from './main/main_funcs';
 import { Preference } from './preferences/renderer';
 
 const logger = Logger.get("Main")
+
+registerUri();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -23,7 +25,7 @@ addReloader();
 
 
 let mainWindow: BrowserWindow;
-const createWindow = (): void => {
+const createWindow = async () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     height: 600,
@@ -71,6 +73,8 @@ if (!gotTheLock) {
   })
 
   app.on('ready', createWindow);
+
+  registerURIOpenEvent();
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common

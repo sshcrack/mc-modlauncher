@@ -1,4 +1,5 @@
 import { app, autoUpdater, dialog } from 'electron'
+import path from "path"
 import { Logger } from '../interfaces/logger'
 
 const logger = Logger.get("Main", "Updater")
@@ -40,4 +41,23 @@ export function addReloader() {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('electron-reloader')(module)
     } catch (_) { /**/ }
+}
+
+export function registerUri() {
+    logger.info("Registering URI sshmods://")
+
+    if (process.defaultApp) {
+        if (process.argv.length >= 2) {
+            app.setAsDefaultProtocolClient('sshmods', process.execPath, [path.resolve(process.argv[1])])
+        }
+    } else {
+        app.setAsDefaultProtocolClient('sshmods')
+    }
+}
+
+export function registerURIOpenEvent() {
+    app.on("open-url", (event, url) => {
+        console.log("Open url event", url)
+        dialog.showErrorBox("Yes", "Opened url " + url)
+    })
 }

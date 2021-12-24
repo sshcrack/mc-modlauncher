@@ -22,7 +22,11 @@ export async function updateModpacks(releaseLock?: boolean) {
     setLock(true)
     const modpacks = document.getElementById("modpacks")
 
-    const list: string[] = await fetch(listUrl).then(e => e.json()).catch(() => alert("Could not list modpacks"));
+    const list: string[] = await fetch(listUrl).then(e => e.json()).catch(() => alert("Could not get modpack list. Trying again..."));
+    if(!list) {
+        setLock(false);
+        updateModpacks();
+    }
 
     const infos = await Promise.all(
         list.map(id => fetch(`${baseUrl}/${id}/config.json`, { headers: {

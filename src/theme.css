@@ -114,20 +114,11 @@ h5, p, h1, h2, h3, h4, h5, label {
     border: none;
 }
 
-.btn-danger-outline {
-    border: 1px solid var(--btn-red);
-    color: var(--btn-red);
-    background: transparent;
-    transition: border color background-color .2s ease-in-out;
+.btn {
+    transition: all .1s ease-in-out;
 }
 
-.btn-danger-outline:hover {
-    border: 1px solid var(--btn-red-hover);
-    background: var(--btn-red-hover);
-    color: var(--header-primary);
-}
-
-.btn-danger-outline:focus {
+.btn-outline-danger:focus {
     box-shadow: 0 0 0 0.25rem var(--btn-red-shadow)
 }
 

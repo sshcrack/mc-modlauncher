@@ -72,7 +72,7 @@ export function getButtonDiv(id: string, installed: boolean, config: Modpack) {
     const div = document.createElement("div");
     div.className = "card-action";
 
-    const actionButton = `<button class="btn btn-primary ${classBtn} card-action-btn" href="#" id="modpack-${id}-action">${txt}</button>`
+    const actionButton = `<button class="btn btn-primary btn-primary-highlight ${classBtn} card-action-btn" href="#" id="modpack-${id}-action">${txt}</button>`
     const removeButton = `<button class="btn btn-outline-danger remove-button" id="modpack-${id}-remove">
             <i class="bi bi-trash-fill remove" /> Uninstall </button>`
 
