@@ -1,0 +1,122 @@
+import fs from "fs";
+import got from "got";
+import { Globals } from "../../Globals";
+import { MainGlobals } from '../../Globals/mainGlobals';
+import { Logger } from '../../interfaces/logger';
+import { Modpack } from '../../interfaces/modpack';
+import { Progress } from './event/interface';
+import { ProcessEventEmitter } from './event/Processor';
+import { getInstalled, setupInstallManagerEvents } from './events';
+import { getProcessors } from './processorList';
+import { getInstanceVersionPath } from './processors/interface';
+
+const baseUrl = Globals.baseUrl;
+const logger = Logger.get("InstallManager")
+export class InstallManager {
+    static initialize() {
+        setupInstallManagerEvents()
+    }
+
+    private static async getConfig(id: string) {
+        const configRes = await got(`${baseUrl}/${id}/config.json`)
+
+        if (!configRes)
+            return;
+
+        return JSON.parse(configRes.body) as Modpack;
+    }
+
+    static async install(id: string, update = false, onUpdate: (prog: Progress) => void) {
+        logger.info("Installing modpack", id)
+        const installDir = MainGlobals.getInstallDir();
+        const installations = getInstalled();
+        const instanceDir = Globals.getInstancePathById(installDir, id);
+
+        const reportError = (err: string) => {
+            fs.rmSync(instanceDir, { recursive: true, force: true });
+            throw new Error(err);
+        }
+
+        logger.debug("Making directory", id)
+        if (!fs.existsSync(instanceDir))
+            fs.mkdirSync(instanceDir);
+
+        if (installations.includes(id) && !update)
+            return reportError("Modpack already installed.")
+
+        onUpdate({ percent: 0, status: "Getting config..."})
+
+        logger.debug("Getting config", id)
+        const config = await InstallManager.getConfig(id)
+            .catch(e => reportError(e));
+
+        logger.silly("Config is", config)
+        if (!config) {
+            return reportError("Could not download modpack configuration")
+        }
+
+        const createFile = Globals.getCreatingFile(installDir, id);
+        fs.writeFileSync(createFile, "")
+
+        const res = await this.runProcessors(id, config, update, {
+            onUpdate,
+            reportError
+        });
+
+        if(!res)
+            return;
+
+        try {
+            fs.rmSync(createFile)
+        } catch(e) {/** */}
+
+        const installedPath = getInstanceVersionPath(id);
+        const lastVersion = Globals.getLastVersion(config);
+
+        fs.writeFileSync(installedPath, JSON.stringify(lastVersion))
+    }
+
+    private static async runProcessors(id: string, config: Modpack, overwrite: boolean, { onUpdate: sendUpdate, reportError}: ReportFunctions) {
+        const processors = getProcessors(id, config, overwrite);
+
+        return await ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
+            .then(() => true)
+            .catch(e => reportError(e))
+    }
+
+    static async remove(id: string) {
+        return new Promise<void>((resolve, reject) => {
+            const installDir = MainGlobals.getInstallDir();
+            const instanceDir = Globals.getInstancePathById(installDir, id);
+
+            logger.info("Removing modpack", id, "at path", instanceDir)
+            fs.promises.rmdir(instanceDir, { recursive: true })
+                .then(() => {
+                    logger.log("Removed modpack", id)
+                    resolve()
+                })
+                .catch(e => {
+                    logger.error("Failed to remove modpack", id, e)
+                    reject(e)
+                })
+        });
+    }
+
+    private static locks: string[] = []
+    static hasLock(id: string) {
+        return this.locks.includes(id)
+    }
+
+    static removeLock(id: string) {
+        this.locks = this.locks.filter(e => e !== id)
+    }
+
+    static addLock(id: string) {
+        this.locks.push(id);
+    }
+}
+
+interface ReportFunctions {
+    onUpdate: (progress: Progress) => void,
+    reportError: (err: string) => void
+}

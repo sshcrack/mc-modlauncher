@@ -1,0 +1,106 @@
+{
+  "name": "sshmods",
+  "productName": "sshmods",
+  "version": "1.0.0",
+  "description": "Minecraft Modpack launcher",
+  "main": ".webpack/main",
+  "scripts": {
+    "watch": "tsc -w",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx ."
+  },
+  "keywords": [],
+  "author": {
+    "name": "sshcrack",
+    "email": "hendrik.lind777@gmail.com"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "target": [
+            "win32"
+          ],
+          "config": {
+            "name": "sshmods.Minecraft.Modpacks",
+            "authors": "sshcrack",
+            "description": "A minecraft modpack installer made by sshcrack",
+            "loadingGif": "src/assets/loading.gif",
+            "icon": "src/assets/icon.ico"
+          }
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/pages/dashboard/index.html",
+                  "js": "./src/pages/dashboard/renderer.ts",
+                  "name": "main_window"
+                }
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+    "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "@electron-forge/plugin-webpack": "6.0.0-beta.61",
+    "@electron-forge/publisher-github": "^6.0.0-beta.61",
+    "@types/fs-extra": "^9.0.13",
+    "@types/node": "^17.0.4",
+    "@types/uuid": "^8.3.3",
+    "@typescript-eslint/eslint-plugin": "^5.8.0",
+    "@typescript-eslint/parser": "^4.0.1",
+    "@vercel/webpack-asset-relocator-loader": "1.7.0",
+    "css-loader": "^6.0.0",
+    "dotenv": "^10.0.0",
+    "electron": "16.0.5",
+    "eslint": "^7.6.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.3",
+    "fork-ts-checker-webpack-plugin": "^6.0.1",
+    "node-loader": "^2.0.0",
+    "style-loader": "^3.0.0",
+    "ts-loader": "^9.2.2",
+    "typed-emitter": "^1.4.0",
+    "typescript": "^4.0.2"
+  },
+  "dependencies": {
+    "bootstrap": "^5.1.3",
+    "bootstrap-icons": "^1.7.2",
+    "electron-log": "^4.4.3",
+    "electron-reloader": "^1.2.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-store": "^8.0.1",
+    "fs-extra": "^10.0.0",
+    "glob": "^7.2.0",
+    "got": "^12.0.0",
+    "jszip": "^3.7.1",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "pretty-bytes": "^5.6.0",
+    "querystring-es3": "^0.2.1",
+    "source-map-support": "^0.5.21",
+    "unpacker-with-progress": "^2.0.3",
+    "update-electron-app": "^2.0.1",
+    "uuid": "^8.3.2"
+  }
+}

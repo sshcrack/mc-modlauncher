@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "module": "commonjs",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "target": "ES2016",
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "paths": {
+      "@src/*": [ "./src/*" ]
+    },
+    "typeRoots": [
+      "src/types"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
