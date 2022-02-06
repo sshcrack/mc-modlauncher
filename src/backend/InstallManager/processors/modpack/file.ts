@@ -13,5 +13,5 @@ export function getUrl(id: string, config: Modpack): string {
 
 export function getInstanceDestination(id: string) {
     const installDir = MainGlobals.getInstallDir();
-    return Globals.getInstancePathById(installDir, id);
+    return MainGlobals.getInstancePathById(installDir, id);
 }

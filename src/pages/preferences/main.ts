@@ -6,9 +6,13 @@ import path from "path";
 import prettyBytes from '../../assets/pretty-bytes';
 import { dirSize } from '../../backend/main/folder';
 import { MainGlobals } from '../../Globals/mainGlobals';
-import { Logger } from '../../interfaces/logger';
+import { MainLogger } from '../../interfaces/mainLogger';
 
-const logger = Logger.get("Preference", "Renderer")
+
+declare const PREFERENCES_PRELOAD_WEBPACK_ENTRY: string
+declare const PREFERENCES_WEBPACK_ENTRY: string
+
+const logger = MainLogger.get("Preference", "Renderer")
 const appData = app.getPath("appData");
 const installDir = path.join(appData, "sshmods")
 
@@ -37,7 +41,7 @@ export class Preference {
             darkTheme: true,
             maximizable: false,
             webPreferences: {
-                preload: path.join(__dirname, "preload.js"),
+                preload: PREFERENCES_PRELOAD_WEBPACK_ENTRY,
                 contextIsolation: true,
                 devTools: true
             }
@@ -45,7 +49,7 @@ export class Preference {
 
         preferences.setMenuBarVisibility(false);
         preferences.setMenu(null);
-        preferences.loadFile(path.join(__dirname, "../../src/pages/preferences", "index.html"));
+        preferences.loadURL(PREFERENCES_WEBPACK_ENTRY);
 
         preferences.show();
         Preference.window = preferences;

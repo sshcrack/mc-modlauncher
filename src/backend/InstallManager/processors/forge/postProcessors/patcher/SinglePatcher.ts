@@ -1,4 +1,4 @@
-import { Logger } from '../../../../../../interfaces/logger';
+import { MainLogger } from '../../../../../../interfaces/mainLogger';
 import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -23,7 +23,7 @@ export class SinglePatcher extends ProcessEventEmitter {
     }
 
     private getLogger() {
-        return Logger.get("InstallManager", "processors", "forge", "postProcessors", "patcher", "SinglePatcher", this.options.jar)
+        return MainLogger.get("InstallManager", "processors", "forge", "postProcessors", "patcher", "SinglePatcher", this.options.jar)
     }
 
     public run() {

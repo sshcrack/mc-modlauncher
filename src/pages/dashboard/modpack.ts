@@ -1,3 +1,4 @@
+import { RenderLogger } from '../../interfaces/renderLogger';
 import { Globals } from '../../Globals';
 import { Modpack } from '../../interfaces/modpack';
 import { getButtonDiv } from './scripts/buttons';
@@ -8,27 +9,31 @@ const listUrl = `${baseUrl}/list.json`
 let locked = false
 
 const { modpack } = window.api
+const log = RenderLogger.get("Dashboard", "Modpack")
+
 export async function updateModpacks(releaseLock?: boolean) {
-    if(releaseLock)
+    if (releaseLock)
         setLock(false)
 
-    if(locked)
+    if (locked)
         return;
 
     setLock(true)
     const modpacks = document.getElementById("modpacks")
 
-    const list: string[] = await fetch(listUrl).then(e => e.json()).catch(() => alert("Could not get modpack list. Trying again..."));
-    if(!list) {
+    const list: string[] = await fetch(listUrl, { method: "GET" }).then(e => e.json()).catch(e => log.error("Could not fetch list", e))
+    if (!list) {
         setLock(false);
-        updateModpacks();
+        setTimeout(() => {
+            updateModpacks();
+        }, 2000)
+
+        return;
     }
 
+    log.debug("Fetching list...")
     const infos = await Promise.all(
-        list.map(id => fetch(`${baseUrl}/${id}/config.json`, { headers: {
-            "pragma": "no-cache",
-            "cache-control": "no-cache"
-        }}).then(async e => {
+        list.map(id => fetch(`${baseUrl}/${id}/config.json`).then(async e => {
             const json: Modpack = await e.json();
             return {
                 id: id,
@@ -37,6 +42,7 @@ export async function updateModpacks(releaseLock?: boolean) {
         }))
     )
 
+    log.debug("Get installed...")
     const installed = modpack.list()
     const childrenProms = infos.map(async (config) => {
         const { name, cover, author, description, id } = config
@@ -76,6 +82,7 @@ export async function updateModpacks(releaseLock?: boolean) {
         return cardDiv
     })
 
+    log.debug("Awaiting child proms...")
     const children = await Promise.all(childrenProms);
     const sorted = children.sort((a, b) => {
         const firstInstalled = a.getAttribute("data-installed") === "1";
@@ -91,6 +98,7 @@ export async function updateModpacks(releaseLock?: boolean) {
     modpacks.innerHTML = "";
     modpacks.append(...sorted);
     setLock(false)
+    log.debug("Lock set to false.")
 }
 
 

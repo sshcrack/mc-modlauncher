@@ -1,11 +1,11 @@
+import { MainLogger } from '../../../interfaces/mainLogger';
 import EventEmitter from 'events';
-import { Logger } from '../../../interfaces/logger';
 import TypedEmitter from "typed-emitter";
 import { Modpack } from '../../../interfaces/modpack';
 import { MessageEvents, ProgressEvent } from './interface';
 
 
-const logger = Logger.get("InstallManager", "Processor")
+const logger = MainLogger.get("InstallManager", "Processor")
 class ProcessorEventEmitterClass extends (EventEmitter as new () => TypedEmitter<MessageEvents>) {
     public id: string
     public config: Modpack

@@ -1,8 +1,7 @@
-import { Logger } from '../../../interfaces/logger';
 import fs from "fs";
 import path from "path";
-import { Globals } from '../../../Globals';
 import { MainGlobals } from '../../../Globals/mainGlobals';
+import { MainLogger } from '../../../interfaces/mainLogger';
 import { Version } from '../../../interfaces/modpack';
 
 
@@ -10,10 +9,10 @@ export type SharedMap = {
     forgeVersion?: string
 }
 
-const logger = Logger.get("InstallManager", "Processors", "Interface")
+const logger = MainLogger.get("InstallManager", "Processors", "Interface")
 export function getInstanceVersionPath(id: string) {
     const installDir = MainGlobals.getInstallDir()
-    const instanceDir = Globals.getInstancePathById(installDir, id);
+    const instanceDir = MainGlobals.getInstancePathById(installDir, id);
 
     return path.join(instanceDir, "installed_version.json")
 }

@@ -2,12 +2,12 @@ import fs from "fs";
 import JSZip from "jszip";
 import path from 'path';
 import unpacker from "unpacker-with-progress";
-import { Logger } from '../../../../interfaces/logger';
+import { MainLogger } from '../../../../interfaces/mainLogger';
 import { Modpack } from "../../../../interfaces/modpack";
 import { AdditionalOptions, ProcessEventEmitter } from '../../event/Processor';
 
 
-const logger = Logger.get("InstallManager", "processors", "Unpacker")
+const logger = MainLogger.get("InstallManager", "processors", "Unpacker")
 
 export class Unpacker extends ProcessEventEmitter {
     public options: UnpackerOptions;

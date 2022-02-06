@@ -1,7 +1,7 @@
-import { Logger } from '../../interfaces/logger';
+import { MainLogger } from '../../interfaces/mainLogger';
 import { spawnSync } from "child_process"
 
-const logger = Logger.get("Main", "Java")
+const logger = MainLogger.get("Main", "Java")
 
 export function checkJava() {
     const { stdout, stderr } = spawnSync("java", ["-version"])

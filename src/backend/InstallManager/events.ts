@@ -3,14 +3,13 @@ import fs from "fs";
 import path from "path";
 import { v4 as randomUUID } from "uuid";
 import { InstallManager } from '.';
-import { Globals } from '../../Globals';
 import { MainGlobals } from '../../Globals/mainGlobals';
-import { Logger } from '../../interfaces/logger';
+import { MainLogger } from '../../interfaces/mainLogger';
 import { Progress } from './event/interface';
 import { getInstanceVersion } from './processors/interface';
 
 
-const logger = Logger.get("InstallManager", "Events")
+const logger = MainLogger.get("InstallManager", "Events")
 export function setupInstallManagerEvents() {
     const { addLock, hasLock, removeLock, remove, install } = InstallManager;
 
@@ -94,7 +93,7 @@ export async function cleanCorrupted() {
         .filter(e => !e.includes("-corrupted"))
         .map(e => {
             const instancePath = path.join(instances, e);
-            const creating = Globals.getCreatingFile(installDir, e)
+            const creating = MainGlobals.getCreatingFile(installDir, e)
             const uuid = randomUUID()
 
             if (!fs.existsSync(creating))
@@ -125,7 +124,7 @@ export function getInstalled(): string[] {
         .filter(e => e.isDirectory())
         .map(e => e.name)
         .filter(e => {
-            const creating = Globals.getCreatingFile(installDir, e)
+            const creating = MainGlobals.getCreatingFile(installDir, e)
             const files = fs.readdirSync(path.join(instances, e))
 
             return !fs.existsSync(creating) && files.length !== 0

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { MainGlobals } from '../../../../../Globals/mainGlobals';
-import { Logger } from '../../../../../interfaces/logger';
+import { MainLogger } from '../../../../../interfaces/mainLogger';
 import { Modpack } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { InstallProfile } from '../../../General/installProfile';
@@ -9,7 +9,7 @@ import { getForgeDir, getForgeInstallerZip, getForgeInstallProfile, getLauncherM
 import { stringToArtifact } from './Artifact';
 import { SharedProcessor } from './interface';
 
-const logger = Logger.get("Processors", "Forge", "PostProcessors", "ArgumentGetter")
+const logger = MainLogger.get("Processors", "Forge", "PostProcessors", "ArgumentGetter")
 export class ArgumentGetter extends ProcessEventEmitter {
     private shared: SharedProcessor;
 

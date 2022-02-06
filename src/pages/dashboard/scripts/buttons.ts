@@ -1,10 +1,10 @@
 import { Progress } from '../../../backend/InstallManager/event/interface';
 import { RenderGlobals } from '../../../Globals/renderGlobals';
-import { Logger } from '../../../interfaces/logger';
+import { RenderLogger } from '../../../interfaces/renderLogger';
 import { Modpack } from '../../../interfaces/modpack';
 import { setLock, updateModpacks } from '../modpack';
 
-const logger = Logger.get("Preload", "Buttons")
+const logger = RenderLogger.get("Preload", "Buttons")
 
 const { launcher, modpack, system } = window.api
 const { prompt } = system

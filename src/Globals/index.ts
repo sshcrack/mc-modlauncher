@@ -1,22 +1,8 @@
-import fs from "fs";
-import path from 'path';
 import { Modpack, Version } from '../interfaces/modpack';
 
 export class Globals {
-    static baseUrl = "https://mc.sshbot.ddnss.de";
+    static baseUrl = "https://mc.sshcrack.me";
 
-    static getInstanceDir(installDir: string) {
-        return path.join(installDir, "Instances");
-    }
-
-    static getInstancePathById(installDir: string, id: string) {
-        return path.join(this.getInstanceDir(installDir), id);
-    }
-
-    static getCreatingFile(installDir: string, id: string) {
-        const dir = Globals.getInstancePathById(installDir, id);
-        return path.join(dir, ".creating")
-    }
 
     static getLastVersion(config: Modpack | Version[]) {
         let versions = config as Version[];

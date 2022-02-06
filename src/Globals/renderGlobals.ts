@@ -1,8 +1,8 @@
-import { Logger } from '../interfaces/logger';
 import { Globals } from '.';
 import { Modpack } from '../interfaces/modpack';
+import { RenderLogger } from '../interfaces/renderLogger';
 
-const logger = Logger.get("Globals", "renderGlobals")
+const logger = RenderLogger.get("Globals", "renderGlobals")
 const { preferences, modpack } = window.api
 export class RenderGlobals {
     static getInstallDir(): string {

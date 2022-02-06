@@ -8,7 +8,7 @@ function runAction(id: string, overwrite: boolean, onUpdate: onUpdate) {
 
         ipcRenderer.on("modpack_update", (e, progress) => onUpdate(progress))
 
-        ipcRenderer.send("modpack_install", id, overwrite)
+        ipcRenderer.send("install_modpack", id, overwrite)
     });
 }
 

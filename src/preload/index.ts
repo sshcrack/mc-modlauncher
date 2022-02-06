@@ -1,20 +1,18 @@
-/*
-window.onload = async () => {
-    const doc = document.getElementById("page-index");
-    console.log("Dirname", __dirname)
-    const { handleIndex } = await import("./preload/main")
-    if (doc)
-        return await handleIndex();
-}*/
-
 import { contextBridge, ipcRenderer } from 'electron';
 import { modpack } from './modpack';
 import { cache } from './cache';
 import { launcher } from './launcher';
 import { folder } from './folder';
 import { preferences } from './preferences';
+import log from "electron-log"
+import { v4 } from "uuid"
 
+log.transports.file.maxSize = 1024 * 1024 * 20
+log.log("Setting window.log")
+window.log = log;
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+log.log("UUid", v4())
 
 const uninstallWarning = "Are you sure you want to uninstall this modpack? This will delete all files, settings, options and controls";
 
@@ -34,11 +32,18 @@ export const API = {
     system,
     cache,
     folder,
-    launcher
+    launcher,
 }
 
 contextBridge.exposeInMainWorld(
     "api",
     API
 )
+
+contextBridge.exposeInMainWorld(
+    "log",
+    log
+)
+
+
 

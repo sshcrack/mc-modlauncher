@@ -1,8 +1,8 @@
 import { app, autoUpdater, dialog } from 'electron'
 import path from "path"
-import { Logger } from '../../interfaces/logger'
+import { MainLogger } from '../../interfaces/mainLogger'
 
-const logger = Logger.get("Main", "Updater")
+const logger = MainLogger.get("Main", "Updater")
 
 export function addUpdater() {
 

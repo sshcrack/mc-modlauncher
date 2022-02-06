@@ -6,10 +6,10 @@ import { InstallManager } from './backend/InstallManager';
 import { setupEvents } from './backend/main/events';
 import { checkJava } from './backend/main/java';
 import { addUpdater, registerUri, registerURIOpenEvent } from './backend/main/main_funcs';
-import { Logger } from './interfaces/logger';
+import { MainLogger } from './interfaces/mainLogger';
 import { Preference } from './pages/preferences/main';
 
-const logger = Logger.get("Main")
+const logger = MainLogger.get("Main")
 
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
@@ -29,6 +29,7 @@ addUpdater();
 let mainWindow: BrowserWindow;
 const createWindow = async () => {
   registerURIOpenEvent();
+  console.log("Preload is", MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY)
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -43,7 +44,7 @@ const createWindow = async () => {
   mainWindow.setMenuBarVisibility(false);
 
   // and load the index.html of the app.
-  mainWindow.loadFile(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.maximize()
 
   try {

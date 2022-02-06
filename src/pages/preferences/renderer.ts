@@ -1,12 +1,13 @@
 import prettyBytes from "pretty-bytes"
-import "bootstrap"
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/js/bootstrap.min.js"
 import "bootstrap-icons/font/bootstrap-icons.css"
-import "../theme.css"
-import "./index.css"
+import "../theme.scss"
+import "./index.scss"
 
-import { Logger } from '../../interfaces/logger';
+import { RenderLogger } from '../../interfaces/renderLogger';
 
-const logger = Logger.get("Preferences", "Preload")
+const logger = RenderLogger.get("Preferences", "Preload")
 
 const { api } = window
 const { preferences, system, cache, folder } = api

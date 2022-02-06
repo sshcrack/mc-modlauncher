@@ -18,9 +18,9 @@ import { LauncherUnpacker } from './processors/launcher/unpacker';
 import { LibraryMultipleDownloader } from './processors/libraries/LibraryMultiple';
 import { ModpackDownloader } from './processors/modpack/downloader';
 import { ModpackUnpacker } from './processors/modpack/unpacker';
-import { Logger } from '../../interfaces/logger';
+import { MainLogger } from '../../interfaces/mainLogger';
 
-const logger = Logger.get("InstallManager", "ProcessorList")
+const logger = MainLogger.get("InstallManager", "ProcessorList")
 export function getProcessors(id: string, config: Modpack, overwrite: boolean) {
     const lastVer = Globals.getLastVersion(config);
 

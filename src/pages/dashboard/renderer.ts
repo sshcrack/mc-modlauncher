@@ -1,12 +1,13 @@
-import "bootstrap"
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/js/bootstrap.min.js"
 import "bootstrap-icons/font/bootstrap-icons.css"
-import "../theme.css"
-import "./index.css"
+import "../theme.scss"
+import "./index.scss"
 
-import { Logger } from '../../interfaces/logger';
+import { RenderLogger } from '../../interfaces/renderLogger';
 import { updateModpacks } from './modpack';
 
-const logger = Logger.get("Preload", "Main")
+const log = RenderLogger.get("Preload", "Main")
 const { modpack, preferences} = window.api
 
 window.onload = async () => {
@@ -22,6 +23,7 @@ async function queueUpdating() {
         setTimeout(() => resolve(), 60000)
     })
 
+    log.debug("Queue updating modpacks...")
     await updateModpacks();
     queueUpdating();
 }
@@ -29,7 +31,7 @@ async function queueUpdating() {
 async function addPrefEvent() {
     const prefBtn = document.getElementById("settings");
     prefBtn.addEventListener("click", () => {
-        logger.info("Sending opening signal to preferences...")
+        log.info("Sending opening signal to preferences...")
         preferences.open();
     });
 }

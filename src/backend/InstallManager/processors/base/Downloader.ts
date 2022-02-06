@@ -3,12 +3,12 @@ import fs, { WriteStream } from 'fs';
 import got from 'got/dist/source';
 import Request, { Progress } from 'got/dist/source/core';
 import path from "path";
-import { Logger } from '../../../../interfaces/logger';
+import { MainLogger } from '../../../../interfaces/mainLogger';
 import { Modpack } from '../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../event/Processor';
 
 
-const logger = Logger.get("InstallManager", "base", "Downloader")
+const logger = MainLogger.get("InstallManager", "base", "Downloader")
 export class Downloader extends ProcessEventEmitter {
     public options: DownloaderOptions;
 

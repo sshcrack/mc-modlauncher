@@ -2,7 +2,7 @@ import fs from "fs";
 import got from "got";
 import { Globals } from "../../Globals";
 import { MainGlobals } from '../../Globals/mainGlobals';
-import { Logger } from '../../interfaces/logger';
+import { MainLogger } from '../../interfaces/mainLogger';
 import { Modpack } from '../../interfaces/modpack';
 import { Progress } from './event/interface';
 import { ProcessEventEmitter } from './event/Processor';
@@ -11,7 +11,7 @@ import { getProcessors } from './processorList';
 import { getInstanceVersionPath } from './processors/interface';
 
 const baseUrl = Globals.baseUrl;
-const logger = Logger.get("InstallManager")
+const logger = MainLogger.get("InstallManager")
 export class InstallManager {
     static initialize() {
         setupInstallManagerEvents()
@@ -30,7 +30,7 @@ export class InstallManager {
         logger.info("Installing modpack", id)
         const installDir = MainGlobals.getInstallDir();
         const installations = getInstalled();
-        const instanceDir = Globals.getInstancePathById(installDir, id);
+        const instanceDir = MainGlobals.getInstancePathById(installDir, id);
 
         const reportError = (err: string) => {
             fs.rmSync(instanceDir, { recursive: true, force: true });
@@ -55,10 +55,10 @@ export class InstallManager {
             return reportError("Could not download modpack configuration")
         }
 
-        const createFile = Globals.getCreatingFile(installDir, id);
+        const createFile = MainGlobals.getCreatingFile(installDir, id);
         fs.writeFileSync(createFile, "")
 
-        const res = await this.runProcessors(id, config, update, {
+        const res = await InstallManager.runProcessors(id, config, update, {
             onUpdate,
             reportError
         });
@@ -87,7 +87,7 @@ export class InstallManager {
     static async remove(id: string) {
         return new Promise<void>((resolve, reject) => {
             const installDir = MainGlobals.getInstallDir();
-            const instanceDir = Globals.getInstancePathById(installDir, id);
+            const instanceDir = MainGlobals.getInstancePathById(installDir, id);
 
             logger.info("Removing modpack", id, "at path", instanceDir)
             fs.promises.rmdir(instanceDir, { recursive: true })
@@ -104,15 +104,15 @@ export class InstallManager {
 
     private static locks: string[] = []
     static hasLock(id: string) {
-        return this.locks.includes(id)
+        return InstallManager.locks.includes(id)
     }
 
     static removeLock(id: string) {
-        this.locks = this.locks.filter(e => e !== id)
+        InstallManager.locks = InstallManager.locks.filter(e => e !== id)
     }
 
     static addLock(id: string) {
-        this.locks.push(id);
+        InstallManager.locks.push(id);
     }
 }
 

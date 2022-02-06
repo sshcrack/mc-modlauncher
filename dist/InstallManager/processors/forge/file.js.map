@@ -1,0 +1,1 @@
+{"version":3,"file":"file.js","sourceRoot":"","sources":["../../../../src/InstallManager/processors/forge/file.ts"],"names":[],"mappings":";;;AAAA,8CAA2C;AAI3C,MAAM,OAAO,GAAG,iBAAO,CAAC,OAAO,CAAC;AAEhC,SAAgB,WAAW,CAAC,EAAU,EAAE,MAAe;IACnD,MAAM,OAAO,GAAG,iBAAO,CAAC,cAAc,CAAC,MAAM,CAAC,CAAA;IAE9C,OAAO,GAAG,OAAO,IAAI,EAAE,IAAI,OAAO,CAAC,KAAK,EAAE,CAAA;AAC9C,CAAC;AAJD,kCAIC"}

@@ -2,11 +2,12 @@ import { spawn } from "child_process";
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import fs from "fs";
 import * as path from 'path';
+console.log("events Import uuid")
 import { v5 as uuid } from "uuid";
 import { Globals } from '../../Globals';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { LauncherProfiles, Profile } from '../../interfaces/launcher';
-import { Logger } from '../../interfaces/logger';
+import { MainLogger } from '../../interfaces/mainLogger';
 import { Modpack } from '../../interfaces/modpack';
 import { store } from '../../pages/preferences/main';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
@@ -14,7 +15,7 @@ import { getInstanceDestination } from '../InstallManager/processors/modpack/fil
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 
 const genUUID = (str: string) => uuid(str, MY_NAMESPACE)
-const logger = Logger.get("Events")
+const logger = MainLogger.get("Events")
 
 export function setupEvents() {
     ipcMain.on("confirm_prompt", (e, str) => {

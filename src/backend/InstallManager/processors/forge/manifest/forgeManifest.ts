@@ -1,7 +1,7 @@
 import { MainGlobals } from '../../../../../Globals/mainGlobals';
 import fs from "fs";
 import path from "path";
-import { Logger } from '../../../../../interfaces/logger';
+import { MainLogger } from '../../../../../interfaces/mainLogger';
 import { Modpack } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { InstallProfile } from '../../../General/installProfile';
@@ -9,7 +9,7 @@ import { getForgeDir, getForgeInstallProfile, getVersionsDir } from '../../../Ge
 import { SharedMap } from '../../interface';
 
 
-const logger = Logger.get('ForgeManifestCopier');
+const logger = MainLogger.get('ForgeManifestCopier');
 //!This sets forge_version in options, run before using forge_version
 export class ForgeManifestCopier extends ProcessEventEmitter {
     private shared: SharedMap;

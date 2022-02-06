@@ -19,4 +19,17 @@ export class MainGlobals {
 
         return tempPath;
     }
+
+    static getInstanceDir(installDir: string) {
+        return path.join(installDir, "Instances");
+    }
+
+    static getInstancePathById(installDir: string, id: string) {
+        return path.join(this.getInstanceDir(installDir), id);
+    }
+
+    static getCreatingFile(installDir: string, id: string) {
+        const dir = MainGlobals.getInstancePathById(installDir, id);
+        return path.join(dir, ".creating")
+    }
 }
