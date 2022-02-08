@@ -23,15 +23,21 @@ async function queueUpdating() {
         setTimeout(() => resolve(), 60000)
     })
 
-    log.debug("Queue updating modpacks...")
-    await updateModpacks();
+
+    const prefOpen = preferences.isOpen();
+    log.debug("Preferences are currently", prefOpen ? "open" : "closed")
+
+    if (!prefOpen) {
+        log.debug("Queue updating modpacks...")
+        await updateModpacks();
+    }
     queueUpdating();
 }
 
 async function addPrefEvent() {
     const prefBtn = document.getElementById("settings");
-    prefBtn.addEventListener("click", () => {
+    prefBtn.addEventListener("click", async () => {
         log.info("Sending opening signal to preferences...")
-        preferences.open();
+        await preferences.open();
     });
 }

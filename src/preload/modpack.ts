@@ -1,20 +1,19 @@
-import { Version } from '../interfaces/modpack';
 import { ipcRenderer } from 'electron';
+import { Version } from '../interfaces/modpack';
 import { onUpdate } from './interface';
 
 function runAction(id: string, overwrite: boolean, onUpdate: onUpdate) {
     return new Promise<void>((resolve, reject) => {
-        addDefaultListener(id, resolve, reject)
+        addDefaultListener(id, () => resolve(), () => reject())
 
-        ipcRenderer.on("modpack_update", (e, progress) => onUpdate(progress))
-
+        ipcRenderer.on("modpack_update", (_, innerId, progress) => innerId === id && onUpdate(progress))
         ipcRenderer.send("install_modpack", id, overwrite)
     });
 }
 
 function removeModpack(id: string) {
     return new Promise<void>((resolve, reject) => {
-        addDefaultListener(id, resolve, reject)
+        addDefaultListener(id, () => resolve(), () => reject())
 
         ipcRenderer.send("modpack_remove", id)
     });
@@ -30,8 +29,10 @@ function cleanCorrupted() {
 }
 
 function addDefaultListener<T>(id: string, resolve: () => void, reject: (err: T) => void) {
-    ipcRenderer.once("modpack_success", (e, innerId) => innerId === id && resolve())
-    ipcRenderer.once("modpack_error", (e, innerId, err) => id === innerId && reject(err))
+    console.log("Default Listener has registered events for", id)
+    ipcRenderer.on("modpack_success", (e, innerId) => innerId === id && resolve())
+
+    ipcRenderer.on("modpack_error", (e, innerId, err) => innerId === id && reject(err))
 }
 
 export const modpack = {

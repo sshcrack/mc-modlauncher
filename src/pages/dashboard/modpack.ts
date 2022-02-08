@@ -2,6 +2,7 @@ import { RenderLogger } from '../../interfaces/renderLogger';
 import { Globals } from '../../Globals';
 import { Modpack } from '../../interfaces/modpack';
 import { getButtonDiv } from './scripts/buttons';
+import { Logger } from 'sass';
 
 const { baseUrl } = Globals
 const listUrl = `${baseUrl}/list.json`
@@ -9,19 +10,21 @@ const listUrl = `${baseUrl}/list.json`
 let locked = false
 
 const { modpack } = window.api
-const log = RenderLogger.get("Dashboard", "Modpack")
+const logger = RenderLogger.get("Dashboard", "Modpack")
 
 export async function updateModpacks(releaseLock?: boolean) {
+    logger.debug("Updating modpacks...")
     if (releaseLock)
         setLock(false)
 
     if (locked)
-        return;
+        return logger.debug("Modpack is locked, returning");
 
+    logger.debug("Requiring lock...")
     setLock(true)
     const modpacks = document.getElementById("modpacks")
 
-    const list: string[] = await fetch(listUrl, { method: "GET" }).then(e => e.json()).catch(e => log.error("Could not fetch list", e))
+    const list: string[] = await fetch(listUrl, { method: "GET" }).then(e => e.json()).catch(e => logger.error("Could not fetch list", e))
     if (!list) {
         setLock(false);
         setTimeout(() => {
@@ -31,7 +34,7 @@ export async function updateModpacks(releaseLock?: boolean) {
         return;
     }
 
-    log.debug("Fetching list...")
+    logger.debug("Fetching list...")
     const infos = await Promise.all(
         list.map(id => fetch(`${baseUrl}/${id}/config.json`).then(async e => {
             const json: Modpack = await e.json();
@@ -42,7 +45,7 @@ export async function updateModpacks(releaseLock?: boolean) {
         }))
     )
 
-    log.debug("Get installed...")
+    logger.debug("Get installed...")
     const installed = modpack.list()
     const childrenProms = infos.map(async (config) => {
         const { name, cover, author, description, id } = config
@@ -82,7 +85,7 @@ export async function updateModpacks(releaseLock?: boolean) {
         return cardDiv
     })
 
-    log.debug("Awaiting child proms...")
+    logger.debug("Awaiting child proms...")
     const children = await Promise.all(childrenProms);
     const sorted = children.sort((a, b) => {
         const firstInstalled = a.getAttribute("data-installed") === "1";
@@ -98,7 +101,7 @@ export async function updateModpacks(releaseLock?: boolean) {
     modpacks.innerHTML = "";
     modpacks.append(...sorted);
     setLock(false)
-    log.debug("Lock set to false.")
+    logger.debug("Lock set to false.")
 }
 
 

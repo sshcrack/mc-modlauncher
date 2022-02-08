@@ -6,8 +6,10 @@ import { InstallManager } from './backend/InstallManager';
 import { setupEvents } from './backend/main/events';
 import { checkJava } from './backend/main/java';
 import { addUpdater, registerUri, registerURIOpenEvent } from './backend/main/main_funcs';
+import { addSystemListeners } from './backend/main/system';
+import { Preference } from './backend/preferences';
+import { MainGlobals } from './Globals/mainGlobals';
 import { MainLogger } from './interfaces/mainLogger';
-import { Preference } from './pages/preferences/main';
 
 const logger = MainLogger.get("Main")
 
@@ -58,6 +60,18 @@ const createWindow = async () => {
     });
     app.quit();
   }
+
+  mainWindow.on("focus", () => {
+    const { window } = Preference;
+    if (!window)
+      return;
+
+    window.focus();
+    window.flashFrame(true)
+    mainWindow.blur();
+  })
+
+  MainGlobals.window = mainWindow
 };
 
 // This method will be called when Electron has finished
@@ -106,3 +120,4 @@ InstallManager.initialize();
 // code. You can also put them in separate files and import them here.
 
 setupEvents();
+addSystemListeners()

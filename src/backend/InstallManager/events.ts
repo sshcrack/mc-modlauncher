@@ -13,7 +13,7 @@ const logger = MainLogger.get("InstallManager", "Events")
 export function setupInstallManagerEvents() {
     const { addLock, hasLock, removeLock, remove, install } = InstallManager;
 
-    const onUpdate = (event: IpcMainEvent, prog: Progress) => event.reply("modpack_update", prog)
+    const onUpdate = (event: IpcMainEvent, id: string, prog: Progress) => event.reply("modpack_update", id, prog)
     const sendLockInfo = (event: IpcMainEvent, id: string) => event.reply("modpack_error", id, "Another installation is in progress")
     const defaultPromReply = async (event: IpcMainEvent, id: string, prom: Promise<void>) => {
         const err = await prom
@@ -23,7 +23,7 @@ export function setupInstallManagerEvents() {
         if (err)
             return event.reply("modpack_error", id, err)
 
-        event.reply("modpack_success")
+        event.reply("modpack_success", id)
     }
 
     ipcMain.on("install_modpack", async (event, id, overwrite) => {
@@ -31,7 +31,7 @@ export function setupInstallManagerEvents() {
             return sendLockInfo(event, id)
 
         addLock(id)
-        const prom = install(id, !!overwrite, prog => onUpdate(event, prog));
+        const prom = install(id, !!overwrite, prog => onUpdate(event, id, prog));
 
         await defaultPromReply(event, id, prom)
         removeLock(id)
@@ -44,7 +44,7 @@ export function setupInstallManagerEvents() {
         addLock(id)
 
         logger.info("Updating modpack", id)
-        const prom = install(id, true, prog => onUpdate(event, prog));
+        const prom = install(id, true, prog => onUpdate(event, id, prog));
 
         await defaultPromReply(event, id, prom)
         removeLock(id)

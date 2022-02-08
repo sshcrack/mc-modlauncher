@@ -9,7 +9,7 @@ import { MainGlobals } from '../../Globals/mainGlobals';
 import { LauncherProfiles, Profile } from '../../interfaces/launcher';
 import { MainLogger } from '../../interfaces/mainLogger';
 import { Modpack } from '../../interfaces/modpack';
-import { store } from '../../pages/preferences/main';
+import { store } from '../preferences';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import { getInstanceDestination } from '../InstallManager/processors/modpack/file';
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';

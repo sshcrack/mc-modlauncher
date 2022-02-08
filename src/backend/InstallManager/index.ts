@@ -26,7 +26,7 @@ export class InstallManager {
         return JSON.parse(configRes.body) as Modpack;
     }
 
-    static async install(id: string, update = false, onUpdate: (prog: Progress) => void) {
+    static async install(id: string, update = false, onUpdateChilds: (prog: Progress) => void) {
         logger.info("Installing modpack", id)
         const installDir = MainGlobals.getInstallDir();
         const installations = getInstalled();
@@ -35,6 +35,12 @@ export class InstallManager {
         const reportError = (err: string) => {
             fs.rmSync(instanceDir, { recursive: true, force: true });
             throw new Error(err);
+        }
+
+        const onUpdate = (prog: Progress) => {
+            onUpdateChilds(prog);
+
+            MainGlobals.window.setProgressBar(prog.percent)
         }
 
         logger.debug("Making directory", id)
@@ -63,6 +69,7 @@ export class InstallManager {
             reportError
         });
 
+        MainGlobals.window.setProgressBar(0)
         if(!res)
             return;
 
@@ -90,7 +97,7 @@ export class InstallManager {
             const instanceDir = MainGlobals.getInstancePathById(installDir, id);
 
             logger.info("Removing modpack", id, "at path", instanceDir)
-            fs.promises.rmdir(instanceDir, { recursive: true })
+            fs.promises.rm(instanceDir, { recursive: true })
                 .then(() => {
                     logger.log("Removed modpack", id)
                     resolve()

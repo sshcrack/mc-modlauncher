@@ -95,7 +95,10 @@ export function getButtonDiv(id: string, installed: boolean, config: Modpack) {
                 logger.error(str)
                 prompt.error(`Error uninstalling modpack ${id}: ${str}`)
             })
-            .finally(() => updateModpacks(true))
+            .finally(() => {
+                logger.debug("Uninstalled modpack", id)
+                updateModpacks(true)
+            })
     })
 
     return div

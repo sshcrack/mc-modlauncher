@@ -1,12 +1,12 @@
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, IpcMainEvent } from "electron";
 import Store from "electron-store";
 import fs from "fs";
 import os from "os";
 import path from "path";
 import prettyBytes from '../../assets/pretty-bytes';
-import { dirSize } from '../../backend/main/folder';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
+import { dirSize } from '../main/folder';
 
 
 declare const PREFERENCES_PRELOAD_WEBPACK_ENTRY: string
@@ -27,7 +27,7 @@ export const store = new Store({
 export class Preference {
     static window: BrowserWindow | undefined;
 
-    static async open() {
+    static async open(event?: IpcMainEvent) {
         if (Preference.window) return;
         const installDir = MainGlobals.getInstallDir()
 
@@ -54,33 +54,34 @@ export class Preference {
         preferences.show();
         Preference.window = preferences;
 
-        preferences.on("closed", () => { Preference.window = null })
+        preferences.on("closed", () => { Preference.window = null; event?.reply("prefs_closed") })
         this.window = preferences
     }
 
     static addListeners() {
         ipcMain.on("get_pref", (e, key: AvailablePrefs) => e.returnValue = store.get(key));
-        ipcMain.on("get_mem", e => e.returnValue = os.totalmem())
-        ipcMain.on("exists_folder", (e, p) => e.returnValue = fs.existsSync(p) && fs.lstatSync(p).isDirectory())
-
         ipcMain.on("set_pref", async (e, key: AvailablePrefs, val: unknown) => {
             logger.log("Saving preference", key, "with value", val)
 
-            if(key === "install_dir")
-                await fs.promises.rename(store.get("install_dir"), val as string)
+            if (key === "install_dir") {
+                console.log("Moving installdir around")
+                //await fs.promises.rename(store.get("install_dir"), val as string)
+            }
 
             store.set(key, val)
             e.reply("saved_prefs")
         });
 
         ipcMain.on("open_prefs", e =>
-            Preference.open()
+            Preference.open(e)
                 .then(() => e.reply("open_prefs_reply", true))
                 .catch(err => {
                     logger.error("Failed to open preferences", err)
                     e.reply("open_prefs_reply", false)
                 })
         );
+
+        ipcMain.on("is_open_prefs", e => e.returnValue = !!this.window)
 
 
         ipcMain.on("close_prefs", e => {

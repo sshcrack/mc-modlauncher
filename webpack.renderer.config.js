@@ -46,13 +46,14 @@ rules.push(
 },
 );
 
+
 plugins.push(new CopyWebpackPlugin({
   patterns: assets.map(asset => {
-    return {
-      from: path.resolve(__dirname, "src", asset),
-      to: path.resolve(__dirname, ".webpack/renderer", asset)
-    }
-  })
+      return {
+        from: path.resolve(__dirname, "src", asset),
+        to: path.resolve(__dirname, ".webpack/renderer", asset)
+      }
+    })
 }))
 
 

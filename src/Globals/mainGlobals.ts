@@ -1,8 +1,11 @@
-import { store } from '../pages/preferences/main';
+import { store } from '../backend/preferences';
 import path from "path"
 import fs from "fs"
+import { BrowserWindow } from 'electron';
 
 export class MainGlobals {
+    static window: BrowserWindow;
+
     static getInstallDir(): string {
         return store.get("install_dir")
     }
