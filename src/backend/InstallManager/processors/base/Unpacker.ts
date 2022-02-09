@@ -3,7 +3,7 @@ import JSZip from "jszip";
 import path from 'path';
 import unpacker from "unpacker-with-progress";
 import { MainLogger } from '../../../../interfaces/mainLogger';
-import { Modpack } from "../../../../interfaces/modpack";
+import { ModpackInfo } from "../../../../interfaces/modpack";
 import { AdditionalOptions, ProcessEventEmitter } from '../../event/Processor';
 
 
@@ -12,7 +12,7 @@ const logger = MainLogger.get("InstallManager", "processors", "Unpacker")
 export class Unpacker extends ProcessEventEmitter {
     public options: UnpackerOptions;
 
-    constructor(id: string, config: Modpack, options: UnpackerOptions) {
+    constructor(id: string, config: ModpackInfo, options: UnpackerOptions) {
         super(id, config, options);
 
         this.options = options;

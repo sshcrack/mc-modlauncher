@@ -2,7 +2,7 @@ import fs from "fs";
 import got from 'got/dist/source';
 import { Globals } from '../../../../../../Globals';
 import { MainGlobals } from '../../../../../../Globals/mainGlobals';
-import { Modpack } from '../../../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../../event/Processor';
 import { InstallProfile } from '../../../../General/installProfile';
 import { getForgeInstallProfile } from '../../../../General/mcBase';
@@ -13,7 +13,7 @@ import { SinglePatcher } from './SinglePatcher';
 export class MainPatcher extends ProcessEventEmitter {
     private shared: SharedProcessor;
 
-    constructor(id: string, config: Modpack, options: AdditionalOptions, shared: SharedProcessor) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, shared: SharedProcessor) {
         super(id, config, options);
         this.shared = shared;
     }

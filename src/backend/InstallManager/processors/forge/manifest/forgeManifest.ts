@@ -2,7 +2,7 @@ import { MainGlobals } from '../../../../../Globals/mainGlobals';
 import fs from "fs";
 import path from "path";
 import { MainLogger } from '../../../../../interfaces/mainLogger';
-import { Modpack } from '../../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { InstallProfile } from '../../../General/installProfile';
 import { getForgeDir, getForgeInstallProfile, getVersionsDir } from '../../../General/mcBase';
@@ -13,7 +13,7 @@ const logger = MainLogger.get('ForgeManifestCopier');
 //!This sets forge_version in options, run before using forge_version
 export class ForgeManifestCopier extends ProcessEventEmitter {
     private shared: SharedMap;
-    constructor(id: string, config: Modpack, options: AdditionalOptions, sharedMap: SharedMap) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, sharedMap: SharedMap) {
         super(id, config, options);
 
         this.id = id;

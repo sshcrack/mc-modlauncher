@@ -7,13 +7,10 @@
     "noImplicitAny": true,
     "target": "ES2019",
     "sourceMap": true,
-    "baseUrl": ".",
+    "jsx": "react",
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "paths": {
-      "@src/*": [ "./src/*" ]
-    },
     "typeRoots": [
       "src/types"
     ]

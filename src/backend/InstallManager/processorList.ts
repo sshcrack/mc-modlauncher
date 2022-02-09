@@ -1,7 +1,7 @@
 import { Globals } from '../../Globals';
 import fs from "fs";
 import path from "path";
-import { Modpack } from '../../interfaces/modpack';
+import { ModpackInfo } from '../../interfaces/modpack';
 import { AdditionalOptions } from './event/Processor';
 import { getVersionsDir } from './General/mcBase';
 import { ForgeDownloader } from './processors/forge/downloader';
@@ -21,7 +21,7 @@ import { ModpackUnpacker } from './processors/modpack/unpacker';
 import { MainLogger } from '../../interfaces/mainLogger';
 
 const logger = MainLogger.get("InstallManager", "ProcessorList")
-export function getProcessors(id: string, config: Modpack, overwrite: boolean) {
+export function getProcessors(id: string, config: ModpackInfo, overwrite: boolean) {
     const lastVer = Globals.getLastVersion(config);
 
     const { forge_version: forgeVersion } = lastVer

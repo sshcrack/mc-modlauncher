@@ -1,11 +1,11 @@
 import { MainGlobals } from '../../../../Globals/mainGlobals';
-import { Modpack } from '../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../interfaces/modpack';
 import { AdditionalOptions } from '../../event/Processor';
 import { getForgeDir, getForgeInstallerZip } from '../../General/mcBase';
 import { Unpacker } from '../base/Unpacker';
 
 export class ForgeUnpacker extends Unpacker {
-    constructor(id: string, config: Modpack, options: AdditionalOptions) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions) {
         super(id, config, {
             ...options,
             src: getForgeInstallerZip(MainGlobals.getInstallDir(),id, config),

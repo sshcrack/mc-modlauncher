@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { MainGlobals } from '../../../../Globals/mainGlobals';
 import { MainLogger } from '../../../../interfaces/mainLogger';
-import { Modpack } from '../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../event/Processor';
 import { getForgeInstallProfile, getLibrariesDir, getVersionManifest } from '../../General/mcBase';
 import { VersionManifest } from '../../General/versionManifest';
@@ -13,7 +13,7 @@ const logger = MainLogger.get("InstallManager", "Processors", "LibrariesMultiple
 export class LibraryMultipleDownloader extends ProcessEventEmitter {
     private shared: SharedMap;
 
-    constructor(id: string, config: Modpack, options: AdditionalOptions, shared: SharedMap) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, shared: SharedMap) {
         super(id, config, options);
         this.shared = shared;
     }

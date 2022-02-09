@@ -35,11 +35,17 @@ function addDefaultListener<T>(id: string, resolve: () => void, reject: (err: T)
     ipcRenderer.on("modpack_error", (e, innerId, err) => innerId === id && reject(err))
 }
 
+function isInstalled(id: string) {
+    console.log("Checking for", id)
+    return ipcRenderer.sendSync("is_installed", id) as boolean
+}
+
 export const modpack = {
+    isInstalled: (id: string) => isInstalled(id),
     version: (id: string) => ipcRenderer.sendSync("get_version", id) as Version,
     remove: (id: string) => removeModpack(id),
     install: (id: string, onUpdate: onUpdate) => runAction(id, false, onUpdate),
     update: (id: string, onUpdate: onUpdate) => runAction(id, true, onUpdate),
     list: () => ipcRenderer.sendSync("get_installed") as string[],
-    clean: () => cleanCorrupted()
+    clean: () => cleanCorrupted(),
 }

@@ -1,8 +1,7 @@
-import { RenderLogger } from '../../interfaces/renderLogger';
 import { Globals } from '../../Globals';
-import { Modpack } from '../../interfaces/modpack';
+import { ModpackInfo } from '../../interfaces/modpack';
+import { RenderLogger } from '../../interfaces/renderLogger';
 import { getButtonDiv } from './scripts/buttons';
-import { Logger } from 'sass';
 
 const { baseUrl } = Globals
 const listUrl = `${baseUrl}/list.json`
@@ -34,18 +33,15 @@ export async function updateModpacks(releaseLock?: boolean) {
         return;
     }
 
-    logger.debug("Fetching list...")
     const infos = await Promise.all(
         list.map(id => fetch(`${baseUrl}/${id}/config.json`).then(async e => {
-            const json: Modpack = await e.json();
+            const json: ModpackInfo = await e.json();
             return {
                 id: id,
                 ...json
             }
         }))
     )
-
-    logger.debug("Get installed...")
     const installed = modpack.list()
     const childrenProms = infos.map(async (config) => {
         const { name, cover, author, description, id } = config

@@ -1,5 +1,5 @@
 import { Globals } from '../../../../Globals';
-import { Modpack } from '../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../interfaces/modpack';
 import { AdditionalOptions } from '../../event/Processor';
 import { Downloader } from '../base/Downloader';
 import { getLauncherZip } from './file';
@@ -7,7 +7,7 @@ import { getLauncherZip } from './file';
 const baseUrl = Globals.baseUrl;
 
 export class LauncherDownloader extends Downloader {
-    constructor(id: string, config: Modpack, options: AdditionalOptions) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions) {
         super(id, config, {
             ...options,
             destination: getLauncherZip(),

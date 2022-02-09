@@ -75,6 +75,11 @@ export function setupInstallManagerEvents() {
         event.returnValue = getInstalled()
     })
 
+    ipcMain.on("is_installed", (event, id) => {
+        logger.log("Is installed", id, getInstalled(), getInstalled().includes(id))
+        event.returnValue = getInstalled().includes(id)
+    })
+
     ipcMain.on("open_err_dialog", (e, str) => dialog.showErrorBox("Error", str))
 }
 

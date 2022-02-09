@@ -1,17 +1,17 @@
 import { MainLogger } from '../../../interfaces/mainLogger';
 import EventEmitter from 'events';
 import TypedEmitter from "typed-emitter";
-import { Modpack } from '../../../interfaces/modpack';
+import { ModpackInfo } from '../../../interfaces/modpack';
 import { MessageEvents, ProgressEvent } from './interface';
 
 
 const logger = MainLogger.get("InstallManager", "Processor")
 class ProcessorEventEmitterClass extends (EventEmitter as new () => TypedEmitter<MessageEvents>) {
     public id: string
-    public config: Modpack
+    public config: ModpackInfo
     public options: AdditionalOptions
 
-    constructor(id: string, config: Modpack, options: AdditionalOptions) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions) {
         super()
         this.id = id;
         this.config = config;

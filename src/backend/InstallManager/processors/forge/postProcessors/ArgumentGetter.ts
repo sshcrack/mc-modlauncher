@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { MainGlobals } from '../../../../../Globals/mainGlobals';
 import { MainLogger } from '../../../../../interfaces/mainLogger';
-import { Modpack } from '../../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { InstallProfile } from '../../../General/installProfile';
 import { getForgeDir, getForgeInstallerZip, getForgeInstallProfile, getLauncherMC, getLibrariesDir, getVersionJar } from '../../../General/mcBase';
@@ -13,7 +13,7 @@ const logger = MainLogger.get("Processors", "Forge", "PostProcessors", "Argument
 export class ArgumentGetter extends ProcessEventEmitter {
     private shared: SharedProcessor;
 
-    constructor(id: string, config: Modpack, options: AdditionalOptions, shared: SharedProcessor) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, shared: SharedProcessor) {
         super(id, config, options);
         this.shared = shared;
     }

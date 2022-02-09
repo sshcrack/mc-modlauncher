@@ -1,4 +1,4 @@
-import { Modpack } from '../../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { SharedMap } from '../../interface';
 import { ArgumentGetter } from './ArgumentGetter';
@@ -10,7 +10,7 @@ import { MainPatcher } from './patcher/MainPatcher';
 export class PostProcessor extends ProcessEventEmitter {
     private shared: SharedMap;
 
-    constructor(id: string, config: Modpack, options: AdditionalOptions, shared: SharedMap) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, shared: SharedMap) {
         super(id, config, options);
         this.shared = shared;
     }

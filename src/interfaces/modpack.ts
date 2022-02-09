@@ -1,4 +1,4 @@
-export interface Modpack {
+export interface ModpackInfo {
     name: string,
     mcVersion: string,
     description: string,

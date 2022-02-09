@@ -1,14 +1,14 @@
 import fs from "fs";
 import got from "got";
 import path from "path";
-import { Modpack } from '../../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { getVersionsDir } from '../../../General/mcBase';
 import { LauncherMeta } from '../../../General/launcherMeta';
 
 
 export class VanillaManifestDownloader extends ProcessEventEmitter {
-    constructor(id: string, config: Modpack, options: AdditionalOptions) {
+    constructor(id: string, config: ModpackInfo, options: AdditionalOptions) {
         super(id, config, options);
 
         this.id = id;

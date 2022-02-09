@@ -1,5 +1,5 @@
 import { Globals } from '.';
-import { Modpack } from '../interfaces/modpack';
+import { ModpackInfo } from '../interfaces/modpack';
 import { RenderLogger } from '../interfaces/renderLogger';
 
 const logger = RenderLogger.get("Globals", "renderGlobals")
@@ -9,7 +9,7 @@ export class RenderGlobals {
         return preferences.get("install_dir") as string;
     }
 
-    static hasLatest(id: string, config: Modpack) {
+    static hasLatest(id: string, config: ModpackInfo) {
         const currently = modpack.version(id)
         const latest = Globals.getLastVersion(config);
 

@@ -8,7 +8,7 @@ import { Globals } from '../../Globals';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { LauncherProfiles, Profile } from '../../interfaces/launcher';
 import { MainLogger } from '../../interfaces/mainLogger';
-import { Modpack } from '../../interfaces/modpack';
+import { ModpackInfo } from '../../interfaces/modpack';
 import { store } from '../preferences';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import { getInstanceDestination } from '../InstallManager/processors/modpack/file';
@@ -30,7 +30,7 @@ export function setupEvents() {
         e.returnValue = index === 0;
     })
 
-    ipcMain.on("launch_mc", async (e, id, { name, ...config }: Modpack) => {
+    ipcMain.on("launch_mc", async (e, id, { name, ...config }: ModpackInfo) => {
         const launcherDir = getLauncherDir();
         const gameDir = getInstanceDestination(id)
         const lastVersion = Globals.getLastVersion({ name, ...config })

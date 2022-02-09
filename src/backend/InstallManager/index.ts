@@ -3,7 +3,7 @@ import got from "got";
 import { Globals } from "../../Globals";
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
-import { Modpack } from '../../interfaces/modpack';
+import { ModpackInfo } from '../../interfaces/modpack';
 import { Progress } from './event/interface';
 import { ProcessEventEmitter } from './event/Processor';
 import { getInstalled, setupInstallManagerEvents } from './events';
@@ -23,7 +23,7 @@ export class InstallManager {
         if (!configRes)
             return;
 
-        return JSON.parse(configRes.body) as Modpack;
+        return JSON.parse(configRes.body) as ModpackInfo;
     }
 
     static async install(id: string, update = false, onUpdateChilds: (prog: Progress) => void) {
@@ -83,7 +83,7 @@ export class InstallManager {
         fs.writeFileSync(installedPath, JSON.stringify(lastVersion))
     }
 
-    private static async runProcessors(id: string, config: Modpack, overwrite: boolean, { onUpdate: sendUpdate, reportError}: ReportFunctions) {
+    private static async runProcessors(id: string, config: ModpackInfo, overwrite: boolean, { onUpdate: sendUpdate, reportError}: ReportFunctions) {
         const processors = getProcessors(id, config, overwrite);
 
         return await ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))

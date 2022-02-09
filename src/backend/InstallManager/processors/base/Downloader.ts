@@ -4,7 +4,7 @@ import got from 'got/dist/source';
 import Request, { Progress } from 'got/dist/source/core';
 import path from "path";
 import { MainLogger } from '../../../../interfaces/mainLogger';
-import { Modpack } from '../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../event/Processor';
 
 
@@ -12,7 +12,7 @@ const logger = MainLogger.get("InstallManager", "base", "Downloader")
 export class Downloader extends ProcessEventEmitter {
     public options: DownloaderOptions;
 
-    constructor(id: string, config: Modpack, options: DownloaderOptions) {
+    constructor(id: string, config: ModpackInfo, options: DownloaderOptions) {
         super(id, config, options);
 
         this.id = id;

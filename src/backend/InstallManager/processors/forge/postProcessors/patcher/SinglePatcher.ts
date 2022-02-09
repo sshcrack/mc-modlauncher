@@ -2,7 +2,7 @@ import { MainLogger } from '../../../../../../interfaces/mainLogger';
 import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
-import { Modpack } from '../../../../../../interfaces/modpack';
+import { ModpackInfo } from '../../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../../event/Processor';
 import { stringToArtifact } from '../Artifact';
 import { SharedProcessor } from '../interface';
@@ -14,7 +14,7 @@ export class SinglePatcher extends ProcessEventEmitter {
     public options: PatcherOptions;
     private logger: ElectronLog.LogFunctions
 
-    constructor(id: string, config: Modpack, options: PatcherOptions, shared: SharedProcessor) {
+    constructor(id: string, config: ModpackInfo, options: PatcherOptions, shared: SharedProcessor) {
         super(id, config, options);
         this.shared = shared;
         this.options = options;

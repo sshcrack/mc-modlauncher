@@ -1,14 +1,14 @@
 import { Progress } from '../../../backend/InstallManager/event/interface';
 import { RenderGlobals } from '../../../Globals/renderGlobals';
 import { RenderLogger } from '../../../interfaces/renderLogger';
-import { Modpack } from '../../../interfaces/modpack';
+import { ModpackInfo } from '../../../interfaces/modpack';
 import { setLock, updateModpacks } from '../modpack';
 
 const logger = RenderLogger.get("Preload", "Buttons")
 
 const { launcher, modpack, system } = window.api
 const { prompt } = system
-export function addButtonAction(id: string, btn: HTMLElement, installed: boolean, config: Modpack) {
+export function addButtonAction(id: string, btn: HTMLElement, installed: boolean, config: ModpackInfo) {
     btn.addEventListener("click", async () => {
         const newestVersion = RenderGlobals.hasLatest(id, config)
 
@@ -59,7 +59,7 @@ export function addButtonAction(id: string, btn: HTMLElement, installed: boolean
     })
 }
 
-export function getButtonDiv(id: string, installed: boolean, config: Modpack) {
+export function getButtonDiv(id: string, installed: boolean, config: ModpackInfo) {
     const newestVersion = RenderGlobals.hasLatest(id, config)
 
     const txt = installed ? (newestVersion ? "Play" : "Update") : "Install"
