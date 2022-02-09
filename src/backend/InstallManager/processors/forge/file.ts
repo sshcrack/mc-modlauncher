@@ -1,11 +1,9 @@
 import { Globals } from '../../../../Globals';
-import { ModpackInfo } from '../../../../interfaces/modpack';
+import { ModpackInfo, Version } from '../../../../interfaces/modpack';
 
 
 const baseUrl = Globals.baseUrl;
 
-export function getForgeUrl(id: string, config: ModpackInfo): string {
-    const version = Globals.getLastVersion(config)
-
+export function getForgeUrl(id: string, version: Version): string {
     return `${baseUrl}/${id}/${version.forge}`
 }

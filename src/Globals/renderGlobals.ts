@@ -10,6 +10,9 @@ export class RenderGlobals {
     }
 
     static hasLatest(id: string, config: ModpackInfo) {
+        if(!config?.versions ||!id)
+            return undefined;
+
         const currently = modpack.version(id)
         const latest = Globals.getLastVersion(config);
 

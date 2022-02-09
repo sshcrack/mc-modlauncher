@@ -1,15 +1,16 @@
 import fs from "fs";
 import got from "got";
 import path from "path";
-import { ModpackInfo } from '../../../../../interfaces/modpack';
+import { ModpackInfo, Version } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { getVersionsDir } from '../../../General/mcBase';
 import { LauncherMeta } from '../../../General/launcherMeta';
+import { getInstanceVersion } from '../../interface';
 
 
 export class VanillaManifestDownloader extends ProcessEventEmitter {
-    constructor(id: string, config: ModpackInfo, options: AdditionalOptions) {
-        super(id, config, options);
+    constructor(id: string, config: ModpackInfo, version: Version, options: AdditionalOptions) {
+        super(id, config, version, options);
 
         this.id = id;
         this.config = config;
@@ -17,7 +18,8 @@ export class VanillaManifestDownloader extends ProcessEventEmitter {
 
     public async run() {
         this.emit("progress", { percent: 0, status: "Downloading vanilla manifest..." });
-        const { mcVersion: version } = this.config;
+        const { mcVersion: instanceVer } = getInstanceVersion(this.id)
+        const version = instanceVer ?? this.config.mcVersion
 
         const versionsDir = getVersionsDir();
         //.minecraft/1.18.1

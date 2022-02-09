@@ -2,16 +2,15 @@ import { spawn } from "child_process";
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import fs from "fs";
 import * as path from 'path';
-console.log("events Import uuid")
 import { v5 as uuid } from "uuid";
-import { Globals } from '../../Globals';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { LauncherProfiles, Profile } from '../../interfaces/launcher';
 import { MainLogger } from '../../interfaces/mainLogger';
-import { ModpackInfo } from '../../interfaces/modpack';
-import { store } from '../preferences';
+import { ModpackInfo, Version } from '../../interfaces/modpack';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import { getInstanceDestination } from '../InstallManager/processors/modpack/file';
+import { store } from '../preferences';
+console.log("events Import uuid")
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 
 const genUUID = (str: string) => uuid(str, MY_NAMESPACE)
@@ -30,10 +29,9 @@ export function setupEvents() {
         e.returnValue = index === 0;
     })
 
-    ipcMain.on("launch_mc", async (e, id, { name, ...config }: ModpackInfo) => {
+    ipcMain.on("launch_mc", async (e, id, { name }: ModpackInfo, version: Version) => {
         const launcherDir = getLauncherDir();
         const gameDir = getInstanceDestination(id)
-        const lastVersion = Globals.getLastVersion({ name, ...config })
 
         const profilesPath = path.join(launcherDir, "launcher_profiles.json");
 
@@ -52,14 +50,14 @@ export function setupEvents() {
             javaArgs: defaultOptions,
             icon: "Furnace",
             lastUsed: new Date().toISOString(),
-            lastVersionId: lastVersion.forge_version,
+            lastVersionId: version.forge_version,
             name,
             type: "custom"
         }
 
         profiles.profiles[setUUID] = profile;
 
-        logger.debug("Trying to launch mc in dir", gameDir, "with version", lastVersion, "and launcher dir", launcherDir)
+        logger.debug("Trying to launch mc in dir", gameDir, "with version", version, "and launcher dir", launcherDir)
         logger.silly("Launcher profiles", profiles)
 
         fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))

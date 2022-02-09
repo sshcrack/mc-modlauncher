@@ -1,5 +1,5 @@
 import { getVersionJar } from '../../../General/mcBase';
-import { ModpackInfo } from '../../../../../interfaces/modpack';
+import { ModpackInfo, Version } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { SharedProcessor } from './interface';
 import fs from "fs"
@@ -7,8 +7,8 @@ import fs from "fs"
 export class PatchCopier extends ProcessEventEmitter {
     private shared: SharedProcessor;
 
-    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, shared: SharedProcessor) {
-        super(id, config, options);
+    constructor(id: string, config: ModpackInfo, version: Version, options: AdditionalOptions, shared: SharedProcessor) {
+        super(id, config, version, options);
         this.shared = shared;
     }
 

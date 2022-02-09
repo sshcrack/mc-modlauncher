@@ -1,8 +1,7 @@
-import { MainGlobals } from '../../../Globals/mainGlobals';
 import fs from "fs";
 import path from "path";
-import { Globals } from '../../../Globals';
-import { ModpackInfo } from '../../../interfaces/modpack';
+import { MainGlobals } from '../../../Globals/mainGlobals';
+import { Version } from '../../../interfaces/modpack';
 import { getLauncherDir } from '../processors/launcher/file';
 
 
@@ -29,30 +28,27 @@ export function getLibrariesDir() {
 
 
 /** Modpack temp/create-0.0.1.zip */
-export function getInstallZip(installDir: string, id: string, config: ModpackInfo) {
-    const version = Globals.getLastVersion(config)
+export function getInstallZip(installDir: string, id: string, version: Version) {
     const tempDir = MainGlobals.getTempDir(installDir)
 
     return path.join(tempDir, `${id}-${version.id}.zip`)
 }
 
-export function getForgeInstallProfile(installDir: string, id: string, config: ModpackInfo) {
-    const forgeDir = getForgeDir(installDir, id, config);
+export function getForgeInstallProfile(installDir: string, id: string, version: Version) {
+    const forgeDir = getForgeDir(installDir, id, version);
 
     return path.join(forgeDir, "install_profile.json")
 }
 
 /** temp/create-0.0.1-forge.zip */
-export function getForgeInstallerZip(installDir: string, id: string, config: ModpackInfo) {
-    const version = Globals.getLastVersion(config)
+export function getForgeInstallerZip(installDir: string, id: string, version: Version) {
     const tempDir = MainGlobals.getTempDir(installDir)
 
     return path.join(tempDir, `${id}-${version.id}.forge.zip`)
 }
 
 /** temp/create-0.0.1-forge/ */
-export function getForgeDir(installDir: string, id: string, config: ModpackInfo) {
-    const version = Globals.getLastVersion(config);
+export function getForgeDir(installDir: string, id: string, version: Version) {
     const tempDir = MainGlobals.getTempDir(installDir)
 
     const dir = path.join(tempDir, `${id}-${version.id}-forge/`)

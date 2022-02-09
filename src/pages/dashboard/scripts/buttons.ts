@@ -3,6 +3,7 @@ import { RenderGlobals } from '../../../Globals/renderGlobals';
 import { RenderLogger } from '../../../interfaces/renderLogger';
 import { ModpackInfo } from '../../../interfaces/modpack';
 import { setLock, updateModpacks } from '../modpack';
+import { Globals } from '../../../Globals';
 
 const logger = RenderLogger.get("Preload", "Buttons")
 
@@ -52,7 +53,7 @@ export function addButtonAction(id: string, btn: HTMLElement, installed: boolean
         }
 
         const shouldUpdate = !newestVersion
-        const prom = shouldUpdate ? modpack.update(id, onUpdate) : modpack.install(id, onUpdate)
+        const prom = shouldUpdate ? modpack.update(id, onUpdate, Globals.getLastVersion(config)) : modpack.install(id, onUpdate, Globals.getLastVersion(config))
         prom
             .catch(err => onError(id, err))
             .finally(() => updateModpacks(true))
@@ -89,8 +90,9 @@ export function getButtonDiv(id: string, installed: boolean, config: ModpackInfo
             return
 
         setLock(true)
-        modpack.remove(id)
-            .catch(e => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        modpack.remove(id, () => {})
+            .catch((e: Error) => {
                 const str = e?.stack ?? e?.message ?? e
                 logger.error(str)
                 prompt.error(`Error uninstalling modpack ${id}: ${str}`)

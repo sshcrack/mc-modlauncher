@@ -134,7 +134,6 @@
     "sass": "^1.49.7",
     "sass-loader": "^12.4.0",
     "source-map-support": "^0.5.21",
-    "sweetalert2": "^11.4.0",
     "unpacker-with-progress": "^2.0.3",
     "update-electron-app": "^2.0.1",
     "use-http": "^1.0.26",

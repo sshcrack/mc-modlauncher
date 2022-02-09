@@ -1,7 +1,7 @@
-import { Globals } from '../../Globals';
 import fs from "fs";
 import path from "path";
-import { ModpackInfo } from '../../interfaces/modpack';
+import { MainLogger } from '../../interfaces/mainLogger';
+import { ModpackInfo, Version } from '../../interfaces/modpack';
 import { AdditionalOptions } from './event/Processor';
 import { getVersionsDir } from './General/mcBase';
 import { ForgeDownloader } from './processors/forge/downloader';
@@ -18,13 +18,10 @@ import { LauncherUnpacker } from './processors/launcher/unpacker';
 import { LibraryMultipleDownloader } from './processors/libraries/LibraryMultiple';
 import { ModpackDownloader } from './processors/modpack/downloader';
 import { ModpackUnpacker } from './processors/modpack/unpacker';
-import { MainLogger } from '../../interfaces/mainLogger';
 
 const logger = MainLogger.get("InstallManager", "ProcessorList")
-export function getProcessors(id: string, config: ModpackInfo, overwrite: boolean) {
-    const lastVer = Globals.getLastVersion(config);
-
-    const { forge_version: forgeVersion } = lastVer
+export function getProcessors(id: string, config: ModpackInfo, version: Version, overwrite: boolean) {
+    const { forge_version: forgeVersion } = version
 
     const options: AdditionalOptions = { overwrite }
     const sharedMap: SharedMap = {}
@@ -64,6 +61,6 @@ export function getProcessors(id: string, config: ModpackInfo, overwrite: boolea
         ...(hasForge ? [] : forge)
     ]
 
-    logger.debug("Starting processors hasLauncher", hasLauncher, "hasForge", hasForge, "id", id, "ForgeDir", forgeDir, "LauncherExe", launcherExe)
-    return toExecute.map(e => new e(id, config, options, sharedMap))
+    logger.debug("Starting processors hasLauncher", hasLauncher, "hasForge", hasForge, "id", id, "ForgeDir", forgeDir, "LauncherExe", launcherExe, "version", version)
+    return toExecute.map(e => new e(id, config, version, options, sharedMap))
 }

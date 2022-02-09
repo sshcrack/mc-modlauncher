@@ -26,25 +26,12 @@ export function setupInstallManagerEvents() {
         event.reply("modpack_success", id)
     }
 
-    ipcMain.on("install_modpack", async (event, id, overwrite) => {
+    ipcMain.on("install_modpack", async (event, id, version, overwrite) => {
         if (hasLock(id))
             return sendLockInfo(event, id)
 
         addLock(id)
-        const prom = install(id, !!overwrite, prog => onUpdate(event, id, prog));
-
-        await defaultPromReply(event, id, prom)
-        removeLock(id)
-    })
-
-    ipcMain.on("update_modpack", async (event, id) => {
-        if (hasLock(id))
-            return sendLockInfo(event, id)
-
-        addLock(id)
-
-        logger.info("Updating modpack", id)
-        const prom = install(id, true, prog => onUpdate(event, id, prog));
+        const prom = install(id, !!overwrite, version, prog => onUpdate(event, id, prog));
 
         await defaultPromReply(event, id, prom)
         removeLock(id)

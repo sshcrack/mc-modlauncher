@@ -3,7 +3,7 @@ import got from "got";
 import { Globals } from "../../Globals";
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
-import { ModpackInfo } from '../../interfaces/modpack';
+import { ModpackInfo, Version } from '../../interfaces/modpack';
 import { Progress } from './event/interface';
 import { ProcessEventEmitter } from './event/Processor';
 import { getInstalled, setupInstallManagerEvents } from './events';
@@ -26,7 +26,7 @@ export class InstallManager {
         return JSON.parse(configRes.body) as ModpackInfo;
     }
 
-    static async install(id: string, update = false, onUpdateChilds: (prog: Progress) => void) {
+    static async install(id: string, update = false, version: Version, onUpdateChilds: (prog: Progress) => void) {
         logger.info("Installing modpack", id)
         const installDir = MainGlobals.getInstallDir();
         const installations = getInstalled();
@@ -64,7 +64,7 @@ export class InstallManager {
         const createFile = MainGlobals.getCreatingFile(installDir, id);
         fs.writeFileSync(createFile, "")
 
-        const res = await InstallManager.runProcessors(id, config, update, {
+        const res = await InstallManager.runProcessors(id, config, version, update, {
             onUpdate,
             reportError
         });
@@ -78,13 +78,12 @@ export class InstallManager {
         } catch(e) {/** */}
 
         const installedPath = getInstanceVersionPath(id);
-        const lastVersion = Globals.getLastVersion(config);
 
-        fs.writeFileSync(installedPath, JSON.stringify(lastVersion))
+        fs.writeFileSync(installedPath, JSON.stringify(version))
     }
 
-    private static async runProcessors(id: string, config: ModpackInfo, overwrite: boolean, { onUpdate: sendUpdate, reportError}: ReportFunctions) {
-        const processors = getProcessors(id, config, overwrite);
+    private static async runProcessors(id: string, config: ModpackInfo, version: Version, overwrite: boolean, { onUpdate: sendUpdate, reportError}: ReportFunctions) {
+        const processors = getProcessors(id, config, version, overwrite);
 
         return await ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
             .then(() => true)

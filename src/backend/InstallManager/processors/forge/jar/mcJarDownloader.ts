@@ -1,4 +1,4 @@
-import { ModpackInfo } from '../../../../../interfaces/modpack';
+import { ModpackInfo, Version } from '../../../../../interfaces/modpack';
 import { AdditionalOptions } from '../../../event/Processor';
 import { Downloader } from '../../base/Downloader';
 import { getVersionJar } from '../../../General/mcBase';
@@ -7,12 +7,12 @@ import { getMinecraftClientUrl } from './file';
 
 
 export class McJarDownloader extends Downloader {
-    constructor(id: string, config: ModpackInfo, options: AdditionalOptions) {
-        super(id, config, {
+    constructor(id: string, config: ModpackInfo, version: Version, options: AdditionalOptions) {
+        super(id, config, version, {
             ...options,
             //TODO add validation
-            destination: () => getVersionJar(config.mcVersion),
-            url: () => getMinecraftClientUrl(config.mcVersion),
+            destination: () => getVersionJar(version.mcVersion ?? config.mcVersion),
+            url: () => getMinecraftClientUrl(version.mcVersion ?? config.mcVersion),
             messages: {
                 downloading: "Downloading vanilla jar..."
             }

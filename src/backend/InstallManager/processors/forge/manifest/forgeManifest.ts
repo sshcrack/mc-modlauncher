@@ -2,7 +2,7 @@ import { MainGlobals } from '../../../../../Globals/mainGlobals';
 import fs from "fs";
 import path from "path";
 import { MainLogger } from '../../../../../interfaces/mainLogger';
-import { ModpackInfo } from '../../../../../interfaces/modpack';
+import { ModpackInfo, Version } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { InstallProfile } from '../../../General/installProfile';
 import { getForgeDir, getForgeInstallProfile, getVersionsDir } from '../../../General/mcBase';
@@ -13,8 +13,8 @@ const logger = MainLogger.get('ForgeManifestCopier');
 //!This sets forge_version in options, run before using forge_version
 export class ForgeManifestCopier extends ProcessEventEmitter {
     private shared: SharedMap;
-    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, sharedMap: SharedMap) {
-        super(id, config, options);
+    constructor(id: string, config: ModpackInfo, version: Version, options: AdditionalOptions, sharedMap: SharedMap) {
+        super(id, config, version, options);
 
         this.id = id;
         this.config = config;
@@ -24,8 +24,8 @@ export class ForgeManifestCopier extends ProcessEventEmitter {
     public async run() {
         this.emit("progress", { percent: 0, status: "Copying forge version..." });
         const installDir = MainGlobals.getInstallDir();
-        const forgeDir = getForgeDir(installDir, this.id, this.config);
-        const installProfilePath = getForgeInstallProfile(installDir, this.id, this.config);
+        const forgeDir = getForgeDir(installDir, this.id, this.version);
+        const installProfilePath = getForgeInstallProfile(installDir, this.id, this.version);
 
         logger.info("Reading", installProfilePath)
         const installProfile: InstallProfile = JSON.parse(fs.readFileSync(installProfilePath, "utf-8"));

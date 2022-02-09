@@ -1,13 +1,11 @@
 import { Globals } from '../../../../Globals';
 import { MainGlobals } from '../../../../Globals/mainGlobals';
-import { ModpackInfo } from '../../../../interfaces/modpack';
+import { Version } from '../../../../interfaces/modpack';
 
 
 const baseUrl = Globals.baseUrl;
 
-export function getUrl(id: string, config: ModpackInfo): string {
-    const version = Globals.getLastVersion(config)
-
+export function getUrl(id: string, version: Version): string {
     return `${baseUrl}/${id}/${version.file}`
 }
 

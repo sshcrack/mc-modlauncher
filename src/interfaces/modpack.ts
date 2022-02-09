@@ -4,10 +4,12 @@ export interface ModpackInfo {
     description: string,
     author: string,
     versions: Version[],
-    cover: string
+    cover: string,
+    updateRequired: boolean | undefined
 }
 
 export interface Version {
+    mcVersion?: string,
     id: string,
     file: string,
     forge: string,

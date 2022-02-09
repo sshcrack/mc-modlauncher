@@ -2,10 +2,11 @@ import fs from "fs";
 import path from "path";
 import { MainGlobals } from '../../../../../Globals/mainGlobals';
 import { MainLogger } from '../../../../../interfaces/mainLogger';
-import { ModpackInfo } from '../../../../../interfaces/modpack';
+import { ModpackInfo, Version } from '../../../../../interfaces/modpack';
 import { AdditionalOptions, ProcessEventEmitter } from '../../../event/Processor';
 import { InstallProfile } from '../../../General/installProfile';
 import { getForgeDir, getForgeInstallerZip, getForgeInstallProfile, getLauncherMC, getLibrariesDir, getVersionJar } from '../../../General/mcBase';
+import { getInstanceVersion } from '../../interface';
 import { stringToArtifact } from './Artifact';
 import { SharedProcessor } from './interface';
 
@@ -13,8 +14,8 @@ const logger = MainLogger.get("Processors", "Forge", "PostProcessors", "Argument
 export class ArgumentGetter extends ProcessEventEmitter {
     private shared: SharedProcessor;
 
-    constructor(id: string, config: ModpackInfo, options: AdditionalOptions, shared: SharedProcessor) {
-        super(id, config, options);
+    constructor(id: string, config: ModpackInfo, version: Version, options: AdditionalOptions, shared: SharedProcessor) {
+        super(id, config, version, options);
         this.shared = shared;
     }
 
@@ -22,9 +23,9 @@ export class ArgumentGetter extends ProcessEventEmitter {
         this.emit("progress", { percent: 0, status: "Getting argument maps..."})
 
         const installDir = MainGlobals.getInstallDir()
-        const forge = getForgeDir(installDir, this.id, this.config)
+        const forge = getForgeDir(installDir, this.id, this.version)
 
-        const profilePath = getForgeInstallProfile(installDir, this.id, this.config)
+        const profilePath = getForgeInstallProfile(installDir, this.id, this.version)
         const installProfileRaw = fs.readFileSync(profilePath, "utf-8");
         const installProfile: InstallProfile = JSON.parse(installProfileRaw);
 
@@ -54,11 +55,14 @@ export class ArgumentGetter extends ProcessEventEmitter {
             mapped.set(key, absolute)
         })
 
-        const { mcVersion } = this.config;
+        const { mcVersion: configVer } = this.config;
+        const { mcVersion: instanceMc } = getInstanceVersion(this.id)
+        const mcVersion = instanceMc ?? configVer;
+
         const vanillaJar = getVersionJar(mcVersion)
         const libraries = getLibrariesDir()
 
-        const forgeJar = getForgeInstallerZip(installDir, this.id, this.config)
+        const forgeJar = getForgeInstallerZip(installDir, this.id, this.version)
 
         const dotMc = getLauncherMC();
 
