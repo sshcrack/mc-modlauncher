@@ -1,5 +1,5 @@
 import { useToast } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Progress } from '../../backend/InstallManager/event/interface';
 import { Version } from '../../interfaces/modpack';
 import { RenderLogger } from '../../interfaces/renderLogger';
@@ -53,7 +53,7 @@ export default function useModpackManager(id: string) {
             return
 
         updateVars(true)
-        modpack.install(id, prog => setProgress(prog), ver)
+        return modpack.install(id, prog => setProgress(prog), ver)
             .then(() => updateVars(false))
             .catch(e => {
                 updateVars(false)
@@ -84,5 +84,12 @@ export default function useModpackManager(id: string) {
             })
     }
 
-    return { progress, processing, update, install }
+    useEffect(() => {
+        modpack.addProcessingListener(processing => {
+            setInstalled(modpack.isInstalled(id))
+            setProcessing(processing)
+        })
+    })
+
+    return { progress, processing, update, install, remove, installed }
 }

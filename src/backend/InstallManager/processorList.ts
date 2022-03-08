@@ -48,6 +48,7 @@ export function getProcessors(id: string, config: ModpackInfo, version: Version,
     ]
 
     const versionDir = getVersionsDir();
+    console.log("Version dir is", versionDir, "forge Version is", forgeVersion)
     const forgeDir = path.join(versionDir, forgeVersion)
 
     const launcherExe = getLauncherExe()

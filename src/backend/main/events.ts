@@ -6,7 +6,8 @@ import { v5 as uuid } from "uuid";
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { LauncherProfiles, Profile } from '../../interfaces/launcher';
 import { MainLogger } from '../../interfaces/mainLogger';
-import { ModpackInfo, Version } from '../../interfaces/modpack';
+import { ModpackInfo } from '../../interfaces/modpack';
+import { getInstanceVersion } from '../InstallManager/processors/interface';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import { getInstanceDestination } from '../InstallManager/processors/modpack/file';
 import { store } from '../preferences';
@@ -29,40 +30,46 @@ export function setupEvents() {
         e.returnValue = index === 0;
     })
 
-    ipcMain.on("launch_mc", async (e, id, { name }: ModpackInfo, version: Version) => {
-        const launcherDir = getLauncherDir();
-        const gameDir = getInstanceDestination(id)
+    ipcMain.on("launch_mc", (event, id, { name }: ModpackInfo) => {
+        try {
+            const launcherDir = getLauncherDir();
+            const gameDir = getInstanceDestination(id)
+            const version = getInstanceVersion(id)
 
-        const profilesPath = path.join(launcherDir, "launcher_profiles.json");
 
-        const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
-        const setUUID = genUUID(id);
+            const profilesPath = path.join(launcherDir, "launcher_profiles.json");
 
-        const mem = store.get("memory")
-        const memOption = `-Xmx${mem ?? "2G"}`
+            const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
+            const setUUID = genUUID(id);
 
-        const defaultOptions = `${memOption} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M`
-        logger.debug("Launching with options", defaultOptions)
+            const mem = store.get("memory")
+            const memOption = `-Xmx${mem ?? "2G"}`
 
-        const profile: Profile = {
-            created: new Date().toISOString(),
-            gameDir: gameDir,
-            javaArgs: defaultOptions,
-            icon: "Furnace",
-            lastUsed: new Date().toISOString(),
-            lastVersionId: version.forge_version,
-            name,
-            type: "custom"
+            const defaultOptions = `${memOption} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M`
+            logger.debug("Launching with options", defaultOptions)
+
+            const profile: Profile = {
+                created: new Date().toISOString(),
+                gameDir: gameDir,
+                javaArgs: defaultOptions,
+                icon: "Furnace",
+                lastUsed: new Date().toISOString(),
+                lastVersionId: version.forge_version,
+                name,
+                type: "custom"
+            }
+
+            profiles.profiles[setUUID] = profile;
+
+            logger.debug("Trying to launch mc in dir", gameDir, "with version", version, "and launcher dir", launcherDir)
+            logger.silly("Launcher profiles", profiles)
+
+            fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))
+            spawn(getLauncherExe(), ["--workDir", launcherDir])
+            event.reply("launched_mc_success")
+        } catch (e) {
+            event.reply("launched_mc_error", e?.stack ?? e)
         }
-
-        profiles.profiles[setUUID] = profile;
-
-        logger.debug("Trying to launch mc in dir", gameDir, "with version", version, "and launcher dir", launcherDir)
-        logger.silly("Launcher profiles", profiles)
-
-        fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))
-        spawn(getLauncherExe(), ["--workDir", launcherDir])
-        e.reply("launched_mc_success")
     })
 
     ipcMain.on("open_folder", async e => {

@@ -2,11 +2,14 @@ import { dialog, ipcMain, IpcMainEvent } from 'electron';
 import fs from "fs";
 import path from "path";
 import { v4 as randomUUID } from "uuid";
+import got from "got"
 import { InstallManager } from '.';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
+import { ModpackInfo, Version } from '../../interfaces/modpack';
 import { Progress } from './event/interface';
-import { getInstanceVersion } from './processors/interface';
+import { getInstanceVersion, getInstanceVersionPath } from './processors/interface';
+import { Globals } from '../../Globals';
 
 
 const logger = MainLogger.get("InstallManager", "Events")
@@ -26,7 +29,7 @@ export function setupInstallManagerEvents() {
         event.reply("modpack_success", id)
     }
 
-    ipcMain.on("install_modpack", async (event, id, version, overwrite) => {
+    ipcMain.on("install_modpack", async (event, id, overwrite, version) => {
         if (hasLock(id))
             return sendLockInfo(event, id)
 
@@ -54,7 +57,7 @@ export function setupInstallManagerEvents() {
 
     ipcMain.on("clean_corrupted", event => {
         cleanCorrupted()
-            .then(() => event.reply("clean_corrupted_success"))
+            .then(e => event.reply("clean_corrupted_success", e))
             .catch(e => event.reply("clean_corrupted_error", e))
     })
 
@@ -71,22 +74,44 @@ export function setupInstallManagerEvents() {
 }
 
 
-export async function cleanCorrupted() {
+export async function cleanCorrupted(): Promise<number> {
     logger.info("Cleaning up corrupted installations")
     const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
 
     if (!fs.existsSync(instances))
-        return;
+        return 0;
 
     const cleared = fs.readdirSync(instances, { withFileTypes: true })
         .filter(e => e.isDirectory())
         .map(e => e.name)
         .filter(e => !e.includes("-corrupted"))
-        .map(e => {
+        .map(async e => {
             const instancePath = path.join(instances, e);
             const creating = MainGlobals.getCreatingFile(installDir, e)
+            const versionFile = getInstanceVersionPath(e)
             const uuid = randomUUID()
+
+            if (fs.existsSync(versionFile)) {
+                try {
+                    const rawVersion = fs.readFileSync(versionFile, "utf8")
+                    const version = JSON.parse(rawVersion) as Version;
+
+                    if (version?.forge_version)
+                        return null
+
+
+                    const currVersions = await got(`${Globals.baseUrl}/${e}/config.json`)
+                        .json()
+                        .then(e => e as ModpackInfo)
+                        .then(json => json.versions)
+
+                    const nonCorrupted = currVersions.find(e => e.id === version.id);
+                    fs.writeFileSync(versionFile, JSON.stringify(nonCorrupted))
+
+                    return null
+                } catch { /** Catching bc it could be corrupt so delete */ }
+            }
 
             if (!fs.existsSync(creating))
                 return null
@@ -94,13 +119,15 @@ export async function cleanCorrupted() {
             const dest = instancePath + uuid + "-corrupted"
             logger.debug("Moving", instancePath, "to", dest)
 
-            return fs.promises.rename(instancePath, dest)
-        }).filter(e => e)
+            await fs.promises.rename(instancePath, dest)
+        })
 
-    await Promise.all(cleared)
-    const length = cleared.length;
+    const res = await Promise.all(cleared)
+    const length = res.filter(e => !!e).length;
     if (length > 0)
         logger.info("Cleared", length, "corrupted installations")
+
+    return length
 }
 
 export function getInstalled(): string[] {

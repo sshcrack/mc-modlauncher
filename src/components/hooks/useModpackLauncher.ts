@@ -7,25 +7,28 @@ export function useModpackLauncher(id: string, config: ModpackInfo) {
     const toast = useToast()
     const { launcher, modpack } = window.api
 
-    const launch = async () => {
+    const launch = () => {
         const installed = modpack.isInstalled(id)
 
         logger.debug("Launching modpack", id, "with config", config, "installed", installed)
         if(!installed)
-            return toast({
+            toast({
                 title: "Modpack not installed",
                 description: "You must install the modpack before launching it",
                 status: "error"
             })
 
         if(!config)
-            return toast({
+            toast({
                 title: "No config",
                 description: "Could not obtain modpack config. Please restart.",
                 status: "error"
             })
 
-        await launcher.launch(id, config)
+        if(!installed || !config)
+            return
+
+        return launcher.launch(id, config)
     }
 
     return { launch }

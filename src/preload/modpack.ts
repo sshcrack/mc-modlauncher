@@ -6,6 +6,7 @@ import { ModpackOrganizer, ModpackTypes, onUpdate } from './interface';
 
 const logger = MainLogger.get("preload", "modpack")
 export const modpackOrganizer: ModpackOrganizer = {}
+const listenerFuncs: ((processing: boolean) => unknown)[] = []
 
 function startProcessing(id: string, overwrite: boolean, version: Version, onUpdate: onUpdate) {
     const type = modpackOrganizer[id]?.type;
@@ -57,8 +58,12 @@ function registerModpack(id: string, type: ModpackTypes, onUpdate: onUpdate) {
         logger.log("Registered modpack", id)
         onUpdate(modpackOrganizer[id].currently)
 
+        listenerFuncs.map(e => e(true))
+
         modpackOrganizer[id].listeners.success.push(() => resolve())
+        modpackOrganizer[id].listeners.success.push(() => listenerFuncs.map(e => e(false)))
         modpackOrganizer[id].listeners.error.push(e => reject(e))
+        modpackOrganizer[id].listeners.error.push(() => listenerFuncs.map(e => e(false)))
         modpackOrganizer[id].listeners.update.push(onUpdate)
     });
 }
@@ -72,9 +77,9 @@ function removeModpack(id: string, onUpdate: onUpdate) {
 }
 
 function cleanCorrupted() {
-    return new Promise<void>((resolve, reject) => {
-        ipcRenderer.on("clean_corrupted_suuccess", () => resolve())
-        ipcRenderer.on("clean_corrupted_error", (e, err) => reject(err))
+    return new Promise<number>((resolve, reject) => {
+        ipcRenderer.on("clean_corrupted_success", (_, res) => resolve(res))
+        ipcRenderer.on("clean_corrupted_error", (_, err) => reject(err))
 
         ipcRenderer.send("clean_corrupted")
     });
@@ -82,6 +87,10 @@ function cleanCorrupted() {
 
 function isInstalled(id: string) {
     return ipcRenderer.sendSync("is_installed", id) as boolean
+}
+
+function addProcessingListener(func: (processing: boolean) => unknown) {
+    listenerFuncs.push(func)
 }
 
 export const modpack = {
@@ -93,6 +102,7 @@ export const modpack = {
     update: (id: string, onUpdate: onUpdate, version: Version) => startProcessing(id, true, version, onUpdate),
     list: () => ipcRenderer.sendSync("get_installed") as string[],
     clean: () => cleanCorrupted(),
+    addProcessingListener: (func: (processing: boolean) => unknown) => addProcessingListener(func)
 }
 
 

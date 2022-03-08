@@ -9,6 +9,7 @@ const listUrl = `${Globals.baseUrl}/list.json`
 export default function ModpackOverview() {
     const [list, setList] = useState<string[] | null>(null);
     const [shouldUpdate, setUpdate] = useState(Math.random())
+
     const toast = useToast();
 
 
