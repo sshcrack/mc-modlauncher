@@ -10,12 +10,14 @@ export default function PercentButton({ hover, bg, processing, onClick, progress
     progress: Progress,
     children: ReactElement
 }) {
+    const processingColor = "gray.500"
+
     return <Button
         flex='1'
         pos='relative'
-        _hover={{ bg: hover }}
+        _hover={{ bg: processing ? processingColor : hover }}
         onClick={onClick}
-        bg={processing ? "gray.300" : bg}
+        bg={processing ? processingColor : bg}
     >
         <Box
             pos='absolute'
@@ -25,6 +27,7 @@ export default function PercentButton({ hover, bg, processing, onClick, progress
             left='0'
             top='0'
             borderRadius='md'
+            transition='all 1s ease-in-out'
         />
         {
             processing ?

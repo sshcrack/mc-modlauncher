@@ -1,23 +1,21 @@
-import { Portal, Badge, Center, Flex, Grid, Heading, Image, Text, useColorModeValue } from '@chakra-ui/react';
+import { Badge, Center, Flex, Grid, Heading, Image, Text, useColorModeValue } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import Confetti from 'react-confetti'
+import Confetti from 'react-confetti';
+import useWindowSize from 'react-use/lib/useWindowSize';
 import { useFetch } from "use-http";
 import { Globals } from '../../Globals';
 import { ModpackInfo } from '../../interfaces/modpack';
-import { useModpackInfo } from '../hooks/useModpackInfo';
 import useModpackManager from '../hooks/useModpackManager';
 import InstallButtons from './Buttons/InstallButton';
 import PlayButtons from './Buttons/PlayButtons';
 import ModpackSkeleton from './ModpackSkeleton';
-import useWindowSize from 'react-use/lib/useWindowSize'
 
 const baseUrl = Globals.baseUrl;
 
 export default function Modpack({ id, size }: { id: string, size: string }) {
     const { data: config, loading, error } = useFetch<ModpackInfo>(`${baseUrl}/${id}/config.json`, { retries: 3 }, [])
-    const { installed } = useModpackManager(id)
+    const { installed, version } = useModpackManager(id)
     const { width, height } = useWindowSize()
-    const { version } = useModpackInfo(id)
     const [recentInstallation, setRecentInstallation] = useState(false)
 
     const cardBg = useColorModeValue("white", "gray.900")
@@ -79,15 +77,14 @@ export default function Modpack({ id, size }: { id: string, size: string }) {
                     {installed ? <PlayButtons id={id} config={config} /> : <InstallButtons id={id} config={config} onRecentInstall={onRecentInstall} />}
                 </Flex>
             </Flex>
-            <Portal>
-                <Confetti
-                    recycle={false}
-                    numberOfPieces={recentInstallation ? 2000 : 0}
-                    confettiSource={{ x: 0, y: height, h: 0, w: width}}
-                    initialVelocityY={20}
-                    width={width}
-                    height={height}
-                />
-            </Portal>
+            <Confetti
+                recycle={true}
+                numberOfPieces={recentInstallation ? 2500 : 0}
+                confettiSource={{ x: 0, y: height, h: 0, w: 0 }}
+                initialVelocityY={25}
+                initialVelocityX={25}
+                width={width}
+                height={height}
+            />
         </>
 }

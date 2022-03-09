@@ -13,7 +13,7 @@ export default function NavBar() {
         </Box>
         <Flex flex='.25' justifyContent='space-evenly' alignItems='center'>
             <ToggleButton onClick={toggleColorMode} style={{ width: "2em", height: "2em", cursor: 'pointer'}}/>
-            <Button colorScheme={"blue"}>Settings</Button>
+            <Button colorScheme={"blue"} onClick={() => window.api.preferences.open()}>Settings</Button>
         </Flex>
     </Flex>
 }

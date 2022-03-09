@@ -11,12 +11,16 @@ export default function useModpackManager(id: string) {
     const toast = useToast()
     const [progress, setProgress] = useState<Progress>(null);
     const [processing, setProcessing] = useState(false)
+    const [ version, setVersion ] = useState<Version>(() => modpack.version(id))
     const [installed, setInstalled] = useState(() => modpack.isInstalled(id))
 
     const updateVars = (processing: boolean) => {
+        console.log("Updating Vars")
         setInstalled(modpack.isInstalled(id))
         setProcessing(processing)
+        setVersion(modpack.version(id))
     }
+
     const defaultCheck = () => {
         if (processing)
             toast({
@@ -33,7 +37,7 @@ export default function useModpackManager(id: string) {
             return
 
         updateVars(true)
-        modpack.update(id, prog => setProgress(prog), ver)
+        return modpack.update(id, prog => setProgress(prog), ver)
             .then(() => {
                 updateVars(false)
             })
@@ -85,11 +89,12 @@ export default function useModpackManager(id: string) {
     }
 
     useEffect(() => {
-        modpack.addProcessingListener(processing => {
+        modpack.addProcessingListener(id, processing => {
+            console.log("PRocessing listener")
             setInstalled(modpack.isInstalled(id))
             setProcessing(processing)
         })
-    })
+    }, [ ])
 
-    return { progress, processing, update, install, remove, installed }
+    return { progress, processing, update, install, remove, installed, version }
 }

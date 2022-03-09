@@ -1,10 +1,10 @@
-import { Box, Button, Flex, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Progress, Select, Text, useColorModeValue, useToast } from '@chakra-ui/react';
+import { Text, useColorModeValue, useToast } from '@chakra-ui/react';
 import React, { createRef, useState } from 'react';
-import confetti from "react-confetti"
 import { Globals } from '../../../Globals';
-import { ModpackInfo, Version } from '../../../interfaces/modpack';
+import { ModpackInfo } from '../../../interfaces/modpack';
 import useModpackManager from '../../hooks/useModpackManager';
 import PercentButton from './PercentButton';
+import { VersionModal } from './VersionModal';
 
 export default function InstallButtons({ config, id, onRecentInstall }: { config: ModpackInfo, id: string, onRecentInstall: () => void }) {
     const { install, processing, progress } = useModpackManager(id)
@@ -22,9 +22,7 @@ export default function InstallButtons({ config, id, onRecentInstall }: { config
         return <option value={id}>{id}{mcVersion ? " " + mcVersion : ""}</option>
     })
 
-    const onClose = () => {
-        setOpen(false)
-    }
+    const onClose = () => setOpen(false)
 
     const onInstall = () => {
         onClose()
@@ -55,32 +53,6 @@ export default function InstallButtons({ config, id, onRecentInstall }: { config
         >
             <Text>Install</Text>
         </PercentButton>
-        {VersionModal(isOpen, onClose, selectRef, lastVersion, options, onInstall)}
+        {VersionModal(isOpen, onClose, selectRef, lastVersion, options, onInstall, "Install")}
     </>
-}
-
-function VersionModal(isOpen: boolean, onClose: () => void, selectRef: React.RefObject<HTMLSelectElement>, lastVersion: Version, options: JSX.Element[], onInstall: () => void) {
-    return <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-    >
-        <ModalOverlay />
-        <ModalContent>
-            <ModalHeader>Select Modpack Version</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody pb={6}>
-                <FormLabel htmlFor='version'>Version</FormLabel>
-                <Select ref={selectRef} id='version' placeholder='Select Version' defaultValue={lastVersion.id}>
-                    {options}
-                </Select>
-            </ModalBody>
-
-            <ModalFooter>
-                <Button colorScheme='green' mr={3} onClick={onInstall}>
-                    Install
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-            </ModalFooter>
-        </ModalContent>
-    </Modal>;
 }

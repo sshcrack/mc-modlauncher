@@ -1,5 +1,5 @@
-import { Box, Button, IconButton, Spinner, Text, Tooltip, useColorModeValue, useToast } from '@chakra-ui/react';
-import React, { useCallback, useState } from 'react';
+import { Box, Button, IconButton, Text, Tooltip, useColorModeValue, useToast } from '@chakra-ui/react';
+import React, { useCallback, useRef, useState } from 'react';
 import { FaTrash } from "react-icons/fa";
 import { Globals } from '../../../Globals';
 import { RenderGlobals } from '../../../Globals/renderGlobals';
@@ -8,16 +8,21 @@ import { RenderLogger } from '../../../interfaces/renderLogger';
 import { useModpackLauncher } from '../../hooks/useModpackLauncher';
 import useModpackManager from '../../hooks/useModpackManager';
 import PercentButton from './PercentButton';
+import { VersionModal } from './VersionModal';
 
 const logger = RenderLogger.get("components", "Modpack", "Buttons", "PlayButtons")
 export default function PlayButtons({ config, id }: { config: ModpackInfo, id: string }) {
     const { launch } = useModpackLauncher(id, config)
+    const selectRef = useRef<HTMLSelectElement>()
     const { remove, processing, progress, update } = useModpackManager(id)
     const [isLaunching, setLaunching] = useState(false)
+    const [isOpen, setOpen] = useState(false)
+    const [ hasLatest, setHasLatest] = useState(() => RenderGlobals.hasLatest(id, config))
+
     const toast = useToast()
-    const hasLatest = RenderGlobals.hasLatest(id, config)
     const { updateRequired } = config ?? {}
 
+    const onClose = () => setOpen(false)
 
     const onLaunchClick = useCallback(() => {
         if (isLaunching)
@@ -37,16 +42,23 @@ export default function PlayButtons({ config, id }: { config: ModpackInfo, id: s
             .finally(() => setLaunching(false))
     }, [isLaunching])
 
-    const onRemove = () => {
-        remove()
-    }
-
     const onUpdate = () => {
-        const lastVer = Globals.getLastVersion(config.versions)
-        if(processing)
+        onClose()
+        const versionStr = selectRef.current?.value
+        if (!versionStr)
             return
 
-        update(lastVer)
+
+        const version = config.versions.find(e => e.id === versionStr)
+        if (processing)
+            return toast({
+                status: "info",
+                title: "Working",
+                description: "Steve is already working for you. Please be patient till he finds diamonds"
+            })
+
+        update(version)
+            .then(() => setHasLatest(RenderGlobals.hasLatest(id, config)))
     }
 
     const bgRemove = useColorModeValue("red.400", "red.700")
@@ -72,28 +84,49 @@ export default function PlayButtons({ config, id }: { config: ModpackInfo, id: s
     const updateBtn = <PercentButton
         bg={bgUpdate}
         hover={hoverUpdate}
-        onClick={onUpdate}
+        onClick={() => setOpen(true)}
         processing={processing}
         progress={progress}
     >
         <Text>Update</Text>
     </PercentButton>
 
-    const btnToUse = updateRequired ?
-        hasLatest ? launchBtn : updateBtn
+    const btnToUse = updateRequired && !hasLatest ?
+        updateBtn
         :
-        <>
+        !hasLatest ? <>
             {launchBtn}
             <Box flex='.1'></Box>
             {updateBtn}
-        </>
+        </> : launchBtn
 
-    return processing ?
-        <Spinner /> : <>
-            {btnToUse}
-            <Box flex='.1'></Box>
-            <Tooltip label='Remove' bg={bgRemove} color={tooltipColor} rounded='sm'>
-                <IconButton flex='.25' bg={bgRemove} _hover={{ bg: hoverRemove }} icon={<FaTrash />} aria-label='Remove' onClick={onRemove} />
-            </Tooltip>
-        </>
+    const allButtons = <>
+        {btnToUse}
+        <Box flex='.1'></Box>
+        <Tooltip
+            label='Remove'
+            bg={bgRemove}
+            color={tooltipColor}
+            rounded='sm'
+        >
+            <IconButton
+                flex='.25'
+                bg={bgRemove}
+                _hover={{ bg: hoverRemove }}
+                icon={<FaTrash />}
+                aria-label='Remove'
+                onClick={() => remove()}
+            />
+        </Tooltip>
+    </>
+
+    const lastVersion = Globals.getLastVersion(config.versions)
+    const options = config.versions.map(({ id, mcVersion }) => {
+        return <option value={id}>{id}{mcVersion ? " " + mcVersion : ""}</option>
+    })
+
+    return <>
+        {processing ? updateBtn : allButtons}
+        {VersionModal(isOpen, onClose, selectRef, lastVersion, options, onUpdate, "Update") }
+    </>
 }
