@@ -1,4 +1,5 @@
 import { readdir, stat } from  "fs/promises"
+import fs from "fs"
 import path from "path"
 
 export async function dirSize(directory: string) {

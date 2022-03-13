@@ -1,15 +1,16 @@
 import { dialog, ipcMain, IpcMainEvent } from 'electron';
 import fs from "fs";
+import { glob } from 'glob';
+import got from "got";
 import path from "path";
 import { v4 as randomUUID } from "uuid";
-import got from "got"
 import { InstallManager } from '.';
+import { Globals } from '../../Globals';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
 import { ModpackInfo, Version } from '../../interfaces/modpack';
 import { Progress } from './event/interface';
-import { getInstanceVersion, getInstanceVersionPath } from './processors/interface';
-import { Globals } from '../../Globals';
+import { getInstanceVersion, getInstanceVersionFileName, getInstanceVersionPath } from './processors/interface';
 
 
 const logger = MainLogger.get("InstallManager", "Events")
@@ -66,8 +67,9 @@ export function setupInstallManagerEvents() {
     })
 
     ipcMain.on("is_installed", (event, id) => {
-        logger.log("Is installed", id, getInstalled(), getInstalled().includes(id))
-        event.returnValue = getInstalled().includes(id)
+        const installed = getInstalled()
+        logger.log("Is installed", id, installed, installed.includes(id))
+        event.returnValue = installed.includes(id)
     })
 
     ipcMain.on("open_err_dialog", (e, str) => dialog.showErrorBox("Error", str))
@@ -139,15 +141,35 @@ export function getInstalled(): string[] {
     if (!fs.existsSync(instances))
         fs.mkdirSync(instances, { recursive: true })
 
-    const ids = fs.readdirSync(instances, { withFileTypes: true })
-        .filter(e => e.isDirectory())
-        .map(e => e.name)
-        .filter(e => {
-            const creating = MainGlobals.getCreatingFile(installDir, e)
-            const files = fs.readdirSync(path.join(instances, e))
+    const occurred = [""]
 
-            return !fs.existsSync(creating) && files.length !== 0
+    const globPattern = `${instances}/**/${getInstanceVersionFileName()}`
+    const ids = glob.sync(globPattern)
+        .map(e => path.dirname(e))
+        .map(e => {
+            console.log("E is", e, "Install Dir", instances)
+            return path.relative(instances, e)
         })
+        .map(e => e.substring(e.length -1) === "/" ? e.substring(0, e.length - 1) : e)
+        .filter(e => {
+            if(occurred.includes(e))
+                return false
+            occurred.push(e)
+            return true
+        })
+        .filter(e => {
+            console.log("Installed", e)
+            const creating = MainGlobals.getCreatingFile(installDir, e)
+            if(fs.existsSync(creating))
+                return false
+
+            const currPath = path.join(instances, e)
+
+            const files = fs.readdirSync(currPath)
+            const modFolder = MainGlobals.getModFolder(instances, e)
+            return files.length !== 0 && fs.existsSync(modFolder)
+        })
+        .map(e => e.split("\\").join("/"))
 
 
     logger.debug("Found", ids, " installed instances", "inDir", instances, "installdir", installDir)

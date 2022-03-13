@@ -45,7 +45,7 @@ export class InstallManager {
 
         logger.debug("Making directory", id)
         if (!fs.existsSync(instanceDir))
-            fs.mkdirSync(instanceDir);
+            fs.mkdirSync(instanceDir, { recursive: true });
 
         if (installations.includes(id) && !update)
             return reportError("Modpack already installed.")

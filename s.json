@@ -1,0 +1,382 @@
+{
+    "$id": "https://mc.sscrack.me/schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "default": {},
+    "description": "The root schema comprises the entire JSON document.",
+    "examples": [
+        {
+            "name": "Minecwaft Weihnachtswunder",
+            "mcVersion": "1.18",
+            "description": "Ein kleines Weihnachtliches Projekt",
+            "author": "Justcry, sshcrack",
+            "updateRequired": true,
+            "versions": [
+                {
+                    "id": "1.0.0",
+                    "file": "1.0.0.zip",
+                    "forge": "standard.jar",
+                    "forge_version": "1.18-forge-38.0.17"
+                },
+                {
+                    "id": "1.1.0",
+                    "file": "1.1.0.zip",
+                    "forge": "standard.jar",
+                    "forge_version": "1.18-forge-38.0.17"
+                },
+                {
+                    "id": "1.1.1",
+                    "file": "1.1.1.zip",
+                    "forge": "standard.jar",
+                    "forge_version": "1.18-forge-38.0.17"
+                },
+                {
+                    "id": "1.1.2",
+                    "file": "1.1.2.zip",
+                    "forge": "standard.jar",
+                    "forge_version": "1.18-forge-38.0.17"
+                },
+                {
+                    "id": "1.1.3",
+                    "file": "1.1.3.zip",
+                    "forge": "standard.jar",
+                    "forge_version": "1.18-forge-38.0.17"
+                },
+                {
+                    "id": "1.1.4",
+                    "file": "1.1.4.zip",
+                    "forge": "standard.jar",
+                    "forge_version": "1.18-forge-38.0.17"
+                },
+                {
+                    "id": "1.1.5",
+                    "file": "1.1.5.zip",
+                    "forge": "standard.jar",
+                    "forge_version": "1.18-forge-38.0.17"
+                },
+                {
+                    "id": "1.1.6",
+                    "file": "1.1.6.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.1.7",
+                    "file": "1.1.7.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.1.8",
+                    "file": "1.1.8.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.1.9",
+                    "file": "1.1.9.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.2.0",
+                    "file": "1.2.0.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.2.1",
+                    "file": "1.2.1.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.2.2",
+                    "file": "1.2.2.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.2.3",
+                    "file": "1.2.3.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.2.4",
+                    "file": "1.2.4.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                },
+                {
+                    "id": "1.2.4",
+                    "file": "1.2.5.zip",
+                    "forge": "1.18.1.jar",
+                    "forge_version": "1.18.1-forge-39.0.8",
+                    "required_installer_version": "1.2.0"
+                }
+            ],
+            "cover": "cover.png"
+        }
+    ],
+    "required": [
+        "name",
+        "description",
+        "author",
+        "updateRequired",
+        "versions",
+        "cover"
+    ],
+    "title": "Modpack config schema",
+    "type": "object",
+    "properties": {
+        "name": {
+            "$id": "#/properties/name",
+            "default": "",
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                "Minecwaft Weihnachtswunder"
+            ],
+            "title": "The name of this modpack",
+            "type": "string"
+        },
+        "mcVersion": {
+            "$id": "#/properties/mcVersion",
+            "default": "",
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                "1.18"
+            ],
+            "title": "Minecraft Version",
+            "type": "string"
+        },
+        "description": {
+            "$id": "#/properties/description",
+            "default": "",
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                "Ein kleines Weihnachtliches Projekt"
+            ],
+            "title": "Description of this modpack",
+            "type": "string"
+        },
+        "author": {
+            "$id": "#/properties/author",
+            "default": "",
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                "Justcry, sshcrack"
+            ],
+            "title": "Author of this modpack",
+            "type": "string"
+        },
+        "updateRequired": {
+            "$id": "#/properties/updateRequired",
+            "default": false,
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                true
+            ],
+            "title": "If modpack has to be updated",
+            "type": "boolean"
+        },
+        "versions": {
+            "$id": "#/properties/versions",
+            "default": [],
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                [
+                    {
+                        "id": "1.0.0",
+                        "file": "1.0.0.zip",
+                        "forge": "standard.jar",
+                        "forge_version": "1.18-forge-38.0.17"
+                    },
+                    {
+                        "id": "1.1.0",
+                        "file": "1.1.0.zip",
+                        "forge": "standard.jar",
+                        "forge_version": "1.18-forge-38.0.17"
+                    }
+                ]
+            ],
+            "title": "All Versions of this modpack",
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "$id": "#/properties/versions/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/versions/items/anyOf/0",
+                        "type": "object",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": {},
+                        "examples": [
+                            {
+                                "id": "1.0.0",
+                                "file": "1.0.0.zip",
+                                "forge": "standard.jar",
+                                "forge_version": "1.18-forge-38.0.17"
+                            }
+                        ],
+                        "required": [
+                            "id",
+                            "file",
+                            "forge",
+                            "forge_version"
+                        ],
+                        "properties": {
+                            "mcVersion": {
+                              "$id": "#/properties/versions/items/anyOf/0/properties/mcVersion",
+                              "default": "1.18",
+                              "description": "An explanation about the purpose of this instance.",
+                              "examples": [
+                                "1.18"
+                              ],
+                              "title": "Minecraft Version",
+                              "type": "string"
+                            },
+                            "id": {
+                                "$id": "#/properties/versions/items/anyOf/0/properties/id",
+                                "type": "string",
+                                "title": "The id schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.0.0"
+                                ]
+                            },
+                            "file": {
+                                "$id": "#/properties/versions/items/anyOf/0/properties/file",
+                                "type": "string",
+                                "title": "The file schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.0.0.zip"
+                                ]
+                            },
+                            "forge": {
+                                "$id": "#/properties/versions/items/anyOf/0/properties/forge",
+                                "type": "string",
+                                "title": "The forge schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "standard.jar"
+                                ]
+                            },
+                            "forge_version": {
+                                "$id": "#/properties/versions/items/anyOf/0/properties/forge_version",
+                                "type": "string",
+                                "title": "The forge_version schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.18-forge-38.0.17"
+                                ]
+                            }
+                        },
+                        "additionalProperties": true
+                    },
+                    {
+                        "$id": "#/properties/versions/items/anyOf/1",
+                        "type": "object",
+                        "title": "The second anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": {},
+                        "examples": [
+                            {
+                                "id": "1.1.6",
+                                "file": "1.1.6.zip",
+                                "forge": "1.18.1.jar",
+                                "forge_version": "1.18.1-forge-39.0.8",
+                                "required_installer_version": "1.2.0"
+                            }
+                        ],
+                        "required": [
+                            "id",
+                            "file",
+                            "forge",
+                            "forge_version",
+                            "required_installer_version"
+                        ],
+                        "properties": {
+                            "id": {
+                                "$id": "#/properties/versions/items/anyOf/1/properties/id",
+                                "type": "string",
+                                "title": "The id schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.1.6"
+                                ]
+                            },
+                            "file": {
+                                "$id": "#/properties/versions/items/anyOf/1/properties/file",
+                                "type": "string",
+                                "title": "The file schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.1.6.zip"
+                                ]
+                            },
+                            "forge": {
+                                "$id": "#/properties/versions/items/anyOf/1/properties/forge",
+                                "type": "string",
+                                "title": "The forge schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.18.1.jar"
+                                ]
+                            },
+                            "forge_version": {
+                                "$id": "#/properties/versions/items/anyOf/1/properties/forge_version",
+                                "type": "string",
+                                "title": "The forge_version schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.18.1-forge-39.0.8"
+                                ]
+                            },
+                            "required_installer_version": {
+                                "$id": "#/properties/versions/items/anyOf/1/properties/required_installer_version",
+                                "type": "string",
+                                "title": "The required_installer_version schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "1.2.0"
+                                ]
+                            }
+                        },
+                        "additionalProperties": true
+                    }
+                ]
+            }
+        },
+        "cover": {
+            "$id": "#/properties/cover",
+            "type": "string",
+            "title": "The cover schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "cover.png"
+            ]
+        }
+    },
+    "additionalProperties": true
+}

@@ -35,4 +35,8 @@ export class MainGlobals {
         const dir = MainGlobals.getInstancePathById(installDir, id);
         return path.join(dir, ".creating")
     }
+
+    static getModFolder(instances: string, id: string) {
+        return path.join(instances, id, "mods")
+    }
 }

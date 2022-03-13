@@ -1,12 +1,12 @@
 import { Text, useColorModeValue, useToast } from '@chakra-ui/react';
-import React, { createRef, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { Globals } from '../../../Globals';
 import { ModpackInfo } from '../../../interfaces/modpack';
 import useModpackManager from '../../hooks/useModpackManager';
 import PercentButton from './PercentButton';
 import { VersionModal } from './VersionModal';
 
-export default function InstallButtons({ config, id, onRecentInstall }: { config: ModpackInfo, id: string, onRecentInstall: () => void }) {
+export default function InstallButtons({ config, id, onRecentInstall, autoInstall }: Props) {
     const { install, processing, progress } = useModpackManager(id)
     const [isOpen, setOpen] = useState(false)
     const toast = useToast()
@@ -21,6 +21,15 @@ export default function InstallButtons({ config, id, onRecentInstall }: { config
     const options = config.versions.map(({ id, mcVersion }) => {
         return <option value={id}>{id}{mcVersion ? " " + mcVersion : ""}</option>
     })
+
+    useEffect(() => {
+        if(!autoInstall)
+            return
+
+        const lastVer = Globals.getLastVersion(config.versions);
+        install(lastVer)
+            .then(() => onRecentInstall())
+    }, [])
 
     const onClose = () => setOpen(false)
 
@@ -45,14 +54,22 @@ export default function InstallButtons({ config, id, onRecentInstall }: { config
 
     return <>
         <PercentButton
-        bg={bgInstall}
-        hover={hoverInstall}
-        onClick={() => setOpen(true)}
-        processing={processing}
-        progress={progress}
+            bg={bgInstall}
+            hover={hoverInstall}
+            onClick={() => setOpen(true)}
+            processing={processing}
+            progress={progress}
         >
             <Text>Install</Text>
         </PercentButton>
         {VersionModal(isOpen, onClose, selectRef, lastVersion, options, onInstall, "Install")}
     </>
+}
+
+
+interface Props {
+    config: ModpackInfo,
+    id: string,
+    onRecentInstall: () => void,
+    autoInstall: boolean
 }

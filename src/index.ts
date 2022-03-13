@@ -5,7 +5,7 @@ import { app, BrowserWindow, dialog } from 'electron';
 import { InstallManager } from './backend/InstallManager';
 import { setupEvents } from './backend/main/events';
 import { checkJava } from './backend/main/java';
-import { addUpdater, registerUri, registerURIOpenEvent } from './backend/main/main_funcs';
+import { addCrashHandler, addUpdater, registerUri, registerURIOpenEvent, setContentSecurity } from './backend/main/main_funcs';
 import { addSystemListeners } from './backend/main/system';
 import { Preference } from './backend/preferences';
 import { MainGlobals } from './Globals/mainGlobals';
@@ -25,7 +25,9 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 logger.log("Is packaged", app.isPackaged, "Name", app.getName(),  "Version", app.getVersion())
 
+setContentSecurity();
 addUpdater();
+addCrashHandler();
 
 
 let mainWindow: BrowserWindow;

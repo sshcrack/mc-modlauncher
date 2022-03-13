@@ -12,10 +12,13 @@ import ModpackSkeleton from './ModpackSkeleton';
 
 const baseUrl = Globals.baseUrl;
 
-export default function Modpack({ id, size }: { id: string, size: string }) {
+export default function Modpack({ id, size, onRemove, custom }: { id: string, size: string, onRemove: () => void, custom: string[] }) {
+    const isCustom = custom.includes(id);
+
     const { data: config, loading, error } = useFetch<ModpackInfo>(`${baseUrl}/${id}/config.json`, { retries: 3 }, [])
     const { installed, version } = useModpackManager(id)
     const { width, height } = useWindowSize()
+    const [ autoInstall, setAutoInstall ] = useState(isCustom && !installed)
     const [recentInstallation, setRecentInstallation] = useState(false)
 
     const cardBg = useColorModeValue("white", "gray.900")
@@ -33,6 +36,7 @@ export default function Modpack({ id, size }: { id: string, size: string }) {
     >{version?.id}</Badge>
 
     const onRecentInstall = () => {
+        setAutoInstall(false)
         setRecentInstallation(true)
         setTimeout(() => setRecentInstallation(false), 1000)
     }
@@ -74,7 +78,14 @@ export default function Modpack({ id, size }: { id: string, size: string }) {
                     <Text fontSize={`calc(${size} * .075)`}>{config.description}</Text>
                 </Center>
                 <Flex p='3'>
-                    {installed ? <PlayButtons id={id} config={config} /> : <InstallButtons id={id} config={config} onRecentInstall={onRecentInstall} />}
+                    {installed ? <PlayButtons id={id} config={config} onRemove={onRemove} /> :
+                        <InstallButtons
+                            id={id}
+                            config={config}
+                            onRecentInstall={onRecentInstall}
+                            autoInstall={autoInstall}
+                        />
+                    }
                 </Flex>
             </Flex>
             <Confetti

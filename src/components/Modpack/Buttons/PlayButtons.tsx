@@ -11,7 +11,7 @@ import PercentButton from './PercentButton';
 import { VersionModal } from './VersionModal';
 
 const logger = RenderLogger.get("components", "Modpack", "Buttons", "PlayButtons")
-export default function PlayButtons({ config, id }: { config: ModpackInfo, id: string }) {
+export default function PlayButtons({ config, id, onRemove }: { config: ModpackInfo, id: string, onRemove: () => void }) {
     const { launch } = useModpackLauncher(id, config)
     const selectRef = useRef<HTMLSelectElement>()
     const { remove, processing, progress, update } = useModpackManager(id)
@@ -115,7 +115,17 @@ export default function PlayButtons({ config, id }: { config: ModpackInfo, id: s
                 _hover={{ bg: hoverRemove }}
                 icon={<FaTrash />}
                 aria-label='Remove'
-                onClick={() => remove()}
+                onClick={() => {
+                    remove()
+                        .then(() => {
+                            const { preferences } = window.api
+                            const custom = preferences.get("custom_modpacks")
+                                .filter((e: string) => e !== id)
+
+                            preferences.set("custom_modpacks", custom)
+                            onRemove();
+                        })
+                }}
             />
         </Tooltip>
     </>

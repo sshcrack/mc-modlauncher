@@ -1,4 +1,6 @@
 import { app, autoUpdater, dialog } from 'electron'
+import unhandled from "electron-unhandled"
+import { debugInfo, openNewGitHubIssue, setContentSecurityPolicy } from 'electron-util'
 import path from "path"
 import { MainLogger } from '../../interfaces/mainLogger'
 
@@ -50,4 +52,27 @@ export function registerURIOpenEvent() {
         logger.log("Open url horraaaay", url)
         dialog.showErrorBox("Yes", "Opened url " + url)
     })
+}
+
+export function addCrashHandler() {
+    unhandled({
+        showDialog: true,
+        logger: (...e) => logger.error(...e),
+        reportButton: error => {
+            const err = error.stack
+            if (err.includes("Version") && err.includes("Java"))
+                openNewGitHubIssue({
+                    user: "sshcrack",
+                    repo: "mc-modlauncher",
+                    body: `#Automated Bug Report \n ### This is a bug reported automatically by the crash handler\`\`\`\n${error.stack}\n\`\`\`\n\n---\n\n${debugInfo()}`
+                })
+        }
+    })
+}
+
+export function setContentSecurity() {
+    setContentSecurityPolicy(`
+	default-src 'self' data: 'unsafe-inline' 'unsafe-eval' https://mc.sshcrack.me;
+    connect-src https://mc.sshcrack.me 'self' http://localhost:3000;
+`);
 }

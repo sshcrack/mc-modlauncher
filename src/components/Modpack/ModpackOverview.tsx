@@ -1,13 +1,16 @@
 import { useToast, Wrap, WrapItem } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from "react";
 import { Globals } from '../../Globals';
+import AddModpack from './AddModpack';
 import Modpack from './Modpack';
 
 const updateFrequency = 30 * 1000;
 const listUrl = `${Globals.baseUrl}/list.json`
 
 export default function ModpackOverview() {
+    const { preferences } = window.api
     const [list, setList] = useState<string[] | null>(null);
+    const [ custom, setCustom ] = useState<string[]>(() => preferences.get("custom_modpacks") ?? [])
     const [shouldUpdate, setUpdate] = useState(Math.random())
 
     const toast = useToast();
@@ -17,11 +20,18 @@ export default function ModpackOverview() {
         setTimeout(() => setUpdate(Math.random()), delay)
     }, [setUpdate])
 
+    const onUpdate = () => {
+        setUpdate(Math.random())
+    }
+
     useEffect(() => {
+        const custom = preferences.get("custom_modpacks")
+        setCustom(custom)
+
         fetch(listUrl)
             .then(e => e.json())
             .then(e => {
-                setList(e);
+                setList([...e, ...custom]);
                 update(updateFrequency)
             })
             .catch(e => {
@@ -40,8 +50,11 @@ export default function ModpackOverview() {
 
     return <Wrap spacing='6' m='6' >
         {(list ?? []).map(e => <WrapItem>
-            <Modpack id={e} key={`modpack-${e}`} size='20rem' />
+            <Modpack id={e} key={`modpack-${e}`} size='20rem' onRemove={() => {onUpdate(); console.log("Removing update")}} custom={custom}/>
         </WrapItem>
         )}
+        <WrapItem>
+            <AddModpack size='20rem' onAdd={onUpdate}/>
+        </WrapItem>
     </Wrap>
 }

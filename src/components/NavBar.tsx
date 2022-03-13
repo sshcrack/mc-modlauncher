@@ -9,7 +9,7 @@ export default function NavBar() {
     const ToggleButton = colorMode === "dark" ? FaRegSun : FaRegMoon
     return <Flex bg={navColor} alignItems={"center"} justifyContent={"center"} paddingLeft={"1em"} paddingRight={"1em"} boxShadow={"xl"}>
         <Box flex={.75}>
-            <Image src={"/assets/mc_logo.png"} width={"15em"} />
+            <Image src={"../assets/mc_logo.png"} width={"15em"} />
         </Box>
         <Flex flex='.25' justifyContent='space-evenly' alignItems='center'>
             <ToggleButton onClick={toggleColorMode} style={{ width: "2em", height: "2em", cursor: 'pointer'}}/>

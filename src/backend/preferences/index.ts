@@ -20,7 +20,8 @@ const total = os.totalmem();
 export const store = new Store({
     defaults: {
         "install_dir": installDir,
-        "memory": total / 2
+        "memory": total / 2,
+        "custom_modpacks": []
     }
 })
 
@@ -69,7 +70,7 @@ export class Preference {
             }
 
             store.set(key, val)
-            e.reply("saved_prefs")
+            e.returnValue = true
         });
 
         ipcMain.on("open_prefs", e =>

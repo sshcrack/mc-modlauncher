@@ -66,6 +66,7 @@ export default function useModpackManager(id: string) {
                     title: `Error installing ${id}`,
                     description: e?.stack ?? e?.message ?? e
                 })
+                throw new Error("Error installing")
             })
     }
 
@@ -74,7 +75,7 @@ export default function useModpackManager(id: string) {
             return
 
         updateVars(true)
-        modpack.remove(id, (prog) => setProgress(prog))
+        return modpack.remove(id, (prog) => setProgress(prog))
             .then(() => updateVars(false))
             .catch(e => {
                 updateVars(false)

@@ -14,7 +14,11 @@ export function getInstanceVersionPath(id: string) {
     const installDir = MainGlobals.getInstallDir()
     const instanceDir = MainGlobals.getInstancePathById(installDir, id);
 
-    return path.join(instanceDir, "installed_version.json")
+    return path.join(instanceDir, getInstanceVersionFileName())
+}
+
+export function getInstanceVersionFileName() {
+    return "installed_version.json"
 }
 
 export function getInstanceVersion(id: string) {
