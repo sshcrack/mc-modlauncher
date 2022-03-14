@@ -26,7 +26,7 @@ const system = {
     disk: {
         size: (diskPath: string) => {
             return new Promise<DiskSpace | undefined>(resolve => {
-                ipcRenderer.on("system_disk_size_reply", (_, innerDiskPath, size) => {
+                ipcRenderer.on("", (_, innerDiskPath, size) => {
                     if (innerDiskPath !== diskPath)
                         return
 
