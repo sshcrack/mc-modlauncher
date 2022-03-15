@@ -4,10 +4,11 @@ import { MainLogger } from '../interfaces/mainLogger'
 const lockListeners: ((locked: boolean) => unknown)[] = []
 
 const logger = MainLogger.get("Preload", "Lock")
-ipcRenderer.on("locked_update", (_, locked) => {
+ipcRenderer.on("lock_update", (_, locked) => {
     logger.info("Locked update")
     lockListeners.map((func) => func(locked))
 })
+ipcRenderer.send("add_lock_listener")
 
 export const lock = {
     addLockListener: (func: (locked: boolean) => unknown) => lockListeners.push((e) => func(e)),

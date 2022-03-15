@@ -1,4 +1,4 @@
-import { Heading, Spinner, useToast } from '@chakra-ui/react';
+import { Flex, Heading, Spinner, useToast } from '@chakra-ui/react';
 import * as React from "react";
 import { useLock } from '../../components/hooks/useLock';
 import ModpackOverview from '../../components/Modpack/ModpackOverview';
@@ -29,9 +29,13 @@ const App = () => {
         <ModpackOverview />
     </>
 
-    : <>
-        <Spinner size='xl'/>
+    : <Flex
+        justifyContent='center'
+        alignItems='center'
+        h='100%'
+    >
+        <Spinner size='xl' mr='6'/>
         <Heading>Launcher is locked. Processes to finish...</Heading>
-    </>
+    </Flex>
 }
 export default App;
