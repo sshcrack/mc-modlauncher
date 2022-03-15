@@ -10,4 +10,13 @@ export const cache = {
             ipcRenderer.send("clear_cache")
         });
     },
+    size: () => {
+        return new Promise<number>(resolve => {
+            ipcRenderer.once("size_cache_reply", (_, size) => {
+                resolve(size);
+            })
+
+            ipcRenderer.send("size_cache")
+        });
+    }
 }

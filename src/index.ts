@@ -33,7 +33,6 @@ addCrashHandler();
 let mainWindow: BrowserWindow;
 const createWindow = async () => {
   registerURIOpenEvent();
-  console.log("Preload is", MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY)
 
   // Create the browser window.
   mainWindow = new BrowserWindow({

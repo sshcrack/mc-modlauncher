@@ -11,6 +11,7 @@ import { getInstanceVersion } from '../InstallManager/processors/interface';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import { getInstanceDestination } from '../InstallManager/processors/modpack/file';
 import { store } from '../preferences';
+import { moveDirectory } from './folder';
 console.log("events Import uuid")
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 
@@ -79,5 +80,15 @@ export function setupEvents() {
         await shell.openPath(installDir)
 
         e.reply("open_folder_success")
+    })
+
+    ipcMain.on("folder_move", async (e, id: string, src: string, dest: string) => {
+        moveDirectory({
+            src,
+            dest,
+            onUpdate: progress => e.reply("folder_move_update", id, progress)
+        })
+        .then(() => e.reply("folder_move_success", id))
+        .catch(e => e.reply("folder_move_error", id, e))
     })
 }

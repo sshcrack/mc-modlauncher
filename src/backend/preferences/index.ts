@@ -3,7 +3,7 @@ import Store from "electron-store";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import prettyBytes from '../../assets/pretty-bytes';
+import prettyBytes from 'pretty-bytes';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
 import { dirSize } from '../main/folder';
@@ -122,6 +122,19 @@ export class Preference {
             fs.rmSync(tempDir, { recursive: true, force: true })
 
             e.reply("clear_cache_reply", humanReadable)
+        })
+
+        ipcMain.on("size_cache", async e => {
+            const installDir = MainGlobals.getInstallDir()
+            const tempDir = MainGlobals.getTempDir(installDir);
+            const exists = fs.existsSync(tempDir);
+            logger.log("Getting cache size of", tempDir,"...")
+
+            if (!exists)
+                return e.reply("size_cache_reply", 0)
+
+            const stat = await dirSize(tempDir);
+            e.reply("size_cache_reply", stat)
         })
     }
 }
