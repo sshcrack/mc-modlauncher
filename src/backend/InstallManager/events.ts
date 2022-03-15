@@ -147,7 +147,6 @@ export function getInstalled(): string[] {
     const ids = glob.sync(globPattern)
         .map(e => path.dirname(e))
         .map(e => {
-            console.log("E is", e, "Install Dir", instances)
             return path.relative(instances, e)
         })
         .map(e => e.substring(e.length -1) === "/" ? e.substring(0, e.length - 1) : e)

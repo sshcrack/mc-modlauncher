@@ -3,6 +3,8 @@ import prettyBytes from 'pretty-bytes';
 import * as React from "react";
 import { AiFillFolderOpen } from 'react-icons/ai';
 import { HiTrash } from "react-icons/hi"
+import { ImCog } from "react-icons/im"
+import { motion } from "framer-motion"
 import { useEffect, useState } from "react";
 import InstallDir from '../../components/Preferences/InstallDir';
 import Memory from '../../components/Preferences/Memory';
@@ -36,9 +38,9 @@ const App = () => {
             status: "info",
             title: "Clearing cache..."
         })
+
+
         await cache.clear().catch(() => {/**/ })
-
-
         const res = await cache.size()
         setCacheSize(res)
 
@@ -52,28 +54,52 @@ const App = () => {
 
     return <StylesProvider value={{}}>
         <Flex
-            justifyContent='center'
+            justifyContent='space-around'
             alignItems='center'
             flexDir='column'
+            h='100%'
         >
-            <Heading>Preferences</Heading>
-            <Box mt='1.2rem'></Box>
+            <Flex
+                justifyContent='center'
+                alignItems='center'
+                flex='0'
+            >
+                <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
+                    whileHover={{
+                        rotate: [0, 180],
+                        transition: {
+                            duration: 2,
+                            ease: "circOut"
+                        }
+                    }}
+                >
+                    <ImCog style={{ width: '2em', height: '2em' }} />
+                </motion.div>
+                <Heading ml='1'>Preferences</Heading>
+            </Flex>
             <InstallDir onSet={setInstallDir} value={installDir} />
 
-            <Box mt='1.2rem'></Box>
-            <Memory max={maxMemory} value={memory} onSet={setMemory} />
+            <Memory max={maxMemory} defaultVal={memory} onSet={setMemory} />
 
-            <Button
-                onClick={() => folder.open()}
-                colorScheme='blue'
-                leftIcon={<AiFillFolderOpen />}
-            >Open Application Folder</Button>
-            <Box mt='.5rem'></Box>
-            <Button
-                onClick={() => clearCache()}
-                colorScheme='green'
-                leftIcon={<HiTrash />}
-            >Clear Cache {prettyBytes(cacheSize)}</Button>
+            <Flex
+                justifyContent='center'
+                alignItems='center'
+                flexDir='column'
+            >
+                <Button
+                    onClick={() => folder.open()}
+                    colorScheme='blue'
+                    leftIcon={<AiFillFolderOpen />}
+                >Open Application Folder</Button>
+                <Box mt='.5rem'></Box>
+                <Button
+                    onClick={() => clearCache()}
+                    colorScheme='green'
+                    leftIcon={<HiTrash />}
+                >Clear Cache {prettyBytes(cacheSize)}</Button>
+            </Flex>
         </Flex>
     </StylesProvider>
 }

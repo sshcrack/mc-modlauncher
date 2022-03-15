@@ -147,7 +147,7 @@
     "electron-unhandled": "^4.0.1",
     "electron-util": "^0.17.2",
     "fast-folder-size": "^1.6.1",
-    "framer-motion": "5",
+    "framer-motion": "^6.2.8",
     "fs-extra": "^10.0.0",
     "glob": "^7.2.0",
     "got": "^11.8.3",

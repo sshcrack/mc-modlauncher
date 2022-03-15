@@ -8,7 +8,11 @@
       "windows": {
         "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
       },
-      "cwd": "${workspaceFolder}",
+      // runtimeArgs will be passed directly to your Electron application
+      "runtimeArgs": [
+        "--remote-debugging-port=9222"
+      ],
+      "cwd": "${workspaceFolder}"
     }
   ]
 }

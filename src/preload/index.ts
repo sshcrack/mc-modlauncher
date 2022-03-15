@@ -3,6 +3,7 @@ import { modpack } from './modpack';
 import { cache } from './cache';
 import { launcher } from './launcher';
 import { folder } from './folder';
+import { lock } from './lock';
 import { preferences } from './preferences';
 import log from "electron-log"
 import { v4 } from "uuid"
@@ -40,7 +41,7 @@ const system = {
     prompt: {
         uninstall: () => ipcRenderer.sendSync("confirm_prompt", uninstallWarning) as boolean,
         error: (str: string) => ipcRenderer.send("open_err_dialog", str)
-    }
+    },
 }
 
 
@@ -52,6 +53,7 @@ export const API = {
     cache,
     folder,
     launcher,
+    lock
 }
 
 contextBridge.exposeInMainWorld(

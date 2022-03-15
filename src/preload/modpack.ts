@@ -100,7 +100,7 @@ export const modpack = {
     update: (id: string, onUpdate: onUpdate, version: Version) => startProcessing(id, true, version, onUpdate),
     list: () => ipcRenderer.sendSync("get_installed") as string[],
     clean: () => cleanCorrupted(),
-    addProcessingListener: (id: string, func: (processing: boolean) => unknown) => addProcessingListener(id, func)
+    addProcessingListener: (id: string, func: (processing: boolean) => unknown) => addProcessingListener(id, func),
 }
 
 
