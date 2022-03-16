@@ -1,7 +1,7 @@
 {
   "name": "sshmods",
   "productName": "sshmods",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "Minecraft Modpack launcher",
   "main": ".webpack/main",
   "scripts": {
