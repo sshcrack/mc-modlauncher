@@ -33,7 +33,7 @@ export default function ModpackOverview() {
             .then(e => ([...e, ...custom]))
             .then(async e => {
                 const i = await modpack.list()
-                const sorted = e.sort().sort((a, b) => (i.includes(a) ? 1 : 0) + (i.includes(b) ? 1 : 0))
+                const sorted = e.sort().sort((a, b) => (i.includes(b) ? 1 : 0) - (i.includes(a) ? 1 : 0))
 
                 setList([...sorted]);
                 update(updateFrequency)
