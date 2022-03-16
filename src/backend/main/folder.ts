@@ -1,5 +1,5 @@
 import getFolderSize from "fast-folder-size";
-import { copy } from 'fs-extra';
+import { move } from 'fs-extra';
 import prettyBytes from 'pretty-bytes';
 import { MainLogger } from '../../interfaces/mainLogger';
 import { Progress } from '../InstallManager/event/interface';
@@ -31,7 +31,7 @@ export async function moveDirectory({ src, dest, onUpdate, interval = 1000 }: Mo
         })
     }, interval)
 
-    await copy(src, dest)
+    await move(src, dest)
     done = true
 }
 

@@ -29,7 +29,7 @@ export class InstallManager {
     static async install(id: string, update = false, version: Version, onUpdateChilds: (prog: Progress) => void) {
         logger.info("Installing modpack", id)
         const installDir = MainGlobals.getInstallDir();
-        const installations = getInstalled();
+        const installations = await getInstalled();
         const instanceDir = MainGlobals.getInstancePathById(installDir, id);
 
         const reportError = (err: string) => {

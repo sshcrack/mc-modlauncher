@@ -1,4 +1,4 @@
-import { useToast, Wrap, WrapItem } from '@chakra-ui/react';
+import { Flex, Spinner, Text, useToast, Wrap, WrapItem } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from "react";
 import { Globals } from '../../Globals';
 import AddModpack from './AddModpack';
@@ -48,8 +48,8 @@ export default function ModpackOverview() {
             })
     }, [shouldUpdate])
 
-    return <Wrap spacing='6' m='6' >
-        {(list ?? []).map(e => <WrapItem>
+    return list ? <Wrap spacing='6' m='6' >
+        {(list ?? []).map(e => <WrapItem key={"wrap" + e}>
             <Modpack id={e} key={`modpack-${e}`} size='20rem' onRemove={() => {onUpdate(); console.log("Removing update")}} custom={custom}/>
         </WrapItem>
         )}
@@ -57,4 +57,12 @@ export default function ModpackOverview() {
             <AddModpack size='20rem' onAdd={onUpdate}/>
         </WrapItem>
     </Wrap>
+    :
+    <Flex
+            alignItems='center'
+            justifyContent='center'
+    >
+        <Spinner />
+        <Text ml='5'>Loading...</Text>
+    </Flex>
 }

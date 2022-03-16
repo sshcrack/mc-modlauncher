@@ -7,8 +7,8 @@ export function useModpackLauncher(id: string, config: ModpackInfo) {
     const toast = useToast()
     const { launcher, modpack } = window.api
 
-    const launch = () => {
-        const installed = modpack.isInstalled(id)
+    const launch = async () => {
+        const installed = await modpack.isInstalled(id)
 
         logger.debug("Launching modpack", id, "with config", config, "installed", installed)
         if(!installed)

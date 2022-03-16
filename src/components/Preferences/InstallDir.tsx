@@ -1,7 +1,7 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, FormControl, FormLabel, Input, InputRightElement, useDisclosure, useToast } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
 
-export default function InstallDir({ onSet, value, onMove }: Props) {
+export default function InstallDir({ value, onMove }: Props) {
     const disclosure = useDisclosure()
 
     const [isBrowsing, setBrowsing] = useState(false)
@@ -93,7 +93,6 @@ function InstallMoveAlertDialog({ disclosure, onConfirm }: AlertProps) {
 
 interface Props {
     value: string,
-    onSet: (install_dir: string) => void,
     onMove: (dest: string) => unknown
 }
 

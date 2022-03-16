@@ -84,7 +84,23 @@ function cleanCorrupted() {
 }
 
 function isInstalled(id: string) {
-    return ipcRenderer.sendSync("is_installed", id) as boolean
+    return new Promise<boolean>(resolve => {
+        ipcRenderer.on("is_installed_reply", (e, innerId, installed) => {
+            if(innerId !== id)
+                return
+
+            resolve(installed)
+        })
+        ipcRenderer.send("is_installed", id)
+    });
+}
+
+function getInstalled() {
+    return new Promise<string[]>(resolve => {
+        ipcRenderer.on("get_installed_reply", (e, installed) => resolve(installed))
+        ipcRenderer.send("get_installed")
+    });
+
 }
 
 function addProcessingListener(id: string, func: (processing: boolean) => unknown) {
@@ -98,7 +114,7 @@ export const modpack = {
     remove: (id: string, onUpdate: onUpdate) => removeModpack(id, onUpdate),
     install: (id: string, onUpdate: onUpdate, version: Version) => startProcessing(id, false, version, onUpdate),
     update: (id: string, onUpdate: onUpdate, version: Version) => startProcessing(id, true, version, onUpdate),
-    list: () => ipcRenderer.sendSync("get_installed") as string[],
+    list: () => getInstalled(),
     clean: () => cleanCorrupted(),
     addProcessingListener: (id: string, func: (processing: boolean) => unknown) => addProcessingListener(id, func),
 }

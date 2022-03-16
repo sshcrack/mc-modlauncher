@@ -13,7 +13,7 @@ import { useLock } from '../../components/hooks/useLock';
 
 const App = () => {
     const { preferences, system, folder, cache } = window.api
-    const [installDir, setInstallDir] = useState(() => preferences.get("install_dir"))
+    const [installDir] = useState(() => preferences.get("install_dir"))
     const [memory, setMemory] = useState(() => preferences.get("memory"))
     const { isLocked } = useLock()
     const [maxMemory, setMaxMemory] = useState(0)
@@ -106,7 +106,7 @@ const App = () => {
                         </motion.div>
                         <Heading ml='1'>Preferences</Heading>
                     </Flex>
-                    <InstallDir onSet={setInstallDir} value={installDir} onMove={dest => onMove(dest)} />
+                    <InstallDir value={installDir} onMove={dest => onMove(dest)} />
 
                     <Memory max={maxMemory} defaultVal={memory} onSet={setMemory} />
 
@@ -123,6 +123,7 @@ const App = () => {
                         <Box mt='.5rem'></Box>
                         <Button
                             onClick={() => clearCache()}
+                            isLoading={isClearing}
                             colorScheme='green'
                             leftIcon={<HiTrash />}
                         >Clear Cache {prettyBytes(cacheSize)}</Button>
@@ -134,15 +135,51 @@ const App = () => {
 
 function LockScreen() {
     const { progress } = useLock();
-    const { percent, status } = progress
+    const { percent, status } = progress ?? { percent: 0, status: "Doing things...", ...progress}
 
     return <Flex
+        pt='5'
         flexDir='column'
         justifyContent='center'
-        alignContent='center'
+        alignItems='center'
+        h='100%'
+        w='100%'
     >
-        <Progress value={percent} mr='5'/>
-        <Text>{status}</Text>
+        <Flex
+            justifyContent='center'
+            alignItems='center'
+        >
+            <AiFillFolderOpen
+                style={{
+                    width: '3em',
+                    height: '3em'
+                }}
+            />
+            <Heading>Moving files...</Heading>
+        </Flex>
+
+        <Flex
+            flexDir='column'
+            justifyContent='center'
+            alignItems='center'
+            h='100%'
+            w='90%'
+        >
+            <Progress
+                value={Math.round(percent * 100 * 100) / 100}
+                mr='5'
+                w='100%'
+                h='1.5em'
+                rounded='xl'
+                transitionDuration='.1s'
+            />
+            <Flex
+                w='80%'
+            >
+                <Text flex='1'>{status}</Text>
+                <Text>{percent * 100}%</Text>
+            </Flex>
+        </Flex>
     </Flex>
 }
 export default App;

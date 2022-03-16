@@ -1,4 +1,4 @@
-import { Badge, Center, Flex, Grid, Heading, Image, Text, useColorModeValue } from '@chakra-ui/react';
+import { Badge, Center, Flex, Grid, Heading, Image, Spinner, Text, useColorModeValue } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -78,7 +78,7 @@ export default function Modpack({ id, size, onRemove, custom }: { id: string, si
                     <Text fontSize={`calc(${size} * .075)`}>{config.description}</Text>
                 </Center>
                 <Flex p='3'>
-                    {installed ? <PlayButtons id={id} config={config} onRemove={onRemove} /> :
+                    {installed === undefined ? <Spinner /> : installed ? <PlayButtons id={id} config={config} onRemove={onRemove} /> :
                         <InstallButtons
                             id={id}
                             config={config}

@@ -19,7 +19,7 @@ export default function InstallButtons({ config, id, onRecentInstall, autoInstal
     const lastVersion = Globals.getLastVersion(config)
 
     const options = config.versions.map(({ id, mcVersion }) => {
-        return <option value={id}>{id}{mcVersion ? " " + mcVersion : ""}</option>
+        return <option value={id} key={id + mcVersion}>{id}{mcVersion ? " " + mcVersion : ""}</option>
     })
 
     useEffect(() => {
@@ -27,8 +27,8 @@ export default function InstallButtons({ config, id, onRecentInstall, autoInstal
             return
 
         const lastVer = Globals.getLastVersion(config.versions);
-        install(lastVer)
-            .then(() => onRecentInstall())
+        //install(lastVer)
+        //    .then(() => onRecentInstall())
     }, [])
 
     const onClose = () => setOpen(false)

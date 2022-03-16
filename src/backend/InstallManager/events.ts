@@ -1,8 +1,10 @@
 import { dialog, ipcMain, IpcMainEvent } from 'electron';
 import fs from "fs";
+import { readdir, stat } from "fs/promises";
 import { glob } from 'glob';
 import got from "got";
 import path from "path";
+import { promisify } from "util";
 import { v4 as randomUUID } from "uuid";
 import { InstallManager } from '.';
 import { Globals } from '../../Globals';
@@ -62,14 +64,15 @@ export function setupInstallManagerEvents() {
             .catch(e => event.reply("clean_corrupted_error", e))
     })
 
-    ipcMain.on("get_installed", event => {
-        event.returnValue = getInstalled()
+    ipcMain.on("get_installed", async event => {
+        const installed = await getInstalled()
+        event.reply("get_installed_reply", installed)
     })
 
-    ipcMain.on("is_installed", (event, id) => {
-        const installed = getInstalled()
-        logger.log("Is installed", id, installed, installed.includes(id))
-        event.returnValue = installed.includes(id)
+    ipcMain.on("is_installed", async (e, id) => {
+        const installed = await getInstalled()
+
+        e.reply("is_installed_reply", id, installed.includes(id))
     })
 
     ipcMain.on("open_err_dialog", (e, str) => dialog.showErrorBox("Error", str))
@@ -132,45 +135,59 @@ export async function cleanCorrupted(): Promise<number> {
     return length
 }
 
-export function getInstalled(): string[] {
+export async function getInstalled(): Promise<string[]> {
     logger.debug("Getting installed instances...")
 
     const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
 
+    logger.debug("Instances exist", instances)
     if (!fs.existsSync(instances))
         fs.mkdirSync(instances, { recursive: true })
 
     const occurred = [""]
+    const ids: string[] = []
 
     const globPattern = `${instances}/**/${getInstanceVersionFileName()}`
-    const ids = glob.sync(globPattern)
-        .map(e => path.dirname(e))
-        .map(e => {
-            return path.relative(instances, e)
-        })
-        .map(e => e.substring(e.length -1) === "/" ? e.substring(0, e.length - 1) : e)
-        .filter(e => {
-            if(occurred.includes(e))
-                return false
-            occurred.push(e)
-            return true
-        })
-        .filter(e => {
-            console.log("Installed", e)
-            const creating = MainGlobals.getCreatingFile(installDir, e)
-            if(fs.existsSync(creating))
-                return false
+    logger.debug("Promisify glob")
+    const files = await promisify(glob)(globPattern)
 
-            const currPath = path.join(instances, e)
+    logger.log("Files are", files)
+    for (const e of files) {
+        logger.log("E", e)
+        const relativeFile = path.relative(instances, path.dirname(e))
+        const id = relativeFile.substring(relativeFile.length -1) === "/" ? relativeFile.substring(0, relativeFile.length - 1) : relativeFile
 
-            const files = fs.readdirSync(currPath)
-            const modFolder = MainGlobals.getModFolder(instances, e)
-            return files.length !== 0 && fs.existsSync(modFolder)
-        })
-        .map(e => e.split("\\").join("/"))
+        logger.log("RElative", instances, "Dirname", path.dirname(e), "id", id, e)
 
+        if(occurred.includes(e))
+            continue
 
-    logger.debug("Found", ids, " installed instances", "inDir", instances, "installdir", installDir)
+        occurred.push(e)
+
+        const creating = MainGlobals.getCreatingFile(installDir, e)
+        const creatingExists = await stat(creating)
+            .then(() => true)
+            .catch(() => false)
+
+        if(creatingExists)
+            continue
+
+        const currPath = path.join(instances, id)
+        const dirsInInstance = await readdir(currPath)
+        const modFolder = MainGlobals.getModFolder(instances, id)
+
+        logger.log("Mod Folder", modFolder)
+        const modFolderExists = await stat(modFolder)
+            .then(() => true)
+            .catch(() => false)
+
+        if(dirsInInstance.length === 0 || !modFolderExists)
+            continue
+
+        logger.log("Ids")
+        ids.push(id.split("\\").join("/"))
+    }
+
     return ids
 }

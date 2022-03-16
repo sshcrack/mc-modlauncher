@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Version } from '../../interfaces/modpack';
 
 export function useModpackInfo(id: string) {
@@ -6,10 +6,11 @@ export function useModpackInfo(id: string) {
     const [ version, setVersion ] = useState<Version | null | undefined>(undefined)
 
     const { modpack } =  window.api;
-    if(installed === undefined) {
-        console.log("Modpack info null, refreshing")
-        setInstalled(modpack.isInstalled(id) ?? false);
-    }
+    useEffect(() => {
+        modpack.isInstalled(id).then(res => {
+            setInstalled(res);
+        })
+    }, [])
 
     if(version === undefined) {
         console.log("Version Info null, getting")

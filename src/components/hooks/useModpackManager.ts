@@ -12,11 +12,13 @@ export default function useModpackManager(id: string) {
     const [progress, setProgress] = useState<Progress>(null);
     const [processing, setProcessing] = useState(false)
     const [ version, setVersion ] = useState<Version>(() => modpack.version(id))
-    const [installed, setInstalled] = useState(() => modpack.isInstalled(id))
+    const [installed, setInstalled] = useState(() => undefined)
 
-    const updateVars = (processing: boolean) => {
+    const updateVars = async (processing: boolean) => {
         console.log("Updating Vars")
-        setInstalled(modpack.isInstalled(id))
+        const isInstalled = await modpack.isInstalled(id)
+        setInstalled(isInstalled)
+
         setProcessing(processing)
         setVersion(modpack.version(id))
     }
@@ -90,9 +92,12 @@ export default function useModpackManager(id: string) {
     }
 
     useEffect(() => {
-        modpack.addProcessingListener(id, processing => {
+        modpack.isInstalled(id)
+            .then(e => setInstalled(e))
+
+        modpack.addProcessingListener(id, async processing => {
             console.log("PRocessing listener")
-            setInstalled(modpack.isInstalled(id))
+            setInstalled(await modpack.isInstalled(id))
             setProcessing(processing)
         })
     }, [ ])

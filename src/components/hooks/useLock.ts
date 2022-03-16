@@ -7,7 +7,7 @@ export function useLock() {
 
     useEffect(() => {
         lockApi.addLockListener((lock, prog) => {
-            console.log("Setting locked")
+            console.log("Updating lock")
             setLocked({
                 locked: lock,
                 progress: prog

@@ -154,10 +154,15 @@ function UrlModal({ isOpen, onAdd, onClose }: { isOpen: boolean, onAdd: (url: st
             <ModalBody pb={6}>
                 <FormControl onSubmit={handleClose}>
                     <Input
+                        autoFocus={true}
                         required={true}
                         ref={inputRef}
                         placeholder={placeholder}
                         onChange={onChange}
+                        onKeyPress={k => {
+                            if(k.key === "Enter")
+                                handleClose()
+                        }}
                     />
                 </FormControl>
             </ModalBody>
