@@ -8,7 +8,7 @@ const updateFrequency = 30 * 1000;
 const listUrl = `${Globals.baseUrl}/list.json`
 
 export default function ModpackOverview() {
-    const { preferences } = window.api
+    const { preferences, modpack } = window.api
     const [list, setList] = useState<string[] | null>(null);
     const [ custom, setCustom ] = useState<string[]>(() => preferences.get("custom_modpacks") ?? [])
     const [shouldUpdate, setUpdate] = useState(Math.random())
@@ -30,8 +30,12 @@ export default function ModpackOverview() {
 
         fetch(listUrl)
             .then(e => e.json())
-            .then(e => {
-                setList([...e, ...custom]);
+            .then(e => ([...e, ...custom]))
+            .then(async e => {
+                const i = await modpack.list()
+                const sorted = e.sort().sort((a, b) => (i.includes(a) ? 1 : 0) + (i.includes(b) ? 1 : 0))
+
+                setList([...sorted]);
                 update(updateFrequency)
             })
             .catch(e => {
