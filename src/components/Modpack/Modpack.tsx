@@ -15,7 +15,7 @@ const baseUrl = Globals.baseUrl;
 export default function Modpack({ id, size, onRemove, custom }: { id: string, size: string, onRemove: () => void, custom: string[] }) {
     const isCustom = custom.includes(id);
 
-    const { data: config, loading, error } = useFetch<ModpackInfo>(`${baseUrl}/${id}/config.json`, { retries: 3 }, [])
+    const { data: config, loading, error } = useFetch<ModpackInfo>(`${baseUrl}/${id}/config.json`, { retries: 3, cache: "no-cache" }, [])
     const { installed, version } = useModpackManager(id)
     const { width, height } = useWindowSize()
     const [ autoInstall, setAutoInstall ] = useState(isCustom && !installed)

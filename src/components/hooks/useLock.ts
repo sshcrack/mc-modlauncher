@@ -6,12 +6,15 @@ export function useLock() {
     const [ isLocked, setLocked] = useState(() => lockedCheck())
 
     useEffect(() => {
-        lockApi.addLockListener(lock => {
+        lockApi.addLockListener((lock, prog) => {
             console.log("Setting locked")
-            setLocked(lock)
+            setLocked({
+                locked: lock,
+                progress: prog
+            })
         })
     }, [])
 
 
-    return { unlock, lock, isLocked }
+    return { unlock, lock, progress: isLocked.progress, isLocked: isLocked.locked }
 }

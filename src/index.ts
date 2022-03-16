@@ -3,7 +3,8 @@ require('source-map-support').install();
 
 import { app, BrowserWindow, dialog } from 'electron';
 import { InstallManager } from './backend/InstallManager';
-import { addLockListeners } from './backend/LockManager';
+import { InstallMover } from './backend/InstallMover';
+import LockManager from './backend/LockManager';
 import { setupEvents } from './backend/main/events';
 import { checkJava } from './backend/main/java';
 import { addCrashHandler, addUpdater, registerUri, registerURIOpenEvent, setContentSecurity } from './backend/main/main_funcs';
@@ -123,4 +124,5 @@ InstallManager.initialize();
 
 setupEvents();
 addSystemListeners()
-addLockListeners()
+LockManager.addLockListeners()
+InstallMover.addListeners()

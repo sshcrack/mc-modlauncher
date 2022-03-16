@@ -1,30 +1,66 @@
-import { ipcMain, WebContents } from 'electron'
+import { ipcMain } from 'electron'
+import { MainGlobals } from '../../Globals/mainGlobals'
 import { MainLogger } from '../../interfaces/mainLogger'
+import { Progress } from '../InstallManager/event/interface'
 
-let locked = false
 const logger = MainLogger.get("Preload", "Lock")
-const listeners: WebContents[] = []
+const { lockInfo } = MainGlobals
+export default class LockManager {
+    static addLockListeners() {
 
-export function addLockListeners() {
-    ipcMain.on("set_lock", (e, lock) => {
-        logger.log("Setting lock...")
-        if(locked === lock)
-            return e.returnValue = true
+        ipcMain.on("set_lock", (e, lock: boolean, prog: Progress) => {
+            logger.log("Setting lock...")
 
-        locked = lock
+            if (lockInfo.locked === lock)
+                return e.returnValue = true
 
-        logger.log("Sending lock update...", listeners.length)
-        listeners.map(e => e.send("lock_update", locked))
-        e.returnValue = true
-    })
+            if (lock)
+                LockManager.lock(prog)
+            else
+                LockManager.unlock(prog)
 
-    ipcMain.on("add_lock_listener", e => {
-        logger.log("New lock listener")
-        listeners.push(e.sender)
-    })
+            e.returnValue = true
+        })
 
-    ipcMain.on("is_locked", e => {
-        logger.info("Is locked", locked)
-        e.returnValue = locked
-    })
+        ipcMain.on("update_lock", (e, prog: Progress) => {
+            LockManager.updateListeners(prog)
+            e.returnValue = true
+        })
+
+        ipcMain.on("add_lock_listener", e => lockInfo.listeners.push(e.sender))
+        ipcMain.on("is_locked", e => e.returnValue = {
+            locked: lockInfo.locked,
+            progress: lockInfo.currProgress
+        })
+    }
+
+    static lock(prog: Progress) {
+        const { lockInfo } = MainGlobals
+
+        logger.log("Locking...")
+        lockInfo.locked = true
+
+        this.updateListeners(prog)
+    }
+
+    static unlock(prog: Progress) {
+        const { lockInfo } = MainGlobals
+
+        logger.log("Unlocking...")
+        lockInfo.locked = false
+
+        this.updateListeners(prog)
+    }
+
+    static isLocked() {
+        return lockInfo.locked
+    }
+
+    static updateListeners(prog: Progress) {
+        // eslint-disable-next-line prefer-const
+        let { listeners, currProgress, locked } = lockInfo
+
+        currProgress = prog
+        listeners.map(e => e.send("lock_update", locked, currProgress))
+    }
 }

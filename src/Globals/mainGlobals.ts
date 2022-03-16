@@ -1,10 +1,16 @@
 import { store } from '../backend/preferences';
 import path from "path"
 import fs from "fs"
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, WebContents } from 'electron';
+import { Progress } from '../backend/InstallManager/event/interface';
 
 export class MainGlobals {
     static window: BrowserWindow;
+    static lockInfo = {
+        listeners: [] as WebContents[],
+        locked: false,
+        currProgress: undefined as Progress
+    }
 
     static getInstallDir(): string {
         return store.get("install_dir")

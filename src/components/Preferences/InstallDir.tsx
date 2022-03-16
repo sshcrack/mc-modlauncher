@@ -1,12 +1,10 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, FormControl, FormLabel, Input, InputRightElement, useDisclosure, useToast } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
-import { useLock } from '../hooks/useLock'
 
-export default function InstallDir({ onSet, value }: Props) {
+export default function InstallDir({ onSet, value, onMove }: Props) {
     const disclosure = useDisclosure()
 
     const [isBrowsing, setBrowsing] = useState(false)
-    const { lock } = useLock()
     const { folder, preferences } = window.api
     const inputRef = useRef<HTMLInputElement>()
     const toast = useToast()
@@ -40,19 +38,6 @@ export default function InstallDir({ onSet, value }: Props) {
         disclosure.onOpen()
     }
 
-    const onSave = async () => {
-        if(!inputRef?.current)
-            return
-
-        onSet(inputRef.current.value)
-        toast({
-            status: "info",
-            description: "Preparing to move folders..."
-        })
-
-        lock()
-    }
-
     return <><FormControl
         w='90%'
     >
@@ -68,7 +53,7 @@ export default function InstallDir({ onSet, value }: Props) {
             </Button>
         </InputRightElement>
     </FormControl>
-        <InstallMoveAlertDialog disclosure={disclosure} onConfirm={() => onSave()}/>
+        <InstallMoveAlertDialog disclosure={disclosure} onConfirm={() => onMove(inputRef.current.value)}/>
     </>
 
 }
@@ -108,7 +93,8 @@ function InstallMoveAlertDialog({ disclosure, onConfirm }: AlertProps) {
 
 interface Props {
     value: string,
-    onSet: (install_dir: string) => void
+    onSet: (install_dir: string) => void,
+    onMove: (dest: string) => unknown
 }
 
 interface AlertProps {
