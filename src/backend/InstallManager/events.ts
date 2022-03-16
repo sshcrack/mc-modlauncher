@@ -175,6 +175,7 @@ export async function getInstalled(): Promise<string[]> {
 
         const currPath = path.join(instances, id)
         const dirsInInstance = await readdir(currPath)
+            .catch(() => [])
         const modFolder = MainGlobals.getModFolder(instances, id)
 
         logger.log("Mod Folder", modFolder)

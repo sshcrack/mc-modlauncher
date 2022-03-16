@@ -76,6 +76,10 @@ export default function useModpackManager(id: string) {
         if (!defaultCheck())
             return
 
+        const shouldUninstall = window.api.system.prompt.uninstall()
+        if(!shouldUninstall)
+            return
+
         updateVars(true)
         return modpack.remove(id, (prog) => setProgress(prog))
             .then(() => updateVars(false))

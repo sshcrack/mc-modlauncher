@@ -23,12 +23,12 @@ export default function InstallButtons({ config, id, onRecentInstall, autoInstal
     })
 
     useEffect(() => {
-        if(!autoInstall)
+        if(!autoInstall || !config.updateRequired)
             return
 
         const lastVer = Globals.getLastVersion(config.versions);
-        //install(lastVer)
-        //    .then(() => onRecentInstall())
+        install(lastVer)
+            .then(() => onRecentInstall())
     }, [])
 
     const onClose = () => setOpen(false)
