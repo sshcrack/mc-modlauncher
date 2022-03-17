@@ -94,8 +94,8 @@ export default function Modpack({ id, size, onRemove, custom }: { id: string, si
                 confettiSource={{ x: 0, y: height, h: 0, w: 0 }}
                 initialVelocityY={25}
                 initialVelocityX={25}
-                width={width}
-                height={height}
+                width={width - 1}
+                height={height - 1}
             />
         </>
 }

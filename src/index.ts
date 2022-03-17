@@ -52,18 +52,6 @@ const createWindow = async () => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.maximize()
 
-  try {
-    checkJava()
-  } catch (e) {
-    const msg = e.stack ?? e.message ?? e
-    logger.error(msg);
-    dialog.showMessageBoxSync(mainWindow, {
-      message: msg,
-      type: "error"
-    });
-    app.quit();
-  }
-
   mainWindow.on("focus", () => {
     const { window } = Preference;
     if (!window)

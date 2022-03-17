@@ -52,7 +52,7 @@ export default function ModpackOverview() {
             })
     }, [shouldUpdate])
 
-    return list ? <Wrap spacing='6' m='6' >
+    return list ? <Wrap spacing='6' p='6' >
         {(list ?? []).map(e => <WrapItem key={"wrap" + e}>
             <Modpack id={e} key={`modpack-${e}`} size='20rem' onRemove={() => {onUpdate(); console.log("Removing update")}} custom={custom}/>
         </WrapItem>
@@ -67,6 +67,6 @@ export default function ModpackOverview() {
             justifyContent='center'
     >
         <Spinner />
-        <Text ml='5'>Loading...</Text>
+        <Text pl='5'>Loading...</Text>
     </Flex>
 }

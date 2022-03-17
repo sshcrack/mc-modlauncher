@@ -8,6 +8,7 @@ import { stringToArtifact } from '../Artifact';
 import { SharedProcessor } from '../interface';
 import { getClassPathJar, getStdoutFile } from './file';
 import ElectronLog from 'electron-log';
+import { store } from '../../../../../preferences';
 
 export class SinglePatcher extends ProcessEventEmitter {
     private shared: SharedProcessor;
@@ -51,7 +52,8 @@ export class SinglePatcher extends ProcessEventEmitter {
             const procName = path.basename(jar)
 
             logger.info("Spawning", jar, "with args", argStr)
-            const child = spawn("java", allArgs, { cwd: classPathDir })
+            const javaExe = store.get("custom_java")
+            const child = spawn(javaExe, allArgs, { cwd: classPathDir })
 
             let stdout = ""
             let stderr = ""

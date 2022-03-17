@@ -136,12 +136,9 @@ export async function cleanCorrupted(): Promise<number> {
 }
 
 export async function getInstalled(): Promise<string[]> {
-    logger.debug("Getting installed instances...")
-
     const installDir = MainGlobals.getInstallDir()
     const instances = path.join(installDir, "Instances")
 
-    logger.debug("Instances exist", instances)
     if (!fs.existsSync(instances))
         fs.mkdirSync(instances, { recursive: true })
 
@@ -149,17 +146,11 @@ export async function getInstalled(): Promise<string[]> {
     const ids: string[] = []
 
     const globPattern = `${instances}/**/${getInstanceVersionFileName()}`
-    logger.debug("Promisify glob")
     const files = await promisify(glob)(globPattern)
 
-    logger.log("Files are", files)
     for (const e of files) {
-        logger.log("E", e)
         const relativeFile = path.relative(instances, path.dirname(e))
         const id = relativeFile.substring(relativeFile.length -1) === "/" ? relativeFile.substring(0, relativeFile.length - 1) : relativeFile
-
-        logger.log("RElative", instances, "Dirname", path.dirname(e), "id", id, e)
-
         if(occurred.includes(e))
             continue
 
@@ -178,7 +169,6 @@ export async function getInstalled(): Promise<string[]> {
             .catch(() => [])
         const modFolder = MainGlobals.getModFolder(instances, id)
 
-        logger.log("Mod Folder", modFolder)
         const modFolderExists = await stat(modFolder)
             .then(() => true)
             .catch(() => false)
@@ -186,7 +176,6 @@ export async function getInstalled(): Promise<string[]> {
         if(dirsInInstance.length === 0 || !modFolderExists)
             continue
 
-        logger.log("Ids")
         ids.push(id.split("\\").join("/"))
     }
 

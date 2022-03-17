@@ -21,7 +21,8 @@ export const store = new Store({
     defaults: {
         "install_dir": installDir,
         "memory": total / 2,
-        "custom_modpacks": []
+        "custom_modpacks": [],
+        "custom_java": "java"
     }
 })
 

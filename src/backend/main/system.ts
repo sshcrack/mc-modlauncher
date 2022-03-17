@@ -5,6 +5,8 @@ import fs from "fs"
 import checkDisk from "check-disk-space"
 import folderSize from "fast-folder-size"
 import prettyBytes from 'pretty-bytes'
+import { checkJava } from './java'
+import { spawn } from 'child_process'
 
 const logger = MainLogger.get("Backend", "Main", "System");
 export function addSystemListeners() {
@@ -44,5 +46,10 @@ export function addSystemListeners() {
 
                 e.reply("system_disk_size_reply", diskPath, undefined)
             })
+    })
+
+    ipcMain.on("check_java", e => {
+        const installed = checkJava()
+        e.reply("check_java_reply", installed)
     })
 }
