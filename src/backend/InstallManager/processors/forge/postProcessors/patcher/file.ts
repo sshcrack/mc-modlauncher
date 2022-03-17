@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import path from "path";
 import { MainGlobals } from '../../../../../../Globals/mainGlobals';
 
@@ -9,8 +10,7 @@ export function getClassPathJar() {
 }
 
 export function getStdoutFile(jar: string) {
-    const installDir = MainGlobals.getInstallDir()
-    const logDir = path.join(installDir, "logs")
+    const logDir = path.join(app.getPath("appData"), "sshmods", "logs")
     const replaceRegex = /[^a-zA-Z0-9\\.\\-]/g;
 
     const fsFriendly = jar.replace(replaceRegex, "-")

@@ -1,4 +1,4 @@
-import { Flex, Spinner, Text, useToast, Wrap, WrapItem } from '@chakra-ui/react';
+import { Flex, Heading, Spinner, useToast, Wrap, WrapItem } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from "react";
 import { Globals } from '../../Globals';
 import AddModpack from './AddModpack';
@@ -65,8 +65,10 @@ export default function ModpackOverview() {
     <Flex
             alignItems='center'
             justifyContent='center'
+            w='100%'
+            h='100%'
     >
         <Spinner />
-        <Text pl='5'>Loading...</Text>
+        <Heading ml='5'>Loading...</Heading>
     </Flex>
 }

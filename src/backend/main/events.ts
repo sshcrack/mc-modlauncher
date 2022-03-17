@@ -7,6 +7,7 @@ import { MainGlobals } from '../../Globals/mainGlobals';
 import { LauncherProfiles, Profile } from '../../interfaces/launcher';
 import { MainLogger } from '../../interfaces/mainLogger';
 import { ModpackInfo } from '../../interfaces/modpack';
+import { InstallManager } from '../InstallManager';
 import { getInstanceVersion } from '../InstallManager/processors/interface';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import { getInstanceDestination } from '../InstallManager/processors/modpack/file';
@@ -31,15 +32,18 @@ export function setupEvents() {
         e.returnValue = index === 0;
     })
 
-    ipcMain.on("launch_mc", (event, id, { name }: ModpackInfo) => {
+    ipcMain.on("launch_mc", async (event, id, { name }: ModpackInfo) => {
         try {
+            const isValid = await InstallManager.validate(id)
+            if(!isValid)
+                throw new Error(`Modpack installation of ${id} is invalid. Please reinstall.`)
+
             const launcherDir = getLauncherDir();
             const gameDir = getInstanceDestination(id)
             const version = getInstanceVersion(id)
 
 
             const profilesPath = path.join(launcherDir, "launcher_profiles.json");
-
             const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
             const setUUID = genUUID(id);
 

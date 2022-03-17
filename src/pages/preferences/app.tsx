@@ -166,7 +166,7 @@ function LockScreen() {
             w='90%'
         >
             <Progress
-                value={Math.round(percent * 100 * 100) / 100}
+                value={percent * 100}
                 mr='5'
                 w='100%'
                 h='1.5em'
@@ -177,7 +177,7 @@ function LockScreen() {
                 w='80%'
             >
                 <Text flex='1'>{status}</Text>
-                <Text>{percent * 100}%</Text>
+                <Text>{Math.round(percent * 100 * 100) / 100}%</Text>
             </Flex>
         </Flex>
     </Flex>

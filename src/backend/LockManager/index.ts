@@ -48,8 +48,18 @@ export default class LockManager {
 
         logger.log("Unlocking...")
         lockInfo.locked = false
+        lockInfo.lockListeners.map(e => e())
 
         this.updateListeners(prog)
+    }
+
+    static lockProm() {
+        return new Promise<void>(resolve => {
+            if(!this.isLocked())
+                return resolve()
+
+            lockInfo.lockListeners.push(() => resolve())
+        });
     }
 
     static isLocked() {

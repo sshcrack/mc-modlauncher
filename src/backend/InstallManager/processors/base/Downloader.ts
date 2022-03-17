@@ -56,7 +56,7 @@ export class Downloader extends ProcessEventEmitter {
 
                 stream.once("retry", (_, _1, createReadStream) => {
                     logger.warn("Connection aborted, retrying...")
-                    generateDownload(createReadStream());
+                    generateDownload(createReadStream ? createReadStream() : null);
                 })
 
                 stream.on("downloadProgress", (prog: Progress) => {

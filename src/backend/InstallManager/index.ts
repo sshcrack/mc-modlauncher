@@ -8,7 +8,7 @@ import { Progress } from './event/interface';
 import { ProcessEventEmitter } from './event/Processor';
 import { getInstalled, setupInstallManagerEvents } from './events';
 import { getProcessors } from './processorList';
-import { getInstanceVersionPath } from './processors/interface';
+import { getInstanceVersion, getInstanceVersionPath } from './processors/interface';
 
 const baseUrl = Globals.baseUrl;
 const logger = MainLogger.get("InstallManager")
@@ -34,7 +34,7 @@ export class InstallManager {
 
         const reportError = (err: string) => {
             fs.rmSync(instanceDir, { recursive: true, force: true });
-            throw new Error(err);
+            throw err;
         }
 
         const onUpdate = (prog: Progress) => {
@@ -106,6 +106,19 @@ export class InstallManager {
                     reject(e)
                 })
         });
+    }
+
+    static async validate(id: string) {
+        const config = await InstallManager.getConfig(id)
+        const version = getInstanceVersion(id)
+        if(!version)
+            return  false
+
+        const processors = getProcessors(id, config, version, false, true);
+
+        return await ProcessEventEmitter.runMultiple(processors, () => {/** */})
+            .then(() => true)
+            .catch(() => false)
     }
 
     private static locks: string[] = []

@@ -1,12 +1,11 @@
-import { MainLogger } from '../../interfaces/mainLogger'
-import { ipcMain } from 'electron'
-import os from "os"
-import fs from "fs"
 import checkDisk from "check-disk-space"
+import { ipcMain } from 'electron'
 import folderSize from "fast-folder-size"
+import fs from "fs"
+import os from "os"
 import prettyBytes from 'pretty-bytes'
-import { checkJava } from './java'
-import { spawn } from 'child_process'
+import { MainLogger } from '../../interfaces/mainLogger'
+import { hasJavaInstalled } from './java'
 
 const logger = MainLogger.get("Backend", "Main", "System");
 export function addSystemListeners() {
@@ -48,8 +47,8 @@ export function addSystemListeners() {
             })
     })
 
-    ipcMain.on("check_java", e => {
-        const installed = checkJava()
+    ipcMain.on("check_java", async e => {
+        const installed = await hasJavaInstalled()
         e.reply("check_java_reply", installed)
     })
 }

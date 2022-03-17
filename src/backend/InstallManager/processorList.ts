@@ -17,10 +17,11 @@ import { getLauncherExe } from './processors/launcher/file';
 import { LauncherUnpacker } from './processors/launcher/unpacker';
 import { LibraryMultipleDownloader } from './processors/libraries/LibraryMultiple';
 import { ModpackDownloader } from './processors/modpack/downloader';
+import { getInstanceDestination } from './processors/modpack/file';
 import { ModpackUnpacker } from './processors/modpack/unpacker';
 
 const logger = MainLogger.get("InstallManager", "ProcessorList")
-export function getProcessors(id: string, config: ModpackInfo, version: Version, overwrite: boolean) {
+export function getProcessors(id: string, config: ModpackInfo, version: Version, overwrite: boolean, validate?: boolean) {
     const { forge_version: forgeVersion } = version
 
     const options: AdditionalOptions = { overwrite }
@@ -48,16 +49,18 @@ export function getProcessors(id: string, config: ModpackInfo, version: Version,
     ]
 
     const versionDir = getVersionsDir();
-    console.log("Version dir is", versionDir, "forge Version is", forgeVersion)
     const forgeDir = path.join(versionDir, forgeVersion)
 
     const launcherExe = getLauncherExe()
+    const modpackFolder = getInstanceDestination(id)
+
 
     const hasLauncher = fs.existsSync(launcherExe)
     const hasForge = fs.existsSync(forgeDir)
+    const hasModpack = fs.existsSync(modpackFolder)
 
     const toExecute = [
-        ...modpack,
+        ...(hasModpack && validate ? [] : modpack),
         ...(hasLauncher ? [] : launcher),
         ...(hasForge ? [] : forge)
     ]

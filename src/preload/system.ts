@@ -29,11 +29,18 @@ export const system = {
         error: (str: string) => ipcRenderer.send("open_err_dialog", str)
     },
     java: {
-        check_java: () => {
+        version: () => {
             return new Promise<string | undefined>(resolve => {
                 ipcRenderer.on("check_java_reply", (_, ver) => resolve(ver))
                 ipcRenderer.send("check_java")
             })
+        },
+        install: () => {
+            return new Promise<void>((resolve, reject) => {
+                ipcRenderer.on("java_install_success", () => resolve())
+                ipcRenderer.on("java_install_error", (_, err) => reject(err))
+                ipcRenderer.send("java_install")
+            });
         }
     }
 }

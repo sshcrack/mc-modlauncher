@@ -1,12 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { InstallManager } from './backend/InstallManager';
 import { InstallMover } from './backend/InstallMover';
 import LockManager from './backend/LockManager';
+import { addJavaListeners } from './backend/LockManager/java';
 import { setupEvents } from './backend/main/events';
-import { checkJava } from './backend/main/java';
 import { addCrashHandler, addUpdater, registerUri, registerURIOpenEvent, setContentSecurity } from './backend/main/main_funcs';
 import { addSystemListeners } from './backend/main/system';
 import { Preference } from './backend/preferences';
@@ -112,5 +112,6 @@ InstallManager.initialize();
 
 setupEvents();
 addSystemListeners()
+addJavaListeners()
 LockManager.addLockListeners()
 InstallMover.addListeners()

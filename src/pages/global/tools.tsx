@@ -1,7 +1,7 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import theme from "./theme"
-import { ChakraProvider } from "@chakra-ui/react"
+import theme from "./theme";
 
 
 export function renderMain(Comp: () => JSX.Element) {

@@ -1,14 +1,9 @@
 import { ipcRenderer } from 'electron'
 import { Progress } from '../backend/InstallManager/event/interface'
-import { MainLogger } from '../interfaces/mainLogger'
 
 const lockListeners: ListenerFunc[] = []
 
-const logger = MainLogger.get("Preload", "Lock")
-ipcRenderer.on("lock_update", (_, locked, progress: Progress) => {
-    logger.info("Locked update")
-    lockListeners.map((func) => func(locked, progress))
-})
+ipcRenderer.on("lock_update", (_, locked, progress: Progress) => lockListeners.map((func) => func(locked, progress)))
 
 ipcRenderer.send("add_lock_listener")
 

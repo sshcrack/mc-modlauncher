@@ -19,7 +19,7 @@ export class LibraryMultipleDownloader extends ProcessEventEmitter {
     }
 
     public async run() {
-        const { mcVersion: installedVer} = getInstanceVersion(this.id)
+        const { mcVersion: installedVer} = getInstanceVersion(this.id) ?? {}
         const ver = installedVer ?? this.config.mcVersion;
         const { forgeVersion } = this.shared;
         const installDir = MainGlobals.getInstallDir();

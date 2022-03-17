@@ -2,6 +2,9 @@ import { ModpackInfo, Version } from '../interfaces/modpack';
 
 export class Globals {
     static baseUrl = "https://mc.sshcrack.me";
+    static get javaDownloadUrl() : string {
+        return Globals.baseUrl + "/java_8.zip"
+    }
 
 
     static getLastVersion(config: ModpackInfo | Version[]) {

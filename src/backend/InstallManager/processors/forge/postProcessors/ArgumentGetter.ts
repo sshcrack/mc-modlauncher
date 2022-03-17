@@ -56,7 +56,7 @@ export class ArgumentGetter extends ProcessEventEmitter {
         })
 
         const { mcVersion: configVer } = this.config;
-        const { mcVersion: instanceMc } = getInstanceVersion(this.id)
+        const { mcVersion: instanceMc } = getInstanceVersion(this.id) ?? {}
         const mcVersion = instanceMc ?? configVer;
 
         const vanillaJar = getVersionJar(mcVersion)

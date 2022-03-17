@@ -1,8 +1,9 @@
-import { Flex, Heading, Spinner, Text, useToast } from '@chakra-ui/react';
+import { Flex, Heading, Spinner, useToast } from '@chakra-ui/react';
 import * as React from "react";
 import { useLock } from '../../components/hooks/useLock';
 import ModpackOverview from '../../components/Modpack/ModpackOverview';
 import NavBar from '../../components/NavBar';
+import JavaLock from './java';
 
 
 const App = () => {
@@ -28,7 +29,7 @@ const App = () => {
     if(hasJava === undefined || hasJava === false)
         return <JavaLock setJava={setJava} hasJava={hasJava} />
 
-    return !isLocked ? <ModpackMain />: <LockMain /> 
+    return !isLocked ? <ModpackMain />: <LockMain />
 }
 
 function ModpackMain() {
@@ -49,27 +50,4 @@ function LockMain() {
     </Flex>
 }
 
-function JavaLock({ hasJava, setJava}: { hasJava: boolean, setJava: (v: boolean) => unknown}) {
-    const { system } = window.api
-    React.useEffect(() => {
-        system.java.check_java()
-            .then(()=> setJava(true))
-            .catch(() => setJava(false))
-    }, [])
-
-    if (hasJava === undefined)
-        return <Flex
-            alignItems='center'
-            justifyContent='center'
-        >
-            <Spinner />
-            <Text>Checking if java is installed...</Text>
-        </Flex>
-
-
-    return <Heading>
-        Java is not installed. {hasJava}
-    </Heading>
-
-}
 export default App;

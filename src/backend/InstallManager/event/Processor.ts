@@ -54,7 +54,6 @@ class ProcessorEventEmitterClass extends (EventEmitter as new () => TypedEmitter
         const length = emitters.length;
 
         for (let i = 0; i < length; i++) {
-            logger.debug(i, "/", length)
             const emitter = emitters[i];
             const currMultiplier = 1 / length;
             const alreadyDone = i * currMultiplier;
@@ -70,9 +69,10 @@ class ProcessorEventEmitterClass extends (EventEmitter as new () => TypedEmitter
                 })
             })
 
+            logger.debug(i, "/", length, emitter.constructor.name)
             const err = await emitter.startProcessing()
                 .then(() => undefined)
-                .catch(e => e);
+                .catch(e => new Error(e));
 
             if(err)
                 throw err;

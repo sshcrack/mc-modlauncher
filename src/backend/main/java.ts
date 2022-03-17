@@ -1,42 +1,47 @@
-import { BufferList } from "bl";
 import { spawn } from "child_process";
 import { MainLogger } from '../../interfaces/mainLogger';
+import { store } from '../preferences';
+import path from "path"
+import fs from "fs"
+import { getJavaCreating } from '../LockManager/java';
 
 const logger = MainLogger.get("Main", "Java")
 
-export async function checkJava() {
-    return asyncSpawn("java", ["-version"], {})
+export async function hasJavaInstalled(): Promise<string|undefined> {
+    const currExe = store.get("custom_java")
+    const dirname = path.dirname(currExe)
+    const file = getJavaCreating(dirname)
+
+    if(fs.existsSync(file))
+        return undefined
+
+    return asyncSpawn(currExe, ["-version"], {})
         .then(({ stdout, stderr }) => {
             const msg = (stdout?.toString()?.includes("java version") ? stdout : stderr)?.toString()
 
 
             const verLine = msg?.trim()?.split("\n")?.shift()
             if (!verLine || !verLine?.includes("java version"))
-                throw new Error(`Java returned invalid statement: ${verLine}. Most likely this means that java is not installedtsc.`)
+                return undefined
 
             const ver = verLine.split(":").pop()
             logger.info("Java version is", ver)
 
             return ver;
         })
+        .catch(() => undefined)
 }
 
 export function asyncSpawn(...args: Parameters<typeof spawn>) {
     const child = spawn(...args)
-    const stdout = child.stdout ? new BufferList() : ''
-    const stderr = child.stderr ? new BufferList() : ''
+    let stdout = ""
+    let stderr = ""
 
-    if (child.stdout) {
-        child.stdout.on('data', data => {
-            stdout.append(data)
-        })
-    }
+    if (child.stdout)
+        child.stdout.on('data', data => stdout += data.toString("utf-8"))
 
-    if (child.stderr) {
-        child.stderr.on('data', data => {
-            stderr.append(data)
-        })
-    }
+    if (child.stderr)
+        child.stderr.on('data', data => stderr += data.toString("utf-8"))
 
     return new Promise<AsyncSpawnReturnType>((resolve, reject) => {
         child.on('error', reject)
@@ -57,6 +62,6 @@ export function asyncSpawn(...args: Parameters<typeof spawn>) {
 
 export interface AsyncSpawnReturnType {
     code: number,
-    stderr: BufferList,
-    stdout: BufferList
+    stderr: string,
+    stdout: string
 }

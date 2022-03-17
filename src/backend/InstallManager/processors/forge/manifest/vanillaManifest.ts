@@ -18,7 +18,7 @@ export class VanillaManifestDownloader extends ProcessEventEmitter {
 
     public async run() {
         this.emit("progress", { percent: 0, status: "Downloading vanilla manifest..." });
-        const { mcVersion: instanceVer } = getInstanceVersion(this.id)
+        const { mcVersion: instanceVer } = getInstanceVersion(this.id) ?? {}
         const version = instanceVer ?? this.config.mcVersion
 
         const versionsDir = getVersionsDir();

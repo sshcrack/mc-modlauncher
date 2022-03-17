@@ -9,7 +9,8 @@ export class MainGlobals {
     static lockInfo = {
         listeners: [] as WebContents[],
         locked: false,
-        currProgress: undefined as Progress
+        currProgress: undefined as Progress,
+        lockListeners: [] as (() => unknown)[]
     }
 
     static getInstallDir(): string {
