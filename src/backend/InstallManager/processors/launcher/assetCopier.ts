@@ -24,6 +24,9 @@ export class AssetCopier extends ProcessEventEmitter {
 
             const source = path.join(oldAssetsDir, folder)
             const dest = path.join(assetDir, folder)
+            if(!fs.existsSync(source))
+                continue;
+
             await fs.copy(source, dest)
             i++
         }

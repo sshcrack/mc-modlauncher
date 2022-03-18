@@ -45,8 +45,8 @@ async function downloadExtractJava() {
     fs.writeFileSync(creatingFile, "")
 
     logger.log("Downloading java...")
-    await downloadJava(javaZip, 1, 2)
-    await unpackJava(javaZip, javaDir, 2, 2)
+    await downloadJava(javaZip, 0, 2)
+    await unpackJava(javaZip, javaDir, 1, 2)
 
 
     const javaUnpackedExe = path.join(javaBin, "java.exe")
