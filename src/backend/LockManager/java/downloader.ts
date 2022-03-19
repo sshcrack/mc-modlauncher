@@ -4,12 +4,13 @@ import { getJavaDownloaded } from "./file";
 
 export class JavaDownloader extends Downloader {
   constructor() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     super("", {} as any, {} as any, {
       destination: getJavaDownloaded(),
       overwrite: true,
       url: MainGlobals.javaDownloadUrl,
       messages: {
-        downloading: "Downloading launcher..."
+        downloading: "Downloading java installer..."
       }
     })
   }

@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from 'path';
-import tar from "tar-fs";
 import { MainGlobals } from '../../../../../Globals/mainGlobals';
+import { extractProm } from "../../../../../interfaces/tools";
 import { ProcessEventEmitter } from '../../../event/Processor';
 import { getLauncherExe, getLauncherOutput } from '../file';
 
@@ -19,12 +19,10 @@ export class LinuxLauncherUnpacker extends ProcessEventEmitter {
       percent: 0
     })
 
-    fs.createReadStream(launcherSource).pipe(tar.extract(targetDir))
-    
-    this.emit("progress", {
-      status: "Moving files...",
-      percent: .5
-    })
+    await extractProm(launcherSource, targetDir, p => this.emit("progress", {
+      status: "Unpacking tar.gz launcher...",
+      percent: p
+    }))
 
     const mcExe = path.join(targetDir, "minecraft-launcher", "minecraft-launcher")
     const launcherExe = getLauncherExe()

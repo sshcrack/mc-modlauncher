@@ -1,12 +1,7 @@
 import { ipcMain } from 'electron';
-import fs, { WriteStream } from "fs";
-import got from "got";
-import Request, { Progress } from 'got/dist/source/core';
+import fs from "fs";
 import path from 'path';
-import prettyBytes from 'pretty-bytes';
-import unpacker from "unpacker-with-progress";
 import LockManager from '..';
-import { Globals } from '../../../Globals';
 import { MainGlobals } from '../../../Globals/mainGlobals';
 import { MainLogger } from '../../../interfaces/mainLogger';
 import { ProcessEventEmitter } from '../../InstallManager/event/Processor';
@@ -14,7 +9,7 @@ import { hasJavaInstalled } from '../../main/java';
 import { store } from '../../preferences';
 import { JavaDownloader } from './downloader';
 import { getJavaDir, getJavaExe } from './file';
-import { LinuxJavaInstaller } from './linux';
+import { LinuxJavaInstaller } from './linux/installer';
 import { WindowsJavaInstaller } from './windows/installer';
 
 const logger = MainLogger.get("Backend", "LockManager", "java")
@@ -39,7 +34,7 @@ async function downloadExtractJava() {
 
     const installer = MainGlobals.getOS() === "Windows_NT" ?
         WindowsJavaInstaller : LinuxJavaInstaller
-    
+
     const creatingFile = getJavaCreating()
     await ProcessEventEmitter.runMultiple([
         new JavaDownloader(),

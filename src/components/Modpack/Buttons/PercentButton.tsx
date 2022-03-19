@@ -32,7 +32,7 @@ export default function PercentButton({ hover, bg, processing, onClick, progress
         {
             processing ?
                 <Text zIndex='100'>
-                    {progress.status ?? "No Information"}
+                    {progress.status ?? "No Information"} {progress?.percent * 100 ?? 0}%
                 </Text>
                 :
                 children

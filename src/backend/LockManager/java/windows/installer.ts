@@ -1,10 +1,10 @@
-import { MainGlobals } from "../../../../Globals/mainGlobals";
 import { ProcessEventEmitter } from "../../../InstallManager/event/Processor";
 import { asyncSpawn } from "../../../main/java";
 import { getJavaDir, getJavaDownloaded } from "../file";
 
 export class WindowsJavaInstaller extends ProcessEventEmitter {
   constructor() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     super(null, {} as any, {} as any, {} as any)
   }
 
