@@ -4,7 +4,7 @@ import { MainGlobals } from "../../../../Globals/mainGlobals";
 import { extractProm } from "../../../../interfaces/tools";
 import { ProcessEventEmitter } from "../../../InstallManager/event/Processor";
 import { moveDirectory } from '../../../main/folder';
-import { getJavaDir, getJavaDownloaded } from "../file";
+import { getJavaDir, getJavaDownloaded, getJavaExe } from "../file";
 
 export class LinuxJavaInstaller extends ProcessEventEmitter {
   constructor() {
@@ -44,6 +44,7 @@ export class LinuxJavaInstaller extends ProcessEventEmitter {
       onUpdate: prog => this.emit("progress", { status: prog.status, percent: prog.percent / 2 + .5 })
     })
 
+    await fs.chmod(getJavaExe(), 755)
     this.emit("progress", {
       status: "Java install done.",
       percent: 1

@@ -35,7 +35,7 @@ export function setupEvents() {
     ipcMain.on("launch_mc", async (event, id, { name }: ModpackInfo) => {
         try {
             const isValid = await InstallManager.validate(id)
-            if(!isValid)
+            if (!isValid)
                 throw new Error(`Modpack installation of ${id} is invalid. Please reinstall.`)
 
             const launcherDir = getLauncherDir();
@@ -44,7 +44,11 @@ export function setupEvents() {
 
 
             const profilesPath = path.join(launcherDir, "launcher_profiles.json");
-            const profiles: LauncherProfiles = JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
+            const doesExist = fs.existsSync(profilesPath)
+
+            const profiles: LauncherProfiles = doesExist ?
+                JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
+                : defaultProfileFile
             const setUUID = genUUID(id);
 
             const mem = store.get("memory")
@@ -92,7 +96,26 @@ export function setupEvents() {
             dest,
             onUpdate: progress => e.reply("folder_move_update", id, progress)
         })
-        .then(() => e.reply("folder_move_success", id))
-        .catch(e => e.reply("folder_move_error", id, e))
+            .then(() => e.reply("folder_move_success", id))
+            .catch(e => e.reply("folder_move_error", id, e))
     })
+}
+
+const defaultProfileFile = {
+    profiles: {
+    },
+    settings: {
+        crashAssistance: true,
+        enableAdvanced: false,
+        enableAnalytics: false,
+        enableHistorical: false,
+        enableReleases: true,
+        enableSnapshots: false,
+        keepLauncherOpen: false,
+        profileSorting: "ByLastPlayed",
+        showGameLog: false,
+        showMenu: false,
+        soundOn: false
+    },
+    version: 3
 }

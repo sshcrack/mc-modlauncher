@@ -29,8 +29,9 @@ export class Downloader extends ProcessEventEmitter {
 
         const { headers } = await got.head(url)
         const{ "content-length": ContentLength } = headers ?? {}
-        const hasSameSize = ContentLength && fs.statSync(destination).size === parseInt(ContentLength)
-        if (!overwrite && fs.existsSync(destination) && hasSameSize) {
+        const exists = fs.existsSync(destination)
+        const hasSameSize = ContentLength && exists && fs.statSync(destination).size === parseInt(ContentLength)
+        if (!overwrite && exists && hasSameSize) {
             logger.info(`File ${destination} already exists. Skipping download.`)
             this.emit("progress", { percent: 100, status: "File already exists. Skipping." })
             return;
