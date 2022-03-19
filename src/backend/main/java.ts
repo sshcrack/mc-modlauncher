@@ -10,7 +10,7 @@ const logger = MainLogger.get("Main", "Java")
 export async function hasJavaInstalled(): Promise<string|undefined> {
     const currExe = store.get("custom_java")
     const dirname = path.dirname(currExe)
-    const file = getJavaCreating(dirname)
+    const file = getJavaCreating()
 
     if(fs.existsSync(file))
         return undefined

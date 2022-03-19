@@ -1,11 +1,14 @@
 import { ipcMain } from 'electron';
 import { existsSync } from 'fs';
+import path from "path";
 import psList from 'ps-list';
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
-import { getLauncherDir } from '../InstallManager/processors/launcher/file';
+import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import LockManager from '../LockManager';
+import { getJavaExe } from '../LockManager/java/file';
 import { moveDirectory } from '../main/folder';
+
 
 const logger = MainLogger.get("Backend", "InstallMover")
 export class InstallMover {
@@ -16,8 +19,11 @@ export class InstallMover {
 
 
             const procList = await psList()
-            const hasMC = procList.some(e => e.name === "javaw.exe")
-            const hasLauncher = procList.some(e => e.name === "MinecraftLauncher.exe")
+            const baseLauncher = path.basename(getLauncherExe())
+            const baseJava = path.basename(getJavaExe())
+
+            const hasMC = procList.some(e => e.name === baseJava)
+            const hasLauncher = procList.some(e => e.name === baseLauncher)
 
 
             if (hasMC || hasLauncher)

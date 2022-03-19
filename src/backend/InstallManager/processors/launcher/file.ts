@@ -3,11 +3,15 @@ import { MainGlobals } from '../../../../Globals/mainGlobals';
 
 
 
-export function getLauncherZip(installDir?: string) {
+export function getLauncherOutput(installDir?: string) {
     installDir = installDir ?? MainGlobals.getInstallDir();
     const tempDir = MainGlobals.getTempDir(installDir);
 
-    return path.join(tempDir, "launcher.zip");
+    const windows = path.join(tempDir, "launcher.msi")
+    const linux = path.join(tempDir, "launcher.tar.gz")
+    const currOs = MainGlobals.getOS()
+
+    return currOs === "Windows_NT" ? windows : linux;
 }
 
 export function getLauncherDir(installDir?: string) {
@@ -19,5 +23,9 @@ export function getLauncherDir(installDir?: string) {
 export function getLauncherExe(installDir?: string) {
     const dir = getLauncherDir(installDir);
 
-    return path.join(dir, "MinecraftLauncher.exe");
+    const windows = path.join(dir, "MinecraftLauncher.exe")
+    const linux = path.join(dir, "minecraft-launcher")
+
+    const currOs = MainGlobals.getOS()
+    return currOs === "Windows_NT" ? windows : linux;
 }
