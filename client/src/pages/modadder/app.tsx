@@ -1,7 +1,6 @@
 import { Flex, Spinner, Text } from '@chakra-ui/react'
 import * as React from "react"
 import InfiniteScroll from "react-infinite-scroll-component"
-import { Globals } from '../../Globals'
 
 export default function ModAdder() {
     const [mods, setMods] = React.useState([])

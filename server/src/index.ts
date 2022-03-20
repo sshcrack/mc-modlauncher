@@ -60,4 +60,5 @@ app.use(apiPrefix + "*", (req, res) => {
   httpReq.end()
 })
 
-app.listen(8080, () => console.log("Listening on 8080"))
+const listenTo = parseInt(process.env.PORT ?? "8080")
+app.listen(listenTo, () => console.log("Listening on", listenTo))
