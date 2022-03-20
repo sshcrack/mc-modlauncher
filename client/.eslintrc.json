@@ -18,8 +18,7 @@
     "tsconfigRootDir": "./"
   },
   "plugins": [
-    "@typescript-eslint",
-    "import"
+    "@typescript-eslint"
   ],
     "rules": {
       "@typescript-eslint/explicit-module-boundary-types": "off"

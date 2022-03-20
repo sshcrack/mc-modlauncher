@@ -18,6 +18,9 @@ const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 
+declare const MOD_ADDER_PRELOAD_WEBPACK_ENTRY: string
+declare const MOD_ADDER_WEBPACK_ENTRY: string
+
 registerUri();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -42,14 +45,14 @@ const createWindow = async () => {
     width: 800,
     darkTheme: true,
     webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      preload: MOD_ADDER_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false
     }
   });
   mainWindow.setMenuBarVisibility(false);
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadURL(MOD_ADDER_WEBPACK_ENTRY);
   mainWindow.maximize()
 
   mainWindow.on("focus", () => {
