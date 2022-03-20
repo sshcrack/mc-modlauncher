@@ -35,8 +35,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "target": [
-            "win32",
-            "linux"
+            "win32"
           ],
           "config": {
             "name": "sshmods.Minecraft.Modpacks",
@@ -44,6 +43,26 @@
             "description": "A minecraft modpack installer made by sshcrack",
             "loadingGif": "src/assets/loading.gif",
             "icon": "src/assets/icon.ico"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip"
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "target": [
+            "linux"
+          ],
+          "config": {
+            "options": {
+              "description": "Launches custom modpack, made by sshcrack",
+              "productDescription": "This modpack launcher makes it able to push new updates to your clients and always keep them up to date. No more sending mods.zips to users and letting them manually install it. This has been automised by this installer.",
+              "section": "games",
+              "name": "sshmods",
+              "icon": "src/assets/icon.png",
+              "maintainer": "sshcrack",
+              "homepage": "https://sshcrack.me"
+            }
           }
         }
       ],
