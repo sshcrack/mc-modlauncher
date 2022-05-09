@@ -5,6 +5,7 @@ import { ModpackInfo, Version } from '../../interfaces/modpack';
 import { AdditionalOptions } from './event/Processor';
 import { getVersionsDir } from './General/mcBase';
 import { ForgeDownloader } from './processors/forge/downloader';
+import { ForgeMavenCopier } from './processors/forge/jar/forgeMaven';
 import { McJarDownloader } from './processors/forge/jar/mcJarDownloader';
 import { ForgeManifestCopier } from './processors/forge/manifest/forgeManifest';
 import { VanillaManifestDownloader } from './processors/forge/manifest/vanillaManifest';
@@ -45,11 +46,12 @@ export function getProcessors(id: string, config: ModpackInfo, version: Version,
         ForgeUnpacker,
         ForgeManifestCopier,
         LibraryMultipleDownloader,
+        ForgeMavenCopier,
         PostProcessor
     ]
 
     const versionDir = getVersionsDir();
-    const forgeDir = path.join(versionDir, forgeVersion)
+    const forgeDir = path.join(versionDir, forgeVersion, `${forgeVersion}.jar`)
 
     const launcherExe = getLauncherExe()
     const modpackFolder = getInstanceDestination(id)

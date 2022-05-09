@@ -25,9 +25,9 @@ export class Downloader extends ProcessEventEmitter {
         const destination = typeof destGetter === "string" ? destGetter : destGetter();
 
         logger.info(messages.downloading)
+        logger.info(`Downloading ${url} to ${destination}`)
 
-
-        const { headers } = await got.head(url)
+        const { headers } = await got.head(url).catch(() => undefined)
         const{ "content-length": ContentLength } = headers ?? {}
         const exists = fs.existsSync(destination)
         const hasSameSize = ContentLength && exists && fs.statSync(destination).size === parseInt(ContentLength)
@@ -43,7 +43,6 @@ export class Downloader extends ProcessEventEmitter {
             fs.mkdirSync(dirName, { recursive: true })
 
 
-        logger.info(`Downloading ${url} to ${destination}`)
         let writeStream: WriteStream
         const generateDownload = (retryStream: Request): Promise<void> => {
             return new Promise(resolve => {

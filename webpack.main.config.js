@@ -1,10 +1,8 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const plugins = require('./webpack.plugins');
 const path = require('path');
-const os = require("os")
-const type = os.type()
 
-os === "Windows_NT" && plugins.push(new CopyWebpackPlugin({
+plugins.push(new CopyWebpackPlugin({
   patterns: [
     {
       from: path.resolve(__dirname, "node_modules/fast-folder-size/bin"),

@@ -45,9 +45,15 @@ export class LibraryMultipleDownloader extends ProcessEventEmitter {
                     return undefined;
                 }
 
+                if(relativePath.includes("net/minecraftforge/forge/") && (!url || url.trim().length === 0)) {
+                    logger.warn("could not find url, skipping")
+                    return undefined;
+                }
+
                 const destination = path.join(librariesDir, relativePath)
                 const libName = path.basename(relativePath, ".jar");
 
+                logger.log("Downloading", libName, "With url", url)
                 return new Downloader(this.id, this.config, this.version, {
                     destination: destination,
                     url: url,
