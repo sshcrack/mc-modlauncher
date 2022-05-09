@@ -41,6 +41,9 @@ rules.push(
   use: [
     {
       loader: "file-loader",
+      options: {
+        publicPath: 'assets',
+      },
     }
   ]
 },

@@ -6929,10 +6929,6 @@ node-api-version@^0.1.4:
   dependencies:
     semver "^7.3.5"
 
-"node-curseforge@https://github.com/sshcrack/node-curseforge.git":
-  version "1.0.3"
-  resolved "https://github.com/sshcrack/node-curseforge.git#0e8427fabadfd1d2e115aa59af80bfbab8ac3b50"
-
 node-fetch@^2.6.0, node-fetch@^2.6.1:
   version "2.6.6"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.6.tgz#1751a7c01834e8e1697758732e9efb6eeadfaf89"

@@ -1,14 +1,17 @@
 import { Flex, Spinner, Text } from '@chakra-ui/react'
 import * as React from "react"
 import InfiniteScroll from "react-infinite-scroll-component"
+import { Globals } from '../../Globals'
 
+const mcGameId = 432
 export default function ModAdder() {
     const [mods, setMods] = React.useState([])
+    const [ hasMore, setHasMore ] = React.useState(true)
 
     const fetchMore = () => {
         const itemsPerPage = 50
         console.log("Fetching...")
-        fetch(`https://localhost:8080/api/v1/mods/search?gameId=432&classId=6&sortField=2&sortOrder=desc&pageSize=${itemsPerPage}&index=${mods.length}`)
+        fetch(`${Globals.baseUrl}/api/v1/mods/search?gameId=${mcGameId}&classId=6&sortField=2&sortOrder=desc&pageSize=${itemsPerPage}&index=${mods.length}`)
             .then(e => e.json())
             .then(res => {
                 const { data } = res;
@@ -35,7 +38,7 @@ export default function ModAdder() {
         >
             {mods.map((mod, index) => {
                 return <Text key={index}>
-                    Modpack is { mod } {index}
+                    Modpack is { mod.slug } {index}
                 </Text>
             })}
         </InfiniteScroll>
