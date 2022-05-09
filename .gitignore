@@ -9,6 +9,8 @@ server/*.log
 server/package-lock.json
 server/.env
 
+node_modules
+
 # Logs
 client/logs
 client/*.log
