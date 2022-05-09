@@ -1,4 +1,6 @@
+import { app } from 'electron';
 import fs from "fs";
+import semver from "semver"
 import got from "got";
 import { Globals } from "../../Globals";
 import { MainGlobals } from '../../Globals/mainGlobals';
@@ -32,9 +34,20 @@ export class InstallManager {
         const installations = await getInstalled();
         const instanceDir = MainGlobals.getInstancePathById(installDir, id);
 
+
         const reportError = (err: string) => {
-            fs.rmSync(instanceDir, { recursive: true, force: true });
+            if(fs.existsSync(instanceDir))
+                fs.rmSync(instanceDir, { recursive: true, force: true });
             throw err;
+        }
+
+        if(version.required_installer_version) {
+            const installerVer = version.required_installer_version;
+            const curr = app.getVersion()
+
+            if(!semver.gt(curr, installerVer) || curr === installerVer) {
+                reportError("This modpack requires a newer version of the installer")
+            }
         }
 
         const onUpdate = (prog: Progress) => {

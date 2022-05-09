@@ -13,5 +13,6 @@ export interface Version {
     id: string,
     file: string,
     forge: string,
-    forge_version: string
+    forge_version: string,
+    required_installer_version?: string
 }
