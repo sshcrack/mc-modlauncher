@@ -54,7 +54,7 @@ export default function PlayButtons({ config, id, onRemove }: { config: ModpackI
             return toast({
                 status: "info",
                 title: "Working",
-                description: "Steve is already working for you. Please be patient till he finds diamonds"
+                description: "Steve is already working for you. Please be patient til he finds diamonds"
             })
 
         update(version)
