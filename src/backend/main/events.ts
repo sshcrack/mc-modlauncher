@@ -8,16 +8,19 @@ import { LauncherProfiles, Profile } from '../../interfaces/launcher';
 import { MainLogger } from '../../interfaces/mainLogger';
 import { ModpackInfo } from '../../interfaces/modpack';
 import { InstallManager } from '../InstallManager';
+import { getFabricVersion } from '../InstallManager/fabric/util';
 import { getInstanceVersion } from '../InstallManager/processors/interface';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import { getInstanceDestination } from '../InstallManager/processors/modpack/file';
 import { store } from '../preferences';
 import { moveDirectory } from './folder';
-console.log("events Import uuid")
 const MY_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 
 const genUUID = (str: string) => uuid(str, MY_NAMESPACE)
 const logger = MainLogger.get("Events")
+
+let launching: string[] = []
+const launchListeners: ((launchingProfiles: string[]) => void)[] = []
 
 export function setupEvents() {
     ipcMain.on("confirm_prompt", (e, str) => {
@@ -32,49 +35,9 @@ export function setupEvents() {
         e.returnValue = index === 0;
     })
 
-    ipcMain.on("launch_mc", async (event, id, { name }: ModpackInfo) => {
+    ipcMain.on("launch_mc", async (event, id, info: ModpackInfo) => {
         try {
-            const isValid = await InstallManager.validate(id)
-            if (!isValid)
-                throw new Error(`Modpack installation of ${id} is invalid. Please reinstall.`)
-
-            const launcherDir = getLauncherDir();
-            const gameDir = getInstanceDestination(id)
-            const version = getInstanceVersion(id)
-
-
-            const profilesPath = path.join(launcherDir, "launcher_profiles.json");
-            const doesExist = fs.existsSync(profilesPath)
-
-            const profiles: LauncherProfiles = doesExist ?
-                JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
-                : defaultProfileFile
-            const setUUID = genUUID(id);
-
-            const mem = store.get("memory")
-            const memOption = `-Xmx${mem ?? "2G"}`
-
-            const defaultOptions = `${memOption} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M`
-            logger.debug("Launching with options", defaultOptions)
-
-            const profile: Profile = {
-                created: new Date().toISOString(),
-                gameDir: gameDir,
-                javaArgs: defaultOptions,
-                icon: "Furnace",
-                lastUsed: new Date().toISOString(),
-                lastVersionId: version.forge_version,
-                name,
-                type: "custom"
-            }
-
-            profiles.profiles[setUUID] = profile;
-
-            logger.debug("Trying to launch mc in dir", gameDir, "with version", version, "and launcher dir", launcherDir)
-            logger.silly("Launcher profiles", profiles)
-
-            fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))
-            spawn(getLauncherExe(), ["--workDir", launcherDir])
+            await launchMCAsync(id, info)
             event.reply("launched_mc_success")
         } catch (e) {
             event.reply("launched_mc_error", e?.stack ?? e)
@@ -99,6 +62,72 @@ export function setupEvents() {
             .then(() => e.reply("folder_move_success", id))
             .catch(e => e.reply("folder_move_error", id, e))
     })
+
+    ipcMain.on("is_launching", (e, id: string) => e.returnValue = launching.includes(id))
+    ipcMain.on("add_launch_listener", (e) => {
+        launchListeners.push(launching => {
+            logger.log("Sending launch update", launching)
+            e.sender.send("launch_update", launching)
+        })
+    })
+}
+
+export async function launchMCAsync(id: string, { name }: ModpackInfo) {
+    const inner = async () => {
+        const isValid = await InstallManager.validate(id)
+        if (!isValid)
+            throw new Error(`Modpack installation of ${id} is invalid. Please reinstall.`)
+
+        const launcherDir = getLauncherDir();
+        const gameDir = getInstanceDestination(id)
+        const version = getInstanceVersion(id)
+        const config = await InstallManager.getConfig(id);
+
+
+        const profilesPath = path.join(launcherDir, "launcher_profiles.json");
+        const doesExist = fs.existsSync(profilesPath)
+
+        const profiles: LauncherProfiles = doesExist ?
+            JSON.parse(fs.readFileSync(profilesPath, "utf-8"))
+            : defaultProfileFile
+        const setUUID = genUUID(id);
+
+        const mem = store.get("memory")
+        const memOption = `-Xmx${mem ?? "2G"}`
+
+        const defaultOptions = `${memOption} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M`
+        logger.debug("Launching with options", defaultOptions)
+
+        const profile: Profile = {
+            created: new Date().toISOString(),
+            gameDir: gameDir,
+            javaArgs: defaultOptions,
+            icon: "Furnace",
+            lastUsed: new Date().toISOString(),
+            lastVersionId: version.forge_version ?? getFabricVersion(version.fabric_loader, version.mcVersion ?? config.mcVersion),
+            name,
+            type: "custom"
+        }
+
+        profiles.profiles[setUUID] = profile;
+
+        logger.debug("Trying to launch mc in dir", gameDir, "with version", version, "and launcher dir", launcherDir)
+
+        fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2))
+        spawn(getLauncherExe(), ["--workDir", launcherDir])
+        BrowserWindow.getAllWindows().forEach(e => e.minimize())
+    }
+
+    launching.push(id)
+    launchListeners.map(e => e(launching))
+
+
+    return inner()
+        .finally(() => {
+            logger.log("Done filtering...")
+            launching = launching.filter(e => e !== id)
+            launchListeners.map(e => e(launching))
+        })
 }
 
 const defaultProfileFile = {

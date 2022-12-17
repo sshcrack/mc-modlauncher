@@ -1,8 +1,11 @@
+import { UseToastOptions } from '@chakra-ui/react';
 import { DiskSpace } from "check-disk-space";
 import { ipcRenderer } from "electron";
 
 const uninstallWarning = "Are you sure you want to uninstall this modpack? This will delete all files, settings, options and controls";
+const toastListeners: ((opt: UseToastOptions) => void)[] = []
 
+ipcRenderer.on("toast_show", (_, opt) => toastListeners.map(func => func(opt)))
 export const system = {
     memory: () => {
         return new Promise<number>(resolve => {
@@ -26,7 +29,8 @@ export const system = {
     },
     prompt: {
         uninstall: () => ipcRenderer.sendSync("confirm_prompt", uninstallWarning) as boolean,
-        error: (str: string) => ipcRenderer.send("open_err_dialog", str)
+        error: (str: string) => ipcRenderer.send("open_err_dialog", str),
+        onToast: (func: (opt: UseToastOptions) => void) => toastListeners.push(func)
     },
     java: {
         version: () => {

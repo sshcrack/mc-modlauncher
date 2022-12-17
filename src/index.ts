@@ -7,7 +7,7 @@ import { InstallMover } from './backend/InstallMover';
 import LockManager from './backend/LockManager';
 import { addJavaListeners } from './backend/LockManager/java';
 import { setupEvents } from './backend/main/events';
-import { addCrashHandler, addUpdater, registerUri, registerURIOpenEvent, setContentSecurity } from './backend/main/main_funcs';
+import { addCrashHandler, addUpdater, handleURIOpen, registerUri, registerURIOpenEvent, setContentSecurity } from './backend/main/main_funcs';
 import { addSystemListeners } from './backend/main/system';
 import { Preference } from './backend/preferences';
 import { MainGlobals } from './Globals/mainGlobals';
@@ -25,7 +25,8 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
-logger.log("Is packaged", app.isPackaged, "Name", app.getName(),  "Version", app.getVersion())
+process.chdir(app.getAppPath())
+logger.log("Is packaged", app.isPackaged, "Name", app.getName(),  "Version", app.getVersion(), "ARGv", process.argv, "CWD", process.cwd())
 
 setContentSecurity();
 addUpdater();
@@ -74,7 +75,10 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
 } else {
-  app.on('second-instance', () => {
+  app.on('second-instance', (_, argv) => {
+    const uri = argv.find(e => e.startsWith("sshmods://"))
+    if(uri)
+      handleURIOpen(uri);
     // Someone tried to run a second instance, we should focus our window.
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
@@ -83,6 +87,10 @@ if (!gotTheLock) {
   })
 
   app.on('ready', createWindow);
+}
+
+if(process.argv.some(e => e.startsWith("sshmods://"))) {
+  handleURIOpen(process.argv.find(e => e.startsWith("sshmods://")))
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common

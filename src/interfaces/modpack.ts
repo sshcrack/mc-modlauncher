@@ -14,5 +14,6 @@ export interface Version {
     file: string,
     forge: string,
     forge_version: string,
+    fabric_loader?: string,
     required_installer_version?: string
 }

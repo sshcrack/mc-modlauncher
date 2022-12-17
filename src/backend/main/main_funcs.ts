@@ -3,6 +3,9 @@ import unhandled from "electron-unhandled"
 import { debugInfo, openNewGitHubIssue, setContentSecurityPolicy } from 'electron-util'
 import path from "path"
 import { MainLogger } from '../../interfaces/mainLogger'
+import { InstallManager } from '../InstallManager'
+import { getInstalled } from '../InstallManager/events'
+import { launchMCAsync } from './events'
 
 const logger = MainLogger.get("Main", "Updater")
 
@@ -48,10 +51,37 @@ export function registerUri() {
 
 export function registerURIOpenEvent() {
     app.on("open-url", (event, url) => {
-        console.log("Open url event", url)
+        logger.log(event)
         logger.log("Open url horraaaay", url)
-        dialog.showErrorBox("Yes", "Opened url " + url)
     })
+}
+
+export async function handleURIOpen(uri: string) {
+    logger.log("Handling uri", uri)
+    if(!uri || !uri.startsWith("sshmods://"))
+        return
+
+    const [ mode, id ] = uri.replace("sshmods://", "").split("/");
+    const config = await InstallManager.getConfig(id).catch(() => undefined);
+    if(!config)
+        return
+
+    const installed = await getInstalled();
+    switch (mode) {
+        case "play":
+            if(!installed.includes(id))
+                return dialog.showErrorBox("Could not launch modpack", `Modpack ${id} is not installed`)
+
+            await launchMCAsync(id, config)
+                .catch(e => {
+                    logger.error(e)
+                    dialog.showErrorBox("Could not launch modpack", `Modpack ${id} could not be launched. More information in console`)
+                })
+            break;
+
+        default:
+            break;
+    }
 }
 
 export function addCrashHandler() {

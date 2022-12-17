@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, Text, Tooltip, useColorModeValue, useToast } from '@chakra-ui/react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FaTrash } from "react-icons/fa";
 import { Globals } from '../../../Globals';
 import { RenderGlobals } from '../../../Globals/renderGlobals';
@@ -13,14 +13,21 @@ import { VersionModal } from './VersionModal';
 const logger = RenderLogger.get("components", "Modpack", "Buttons", "PlayButtons")
 export default function PlayButtons({ config, id, onRemove }: { config: ModpackInfo, id: string, onRemove: () => void }) {
     const { launch } = useModpackLauncher(id, config)
+    const { launcher } = window.api
     const selectRef = useRef<HTMLSelectElement>()
     const { remove, processing, progress, update } = useModpackManager(id)
-    const [isLaunching, setLaunching] = useState(false)
+    const [isLaunching, setLaunching] = useState(launcher.isLaunching(id))
     const [isOpen, setOpen] = useState(false)
     const [ hasLatest, setHasLatest] = useState(() => RenderGlobals.hasLatest(id, config))
 
     const toast = useToast()
     const { updateRequired } = config ?? {}
+
+    useEffect(() => {
+        launcher.addLaunchListener(id, launch => {
+            setLaunching(launch)
+        })
+    }, [])
 
     const onClose = () => setOpen(false)
 

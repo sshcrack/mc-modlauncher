@@ -1,7 +1,9 @@
 import { app } from 'electron';
 import fs from "fs";
-import semver from "semver"
 import got from "got";
+import path from "path";
+import { pngToIco } from "./tools"
+import semver from "semver"
 import { Globals } from "../../Globals";
 import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
@@ -19,7 +21,7 @@ export class InstallManager {
         setupInstallManagerEvents()
     }
 
-    private static async getConfig(id: string) {
+    static async getConfig(id: string) {
         const configRes = await got(`${baseUrl}/${id}/config.json`)
 
         if (!configRes)
@@ -36,16 +38,16 @@ export class InstallManager {
 
 
         const reportError = (err: string) => {
-            if(fs.existsSync(instanceDir))
+            if (fs.existsSync(instanceDir))
                 fs.rmSync(instanceDir, { recursive: true, force: true });
             throw err;
         }
 
-        if(version.required_installer_version) {
+        if (version.required_installer_version) {
             const installerVer = version.required_installer_version;
             const curr = app.getVersion()
 
-            if(!semver.gt(curr, installerVer) || curr === installerVer) {
+            if (!semver.gt(curr, installerVer) || curr === installerVer) {
                 reportError("This modpack requires a newer version of the installer")
             }
         }
@@ -63,7 +65,7 @@ export class InstallManager {
         if (installations.includes(id) && !update)
             return reportError("Modpack already installed.")
 
-        onUpdate({ percent: 0, status: "Getting config..."})
+        onUpdate({ percent: 0, status: "Getting config..." })
 
         logger.debug("Getting config", id)
         const config = await InstallManager.getConfig(id)
@@ -83,19 +85,36 @@ export class InstallManager {
         });
 
         MainGlobals.window.setProgressBar(0)
-        if(!res)
+        if (!res)
             return;
 
         try {
             fs.rmSync(createFile)
-        } catch(e) {/** */}
+        } catch (e) {/** */ }
 
         const installedPath = getInstanceVersionPath(id);
+        if (!update) {
+
+            const desktop = app.getPath("desktop")
+            const firstUppercase = id.split("").map((l, i) => i === 0 ? l.toUpperCase() : l).join("")
+            const urlFile = path.join(desktop, `${firstUppercase}.url`)
+
+            const coverFile = path.resolve(path.join(instanceDir, "icon.ico"))
+            const coverBuff = await got(`${Globals.baseUrl}/${id}/${config.cover}`)
+
+            fs.writeFileSync(coverFile, await pngToIco(coverBuff.rawBody))
+            fs.writeFileSync(urlFile, `[InternetShortcut]
+IDList=
+URL=sshmods://play/${id}
+IconFile=${coverFile}
+IconIndex=0
+`)
+        }
 
         fs.writeFileSync(installedPath, JSON.stringify(version))
     }
 
-    private static async runProcessors(id: string, config: ModpackInfo, version: Version, overwrite: boolean, { onUpdate: sendUpdate, reportError}: ReportFunctions) {
+    private static async runProcessors(id: string, config: ModpackInfo, version: Version, overwrite: boolean, { onUpdate: sendUpdate, reportError }: ReportFunctions) {
         const processors = getProcessors(id, config, version, overwrite);
 
         return await ProcessEventEmitter.runMultiple(processors, p => sendUpdate(p))
@@ -124,12 +143,12 @@ export class InstallManager {
     static async validate(id: string) {
         const config = await InstallManager.getConfig(id)
         const version = getInstanceVersion(id)
-        if(!version)
-            return  false
+        if (!version)
+            return false
 
         const processors = getProcessors(id, config, version, false, true);
 
-        return await ProcessEventEmitter.runMultiple(processors, () => {/** */})
+        return await ProcessEventEmitter.runMultiple(processors, () => {/** */ })
             .then(() => true)
             .catch(() => false)
     }

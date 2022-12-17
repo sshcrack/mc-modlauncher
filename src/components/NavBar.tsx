@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Image, useColorMode, useColorModeValue } from '@chakra-ui/react'
+import { Button, Flex, Image, Link, Text, useColorMode, useColorModeValue } from '@chakra-ui/react'
 import { FaRegSun, FaRegMoon } from "react-icons/fa"
 import React from 'react'
 
@@ -7,12 +7,19 @@ export default function NavBar() {
     const { colorMode, toggleColorMode } = useColorMode();
 
     const ToggleButton = colorMode === "dark" ? FaRegSun : FaRegMoon
-    return <Flex bg={navColor} alignItems={"center"} justifyContent={"center"} paddingLeft={"1em"} paddingRight={"1em"} boxShadow={"xl"}>
-        <Box flex={.75}>
-            <Image src={"../assets/mc_logo.png"} width={"15em"} />
-        </Box>
+    return <Flex bg={navColor} alignItems="center" justifyContent="center" paddingLeft="1em" paddingRight="1em" boxShadow="xl">
+        <Flex flex={.75} h='100%' justifyContent='center' alignItems='center'>
+            <Image src={"../assets/mc_logo.png"} width="15em" />
+            <Flex w='100%' h='100%' justifyContent='center' alignItems='center'>
+                <Flex h='100%' justifyContent='center' alignItems='center' ml='10' gap='2'>
+                    <Image src={"../assets/clipture.svg"} w='3em' />
+                    <Link fontSize='xl' href='https://clipture.sshcrack.me' target='_blank'>Also try clipture!</Link>
+                </Flex>
+
+            </Flex>
+        </Flex>
         <Flex flex='.25' justifyContent='space-evenly' alignItems='center'>
-            <ToggleButton onClick={toggleColorMode} style={{ width: "2em", height: "2em", cursor: 'pointer'}}/>
+            <ToggleButton onClick={toggleColorMode} style={{ width: "2em", height: "2em", cursor: 'pointer' }} />
             <Button colorScheme={"blue"} onClick={() => window.api.preferences.open()}>Settings</Button>
         </Flex>
     </Flex>

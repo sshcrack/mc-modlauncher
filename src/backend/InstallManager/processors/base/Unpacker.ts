@@ -30,6 +30,7 @@ export class Unpacker extends ProcessEventEmitter {
 
         if(!fs.existsSync(src))
             throw new Error(`File ${src} does not exist. (Unpacker)`)
+
         if (this.options.deleteExistent) {
             logger.debug("Deleting existent files from", src)
             const file = fs.readFileSync(src)

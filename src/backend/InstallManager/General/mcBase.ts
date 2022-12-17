@@ -57,3 +57,8 @@ export function getForgeDir(installDir: string, id: string, version: Version) {
 
     return dir
 }
+
+export function getFabricInstallerJar(installDir: string) {
+    const tempDir = MainGlobals.getTempDir(installDir)
+    return path.join(tempDir, "fabric_loader.jar")
+}
