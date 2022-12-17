@@ -45,7 +45,7 @@ export default function InstallButtons({ config, id, onRecentInstall, autoInstal
             return toast({
                 status: "info",
                 title: "Working",
-                description: "Steve is already working for you. Please be patient till he finds diamonds"
+                description: "Steve is already working for you. Please be patient til he finds diamonds"
             })
 
         install(version)
