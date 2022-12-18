@@ -6,7 +6,7 @@ import { MainGlobals } from '../../Globals/mainGlobals';
 import { MainLogger } from '../../interfaces/mainLogger';
 import { getLauncherDir, getLauncherExe } from '../InstallManager/processors/launcher/file';
 import LockManager from '../LockManager';
-import { getJavaExe } from '../LockManager/java/file';
+import { getJavaDownloadDest } from '../LockManager/java/file';
 import { moveDirectory } from '../main/folder';
 
 
@@ -20,7 +20,7 @@ export class InstallMover {
 
             const procList = await psList()
             const baseLauncher = path.basename(getLauncherExe())
-            const baseJava = path.basename(getJavaExe())
+            const baseJava = path.basename(getJavaDownloadDest())
 
             const hasMC = procList.some(e => e.name === baseJava)
             const hasLauncher = procList.some(e => e.name === baseLauncher)

@@ -1,5 +1,6 @@
 import path from "path"
 import { MainGlobals } from "../../../Globals/mainGlobals"
+import { store } from '../../preferences'
 
 export function getJavaDir() {
   const installDir = MainGlobals.getInstallDir()
@@ -7,11 +8,15 @@ export function getJavaDir() {
   return path.join(installDir, "java")
 }
 
-export function getJavaExe() {
+export function getJavaDownloadDest() {
   const windowsPath = path.join(getJavaDir(), "bin", "java.exe")
   const linuxPath = path.join(getJavaDir(), "bin", "java")
 
   return MainGlobals.getOS() === "Windows_NT" ? windowsPath : linuxPath
+}
+
+export function getJavaExe() {
+  return store.get("custom_java")
 }
 
 export function getJavaDownloaded() {

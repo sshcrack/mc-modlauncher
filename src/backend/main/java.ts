@@ -1,7 +1,6 @@
 import { spawn } from "child_process";
 import { MainLogger } from '../../interfaces/mainLogger';
 import { store } from '../preferences';
-import path from "path"
 import fs from "fs"
 import { getJavaCreating } from '../LockManager/java';
 
@@ -9,7 +8,6 @@ const logger = MainLogger.get("Main", "Java")
 
 export async function hasJavaInstalled(): Promise<string|undefined> {
     const currExe = store.get("custom_java")
-    const dirname = path.dirname(currExe)
     const file = getJavaCreating()
 
     if(fs.existsSync(file))

@@ -8,7 +8,7 @@ import { ProcessEventEmitter } from '../../InstallManager/event/Processor';
 import { hasJavaInstalled } from '../../main/java';
 import { store } from '../../preferences';
 import { JavaDownloader } from './downloader';
-import { getJavaDir, getJavaExe } from './file';
+import { getJavaDir, getJavaDownloadDest } from './file';
 import { LinuxJavaInstaller } from './linux/installer';
 import { WindowsJavaInstaller } from './windows/installer';
 
@@ -41,7 +41,7 @@ async function downloadExtractJava() {
         new installer()
     ], p => LockManager.updateListeners(p), 2)
     
-    store.set("custom_java", getJavaExe())
+    store.set("custom_java", getJavaDownloadDest())
     fs.unlinkSync(creatingFile)
     logger.error("Unlinking file")
     LockManager.unlock({

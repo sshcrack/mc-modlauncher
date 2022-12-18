@@ -1,6 +1,6 @@
-import { Button, Flex, Image, Link, Text, useColorMode, useColorModeValue } from '@chakra-ui/react'
-import { FaRegSun, FaRegMoon } from "react-icons/fa"
-import React from 'react'
+import { Button, Flex, Image, Link, useColorMode, useColorModeValue } from '@chakra-ui/react';
+import React from 'react';
+import { FaRegMoon, FaRegSun } from "react-icons/fa";
 
 export default function NavBar() {
     const navColor = useColorModeValue('white.700', 'gray.700')
