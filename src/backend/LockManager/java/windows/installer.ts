@@ -1,7 +1,9 @@
+import { MainLogger } from '../../../../interfaces/mainLogger';
 import { ProcessEventEmitter } from "../../../InstallManager/event/Processor";
-import { asyncSpawn } from "../../../main/java";
+import { getExeca } from '../../../util';
 import { getJavaDir, getJavaDownloaded } from "../file";
 
+const log = MainLogger.get("Java", "Windows", "Installer")
 export class WindowsJavaInstaller extends ProcessEventEmitter {
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,13 +13,18 @@ export class WindowsJavaInstaller extends ProcessEventEmitter {
   public async run() {
     const exe = getJavaDownloaded()
     const dest = getJavaDir()
-  
+
     this.emit("progress", {
       status: "Installing java...",
       percent: 0
     })
-    await asyncSpawn(exe, ["/s", `INSTALLDIR="${dest}"`, "STATIC=1", "WEB_JAVA=0", "SPONSORS=0"] , {})
-  
+
+    const args = ["/s", `INSTALLDIR="${dest}"`, "STATIC=1", "WEB_JAVA=0", "SPONSORS=0"];
+    log.info("Installing java (",exe, ") with arguments", args)
+
+    const execa = await getExeca()
+    await execa(exe, args, {})
+
     this.emit("progress", {
       status: "Java is now installed.",
       percent: 1
