@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from "fs"
 import { MainGlobals } from '../../../../../Globals/mainGlobals';
+import { asyncSpawn } from '../../../../main/java';
 import { ProcessEventEmitter } from '../../../event/Processor';
 import { getLauncherExe, getLauncherOutput } from '../file';
-import { getExeca } from '../../../../util';
 
 export class WindowsLauncherUnpacker extends ProcessEventEmitter {
   public async run() {
@@ -19,8 +19,8 @@ export class WindowsLauncherUnpacker extends ProcessEventEmitter {
       percent: 0
     })
 
-    const execa = await getExeca()
-    await execa("msiexec", ["/a", launcherSource, "/qn", `TARGETDIR=${targetDir}`], {})
+    console.log("Spawning", "msiexec", ["/a", launcherSource, "/qn", `TARGETDIR="${targetDir}"`])
+    await asyncSpawn("msiexec", ["/a", `"${launcherSource}"`, "/qn", `TARGETDIR="${targetDir}"`], {windowsVerbatimArguments: true})
     this.emit("progress", {
       status: "Moving files...",
       percent: .5
