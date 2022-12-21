@@ -32,21 +32,26 @@ async function downloadExtractJava() {
         status: "Downloading Java..."
     })
 
-    const installer = MainGlobals.getOS() === "Windows_NT" ?
-        WindowsJavaInstaller : LinuxJavaInstaller
+    const runProm = (async () => {
+        const Installer = MainGlobals.getOS() === "Windows_NT" ?
+            WindowsJavaInstaller : LinuxJavaInstaller
 
-    const creatingFile = getJavaCreating()
-    await ProcessEventEmitter.runMultiple([
-        new JavaDownloader(),
-        new installer()
-    ], p => LockManager.updateListeners(p), 2)
-    
-    store.set("custom_java", getJavaDownloadDest())
-    fs.unlinkSync(creatingFile)
-    logger.error("Unlinking file")
-    LockManager.unlock({
-        percent: 100,
-        status: "Done unpacking and downloading java."
+        const creatingFile = getJavaCreating()
+        await ProcessEventEmitter.runMultiple([
+            new JavaDownloader(),
+            new Installer()
+        ], p => LockManager.updateListeners(p), 2)
+
+        store.set("custom_java", getJavaDownloadDest())
+        fs.unlinkSync(creatingFile)
+        logger.error("Unlinking file")
+    })()
+
+    await runProm.finally(() => {
+        LockManager.unlock({
+            percent: 100,
+            status: "Done unpacking and downloading java."
+        })
     })
 }
 

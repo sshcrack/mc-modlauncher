@@ -1,6 +1,9 @@
+import fs from "fs"
+import path from 'path';
+import { MainGlobals } from '../../../../Globals/mainGlobals';
 import { MainLogger } from '../../../../interfaces/mainLogger';
 import { ProcessEventEmitter } from "../../../InstallManager/event/Processor";
-import { getExeca } from '../../../util';
+import { getExeca, getExecaCommand } from '../../../util';
 import { getJavaDir, getJavaDownloaded } from "../file";
 
 const log = MainLogger.get("Java", "Windows", "Installer")
@@ -20,11 +23,20 @@ export class WindowsJavaInstaller extends ProcessEventEmitter {
     })
 
     const args = ["/s", `INSTALLDIR="${dest}"`, "STATIC=1", "WEB_JAVA=0", "SPONSORS=0"];
+
+    const batchFileContent = `"${exe}" ${args.join(" ")}\nexit`
+    const tempFile = path.join(MainGlobals.getTempDir(MainGlobals.getInstallDir()), "run.bat")
+
+    fs.writeFileSync(tempFile, batchFileContent)
     log.info("Installing java (",exe, ") with arguments", args)
 
     const execa = await getExeca()
-    await execa(exe, args, {})
+    log.info("Actually running")
+    const proc = execa("cmd", ["/K", "start", "call", tempFile])
+    proc.stdin.end()
+    await proc
 
+    log.info("Java installed. Sending exit signal")
     this.emit("progress", {
       status: "Java is now installed.",
       percent: 1

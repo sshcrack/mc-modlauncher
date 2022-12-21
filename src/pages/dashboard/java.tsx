@@ -34,7 +34,7 @@ export default function JavaLock({ hasJava, setJava }: { hasJava: boolean, setJa
             })
     }, [isLocked, update])
 
-    if (hasJava === undefined)
+    if (hasJava === undefined && !isLocked)
         return <Flex
             alignItems='center'
             justifyContent='center'
